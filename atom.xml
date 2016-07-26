@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-26T16:20:30+08:00</updated>
+  <updated>2016-07-26T16:55:34+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Blog]]></title>
-    <link href="http://chendd.github.io/blog/2016/07/25/hello/"/>
-    <updated>2016-07-25T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/blog/2016/07/25/hello</id>
+    <title type="html"><![CDATA[Hello]]></title>
+    <link href="http://chendd.github.io/blog/2016/07/26/hello/"/>
+    <updated>2016-07-26T18:21:11+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/07/26/hello</id>
     <content type="html"><![CDATA[<h1>two</h1>
 ]]></content>
   </entry>
