@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 个人博客 | Chendd Blog]]></title>
   <link href="http://chendd.github.io/blog/categories/ge-ren-bo-ke/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-26T16:56:30+08:00</updated>
+  <updated>2016-07-26T17:36:15+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -14,25 +14,29 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Hello]]></title>
+    <title type="html"><![CDATA[Two]]></title>
     <link href="http://chendd.github.io/blog/2016/07/26/hello/"/>
     <updated>2016-07-26T18:21:11+08:00</updated>
     <id>http://chendd.github.io/blog/2016/07/26/hello</id>
-    <content type="html"><![CDATA[<h1>two</h1>
+    <content type="html"><![CDATA[<h1>这是第二篇文章</h1>
+
+<p>测试，没有干货</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Blog]]></title>
-    <link href="http://chendd.github.io/blog/2016/07/25/blog/"/>
+    <title type="html"><![CDATA[Welcome]]></title>
+    <link href="http://chendd.github.io/blog/2016/07/25/welcome/"/>
     <updated>2016-07-25T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/blog/2016/07/25/blog</id>
-    <content type="html"><![CDATA[<h1>hello world</h1>
+    <id>http://chendd.github.io/blog/2016/07/25/welcome</id>
+    <content type="html"><![CDATA[<h1>欢迎大家参观我的博客</h1>
+
+<h3>用markdown写博客真是极好</h3>
 
 <p><strong>加粗</strong></p>
 
 <ul>
-<li>Android
+<li>列表
 
 <ul>
 <li>http</li>
@@ -44,9 +48,18 @@
 
 <blockquote><p>引用</p></blockquote>
 
-<p><a href="http://www.baidu.com">百度一下</a></p>
+<p><a href="http://www.baidu.com">百度链接</a></p>
 
 <p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
+
+<p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png">http://s3.imathis.com/video/zero-to-fancy-buttons.png</a>'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4">http://s3.imathis.com/video/zero-to-fancy-buttons.mp4</a>' ></video></p>
+
+<pre><code>public class SB {
+    public void say() {
+        System.out.println("you are sb?");
+    }
+}
+</code></pre>
 ]]></content>
   </entry>
   
