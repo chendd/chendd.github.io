@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-26T17:36:15+08:00</updated>
+  <updated>2016-07-26T19:45:31+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -14,24 +14,24 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Two]]></title>
-    <link href="http://chendd.github.io/blog/2016/07/26/hello/"/>
+    <title type="html"><![CDATA[这是第二篇文章]]></title>
+    <link href="http://chendd.github.io/blog/2016/07/26/two/"/>
     <updated>2016-07-26T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/blog/2016/07/26/hello</id>
-    <content type="html"><![CDATA[<h1>这是第二篇文章</h1>
-
-<p>测试，没有干货</p>
+    <id>http://chendd.github.io/blog/2016/07/26/two</id>
+    <content type="html"><![CDATA[<p>测试，没有干货</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Welcome]]></title>
+    <title type="html"><![CDATA[欢迎大家]]></title>
     <link href="http://chendd.github.io/blog/2016/07/25/welcome/"/>
     <updated>2016-07-25T18:21:11+08:00</updated>
     <id>http://chendd.github.io/blog/2016/07/25/welcome</id>
-    <content type="html"><![CDATA[<h1>欢迎大家参观我的博客</h1>
+    <content type="html"><![CDATA[<p>用markdown写博客真是极好。</p>
 
-<h3>用markdown写博客真是极好</h3>
+<h1>一级标题</h1>
+
+<h3>三级标题</h3>
 
 <p><strong>加粗</strong></p>
 
@@ -39,8 +39,8 @@
 <li>列表
 
 <ul>
-<li>http</li>
-<li>sqlite3</li>
+<li>子项一</li>
+<li>子项二</li>
 </ul>
 </li>
 </ul>
@@ -48,9 +48,9 @@
 
 <blockquote><p>引用</p></blockquote>
 
-<p><a href="http://www.baidu.com">百度链接</a></p>
-
 <p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
+
+<p><a href="http://www.dkhs.com">官网链接</a></p>
 
 <p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
 
@@ -59,9 +59,9 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public class SB {
+</pre></td><td class='code'><pre><code class=''><span class='line'>public class Zoo {
 </span><span class='line'>  public void say() {
-</span><span class='line'>      System.out.println("you are sb?");
+</span><span class='line'>      System.out.println("welcome!!!");
 </span><span class='line'>  }
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
