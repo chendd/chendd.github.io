@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://chendd.github.io/chendd/atom.xml" rel="self"/>
-  <link href="http://chendd.github.io/chendd/"/>
-  <updated>2016-07-26T15:02:39+08:00</updated>
-  <id>http://chendd.github.io/chendd/</id>
+  <title><![CDATA[Chendd Blog]]></title>
+  <link href="http://chendd.github.io/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-26T16:20:30+08:00</updated>
+  <id>http://chendd.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[chendd]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,18 +15,18 @@
   
   <entry>
     <title type="html"><![CDATA[Blog]]></title>
-    <link href="http://chendd.github.io/chendd/blog/2016/07/25/hello/"/>
+    <link href="http://chendd.github.io/blog/2016/07/25/hello/"/>
     <updated>2016-07-25T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/chendd/blog/2016/07/25/hello</id>
+    <id>http://chendd.github.io/blog/2016/07/25/hello</id>
     <content type="html"><![CDATA[<h1>two</h1>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Blog]]></title>
-    <link href="http://chendd.github.io/chendd/blog/2016/07/25/blog/"/>
+    <link href="http://chendd.github.io/blog/2016/07/25/blog/"/>
     <updated>2016-07-25T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/chendd/blog/2016/07/25/blog</id>
+    <id>http://chendd.github.io/blog/2016/07/25/blog</id>
     <content type="html"><![CDATA[<h1>hello world</h1>
 
 <p><strong>加粗</strong></p>
