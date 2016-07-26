@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 个人博客 | My Octopress Blog]]></title>
+  <link href="http://chendd.github.io/blog/categories/ge-ren-bo-ke/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-26T14:53:50+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Blog]]></title>
+    <link href="http://chendd.github.io/blog/2016/07/25/blog/"/>
+    <updated>2016-07-25T18:21:11+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/07/25/blog</id>
+    <content type="html"><![CDATA[<h1>hello world</h1>
+
+<p><strong>加粗</strong></p>
+
+<ul>
+<li>Android
+
+<ul>
+<li>http</li>
+<li>sqlite3</li>
+</ul>
+</li>
+</ul>
+
+
+<blockquote><p>引用</p></blockquote>
+
+<p><a href="http://www.baidu.com">百度一下</a></p>
+
+<p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>
