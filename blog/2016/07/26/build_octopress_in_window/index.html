@@ -5,18 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>欢迎大家 - Chendd Blog</title>
+  <title>Octopress写博客步骤 - Chendd's Blog</title>
   <meta name="author" content="chendd">
 
   
-  <meta name="description" content="用markdown写博客真是极好。 一级标题 三级标题 加粗 列表 子项一
-子项二 引用 官网链接 1
-2
-3
-4
-5
-public class Zoo { public void say() { System.out.println("welcome!!!"); }
-} ">
+  <meta name="description" content="使用Octopress写博客大致有一下几个步骤： 执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；
+找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑； 执行rake generate来生成文章；
+执行rake &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -25,17 +20,24 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chendd.github.io/blog/2016/07/25/welcome/">
+  <link rel="canonical" href="http://chendd.github.io/blog/2016/07/26/build_octopress_in_window/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Chendd Blog" type="application/atom+xml">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
 
   
 
@@ -43,7 +45,7 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chendd Blog</a></h1>
+  <h1><a href="/">Chendd's Blog</a></h1>
   
     <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
   
@@ -76,7 +78,7 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
   
   <header>
     
-      <h1 class="entry-title">欢迎大家</h1>
+      <h1 class="entry-title">Octopress写博客步骤</h1>
     
     
       <p class="meta">
@@ -85,51 +87,32 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
 
 
 
-<time class='entry-date' datetime='2016-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2016-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>用markdown写博客真是极好。</p>
+<div class="entry-content"><p>使用Octopress写博客大致有一下几个步骤：</p>
 
-<h1>一级标题</h1>
-
-<h3>三级标题</h3>
-
-<p><strong>加粗</strong></p>
-
-<ul>
-<li>列表
-
-<ul>
-<li>子项一</li>
-<li>子项二</li>
-</ul>
-</li>
-</ul>
+<ol>
+<li><p>执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；</p></li>
+<li><p>找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑；</p></li>
+</ol>
 
 
-<blockquote><p>引用</p></blockquote>
+<!--more-->
 
-<p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
 
-<p><a href="http://www.dkhs.com">官网链接</a></p>
+<ol>
+<li><p>执行rake generate来生成文章；</p></li>
+<li><p>执行rake preview在本地预览；</p></li>
+<li><p>执行rake deploy发布到Github中。</p></li>
+</ol>
 
-<p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public class Zoo {
-</span><span class='line'>  public void say() {
-</span><span class='line'>      System.out.println("welcome!!!");
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
+<p>主要难点在Octopress环境的搭建，可以参考<a href="http://blog.csdn.net/u011771755/article/details/48026253">这篇文章</a>，反正遇到问题一路Google解决吧。</p>
 </div>
 
 
@@ -145,15 +128,24 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
 
 
 
-<time class='entry-date' datetime='2016-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2016-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/qi-ta/'>其它</a>
+    <a class='category' href='/blog/categories/bo-ke-shi-yong/'>博客使用</a>
   
 </span>
 
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
 
     </p>
     
@@ -180,8 +172,8 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2016/07/25/use_markdown_in_octopress/" title="Previous Post: Markdown在Octopress的常见使用">&laquo; Markdown在Octopress的常见使用</a>
       
-        <a class="basic-alignment right" href="/blog/2016/07/26/two/" title="Next Post: 这是第二篇文章">这是第二篇文章 &raquo;</a>
       
     </p>
   </footer>
@@ -190,7 +182,7 @@ public class Zoo { public void say() { System.out.println("welcome!!!"); }
   <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="/blog/2016/07/25/welcome" data-title="欢迎大家" data-url="http://chendd.github.io/blog/2016/07/25/welcome/"></div>
+	<div class="ds-thread" data-thread-key="/blog/2016/07/26/build_octopress_in_window" data-title="Octopress写博客步骤" data-url="http://chendd.github.io/blog/2016/07/26/build_octopress_in_window/"></div>
 <!-- 多说评论框 end -->
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
@@ -216,11 +208,11 @@ var duoshuoQuery = {short_name:"chendd"};
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/07/26/two/">这是第二篇文章</a>
+        <a href="/blog/2016/07/26/build_octopress_in_window/">Octopress写博客步骤</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2016/07/25/welcome/">欢迎大家</a>
+        <a href="/blog/2016/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a>
       </li>
     
   </ul>
@@ -229,7 +221,20 @@ var duoshuoQuery = {short_name:"chendd"};
 
 
 
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
+<li><a style="font-size: 165%" href="/tags/octopress/">Octopress</a></li>
 
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/博客使用/'>博客使用 (2)</a></li>
+
+  </ul>
+</section>
   
 </aside>
 

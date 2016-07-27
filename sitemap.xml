@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>http://chendd.github.io/blog/2016/07/26/two/</loc>
+<loc>http://chendd.github.io/blog/2016/07/26/build_octopress_in_window/</loc>
 <lastmod>2016-07-26T18:21:11+08:00</lastmod>
 </url>
 <url>
-<loc>http://chendd.github.io/blog/2016/07/25/welcome/</loc>
+<loc>http://chendd.github.io/blog/2016/07/25/use_markdown_in_octopress/</loc>
 <lastmod>2016-07-25T18:21:11+08:00</lastmod>
 </url>
 <url>
@@ -21,6 +21,12 @@
 <loc>http://chendd.github.io/aboutme/</loc>
 </url>
 <url>
-<loc>http://chendd.github.io/blog/categories/qi-ta/</loc>
+<loc>http://chendd.github.io/blog/categories/bo-ke-shi-yong/</loc>
+</url>
+<url>
+<loc>http://chendd.github.io/tags/markdown/</loc>
+</url>
+<url>
+<loc>http://chendd.github.io/tags/octopress/</loc>
 </url>
 </urlset>

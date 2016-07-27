@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Markdown | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/markdown/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-27T17:52:12+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Markdown在Octopress的常见使用]]></title>
+    <link href="http://chendd.github.io/blog/2016/07/25/use_markdown_in_octopress/"/>
+    <updated>2016-07-25T18:21:11+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/07/25/use_markdown_in_octopress</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
+
+<!--more-->
+
+
+<p>1、#表示标题，1~6个#相当html里的标签h1~h6</p>
+
+<pre><code>#一级标题
+</code></pre>
+
+<h1>一级标题</h1>
+
+<pre><code>###三级标题
+</code></pre>
+
+<h3>三级标题</h3>
+
+<p>2、*或者_表示强调，左右都加，1个表示斜体，2个表示粗体</p>
+
+<pre><code>*斜体*
+</code></pre>
+
+<p><em>斜体</em></p>
+
+<pre><code>__加粗__
+</code></pre>
+
+<p><strong>加粗</strong></p>
+
+<p>3、-表示列表</p>
+
+<pre><code>- 列表
+    - 子项一
+    - 子项二
+</code></pre>
+
+<ul>
+<li>列表
+
+<ul>
+<li>子项一</li>
+<li>子项二</li>
+</ul>
+</li>
+</ul>
+
+
+<p>4、> 表示引用</p>
+
+<pre><code>&gt; 引用
+&gt; &gt; 引用的引用 
+</code></pre>
+
+<blockquote><p>引用</p>
+
+<blockquote><p>引用的引用</p></blockquote></blockquote>
+
+<p>5、插入图片</p>
+
+<pre><code>![image](https://www.dkhs.com/static/common/img/logo5.png)
+</code></pre>
+
+<p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
+
+<p>6、插入链接</p>
+
+<pre><code>[谁牛金融链接](http://www.dkhs.com)
+</code></pre>
+
+<p><a href="http://www.dkhs.com">谁牛金融链接</a></p>
+
+<p>7、插入视频</p>
+
+<pre><code><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video>
+</code></pre>
+
+<p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png">http://s3.imathis.com/video/zero-to-fancy-buttons.png</a>'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4">http://s3.imathis.com/video/zero-to-fancy-buttons.mp4</a>' ></video></p>
+
+<p>8、插入高亮代码</p>
+
+<pre><code>```[language] [title] [url] [link text]
+public class Zoo {
+    public void say() {
+        System.out.println("welcome!!!");
+    }
+}
+```
+</code></pre>
+
+<pre><code class="java Zoo.java https://github.com/chendd/BeatPlane/blob/master/src/com/example/model/Bullet.java Link">public class Zoo {
+    public void say() {
+        System.out.println("welcome!!!");
+    }
+}
+</code></pre>
+
+<p>9、分割线</p>
+
+<pre><code>---
+</code></pre>
+
+<hr />
+
+<p>&#160;</p>
+
+<h3>用Markdown写博客真是极好。</h3>
+]]></content>
+  </entry>
+  
+</feed>

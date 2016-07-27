@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Chendd's Blog]]></title>
-  <link href="http://chendd.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Tag: Octopress | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/octopress/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
   <updated>2016-07-27T17:52:12+08:00</updated>
   <id>http://chendd.github.io/</id>
@@ -118,10 +118,10 @@
 
 <p>7、插入视频</p>
 
-<pre><code>&lt;video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'&gt;&lt;source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'&gt;&lt;/video&gt;
+<pre><code><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video>
 </code></pre>
 
-<p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
+<p><video width='640' height='320' preload='metadata' controls poster='http://s3.imathis.com/video/zero-to-fancy-buttons.png">http://s3.imathis.com/video/zero-to-fancy-buttons.png</a>'><source src='http://s3.imathis.com/video/zero-to-fancy-buttons.mp4">http://s3.imathis.com/video/zero-to-fancy-buttons.mp4</a>' ></video></p>
 
 <p>8、插入高亮代码</p>
 
@@ -134,18 +134,12 @@ public class Zoo {
 ```
 </code></pre>
 
-<figure class='code'><figcaption><span>Zoo.java</span><a href='https://github.com/chendd/BeatPlane/blob/master/src/com/example/model/Bullet.java'>Link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Zoo</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">say</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;welcome!!!&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
+<pre><code class="java Zoo.java https://github.com/chendd/BeatPlane/blob/master/src/com/example/model/Bullet.java Link">public class Zoo {
+    public void say() {
+        System.out.println("welcome!!!");
+    }
+}
+</code></pre>
 
 <p>9、分割线</p>
 
