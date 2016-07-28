@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Intent | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/intent/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记20--连接组件之Intent和IntentFilter]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/24/android_study_20/"/>
+    <updated>2013-03-24T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/24/android_study_20</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;上次刚了解完Android的四大组件，现在学习组件间通信的Intent和IntentFilter</p>
+
+<h2>一、Intent</h2>
+
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;Intent(意图)在应用程序运行时连接两个不同组件，是一种运行时的绑定机制。一般应用是通过Intent向Android系统
+发出某种请求，根据查询各个组件声明的IntentFilter，找到组件并运行它。</p>
+
+<!--more--> 
+
+
+<h4>2、使用机制</h4>
+
+<p>&#160; &#160; &#160; &#160;前面介绍的四大组件中的Activity、Services、BroadcasReceiver的通信全部使用的是Intent，但是各个组件使用Intent的机制不同。</p>
+
+<ul>
+<li>a、Activity
+　　当需要激活一个Activity组件时，需要调用Context.startActivity或Context.startActivityForResult方法来传递Intent</li>
+<li>b、Service
+　　当需要启动或绑定一个Service组件时，会通过Context.startService和Context.bindService方法实现Intent的传递</li>
+<li>c、BroadcastReceiver
+　　通过Context.sendBroadcast()、sendOrderBroadcast()或sendStickyBroadcast()方法传递的，当BroadcastIntent被广播后，
+　　所有IntentFilter过滤条件满足的组件将被激活。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;在以上的三种情况下，当Intent被传递出后，Android系统会找到适合的activity，service,或者是多个broadcast receiver去响应这个intent。
+这三种情况不会存在重叠的部分，它们相互独立，互不干扰。</p>
+
+<h4>3、组成要素</h4>
+
+<p>&#160; &#160; &#160; &#160;Intent是由组件名称、Action、Data、Category、Extra及Flag六部分组成的。</p>
+
+<ul>
+<li>a、组件名称
+　　实际上就是一个ComponentName对象，用于标识唯一的应用程序组件，即指明期望的Intent组件，
+它是目标的组件的完整限定名（包名+类名） 例如： &ldquo;com.android,.test.TestActivity&rdquo;,该字段是可选的
+如果没有写，Android要通过IntentFilter(相当于过滤器，后面详细介绍)，比较intent对象和组件关联结构去选择相应的组件，
+所以组件名称为空的也要写IntentFilter。</li>
+</ul>
+
+
+<p>可以通过 setComponent() , setClass() 或者 setClassName()进行设置。 可以通过 getComponent() 进行读取</p>
+
+<ul>
+<li>b、Action
+&#160; &#160; &#160; &#160;表示所触发动作名称的常量字符串，Android已定义的如下图：</li>
+</ul>
+
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/242001416239578.gif" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;开发人员也可以自定义Action，自定义的action 应该包含包名作为前缀： 例如"com.example.project.SHOW_COLOR"</p>
+
+<ul>
+<li><p>c、Data
+&#160; &#160; &#160; &#160;主要是对Intent消息中数据的封装，主要描述Intent的动作所操作到的数据URI和类型，不同类型的Action会有不同Data的封装，
+例如打电话的Intent的动作会封装tel://格式的电话URI，而ACTION_VIEW的Intent中Data则会封装<a href="http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81">http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81</a></p></li>
+<li><p>d、Category
+&#160; &#160; &#160; &#160;是对目标组件类别信息的描述，同样是常量字符串。一个Intent中可以包含多个Category。与Category相关的方法有三个，addCategory()、removeCategory()、getCategorys()
+　　Android已定义的如下图：</p></li>
+</ul>
+
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/242001588114596.gif" alt="image" /></p>
+
+<ul>
+<li><p>e、Extra
+&#160; &#160; &#160; &#160;封装一些额外的附加信息，这些信息是以键值对形式存在的。Intent可以通过putExtras()、getExtras()方法来存储和获取Extra。</p></li>
+<li><p>f、Flag
+&#160; &#160; &#160; &#160;有关系统如何启动组件的标志位。</p></li>
+</ul>
+
+
+<h2>二、IntentFilter</h2>
+
+<p>&#160; &#160; &#160; &#160;为了能支持隐式Intent(即组件名称为空)，需要声明IntentFilter。它的使用方法非常简单，仅声明该应用接收什么样的Intent请求即可。
+IntentFilter过滤Intent时，一般通过Action、Data及Category三个进行测试：</p>
+
+<ul>
+<li>a、Action测试,一个Intent只能设置一种Action，但是一个IntentFilter却可设置多个Action过滤。当IntentFilter设置多个Action时，只需一个满足即可完成验证。
+如果Intent中没有包含Action、只要IntentFilter中含有Action时，便可以成功，反过来IntentFilter中没有任何Action，所有Intent都不能通过测试。</li>
+<li>b、Data测试,包含两部分，即数据的URI和数据类型，而数据URI又被分成三部分进行匹配(Schema://host:port/path),只有指定的这些全部匹配时,Data测试才会成功</li>
+<li>c、Category测试,IntentFilter同样可以设置多个Category，当Intent中的Category与IntentFilter中的一个Category完全匹配时，便会通过Category的测试，Filter可以列出额外的category，但是不能漏掉 Intent 对象包含的任意一个Category，但当IntentFilter没有设置Category时，只能和没有设置Category的Intent相匹配。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;原则上，一个没有任何categorys的 Intent将总是通过此测试。大多数情况下是正确的。然而也有例外，android对待所有传入startActivity()中的隐式视图都认为它们至少包含了一个"android.intent.category.DEFAULT". . 因此，希望接收这些隐式意图的activities必须在在它们的 intent filters 中包含”android.intent.category.DEFAULT” 有（对于含"android.intent.action.MAIN" and &ldquo;android.intent.category.LAUNCHER"的filter 则是例外。因为它们标记了此activity开启了一个新的task和将出现在 auncher screen。它们也可以包含“com.intent.category.DEFAULT”,但没必要）</p>
+]]></content>
+  </entry>
+  
+</feed>

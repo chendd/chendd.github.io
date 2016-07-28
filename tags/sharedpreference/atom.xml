@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: SharedPreference | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/sharedpreference/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记13--数据存储之SharedPreference]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/04/android_study_13_1/"/>
+    <updated>2013-03-04T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/04/android_study_13_1</id>
+    <content type="html"><![CDATA[<h2>android 数据存储</h2>
+
+<p>&#160; &#160; &#160; &#160;作为一个完整的应用程序，数据存储必不可少。android 提供了五种不同的数据存储方式:SharedPreferences、SQLite、ContentProvider、文件存储、网络存储。</p>
+
+<h4>1、SharedPreference</h4>
+
+<p>&#160; &#160; &#160; &#160;用来存储简单的配置信息，如用户名/密码，以键值对的方式存储，存储位置在/data/data/&lt;包名>/shared_prefs目录下
+SharedPreferences对象本身只能获取数据而不支持存储和修改，存储修改是通过Editor对象实现。实现SharedPreferences存储的步骤如下：</p>
+
+<!--more-->
+
+
+<ul>
+<li>根据Context获取SharedPreferences对象</li>
+<li>利用edit()方法获取Editor对象。</li>
+<li>通过Editor对象存储key-value键值对数据。</li>
+<li>通过commit()方法提交数据。</li>
+</ul>
+
+
+<p>实例演示：</p>
+
+<p>Activity代码：</p>
+
+<pre><code class="java">Context ctx = MainActivity.this;
+
+// 获取SharedPreferences实例，第二个参数表示操作模式，这里的意思是覆盖原有的
+// 此外还有追加MODE_APPEND，允许其他程序读取MODE_WORLD_READABLE，允许其他程序读取写入MODE_WORLD_WRITEABLE
+SharedPreferences sp = ctx.getSharedPreferences("SP", MODE_PRIVATE);
+
+// 获取编辑对象
+Editor editor = sp.edit();
+
+// 存入数据
+editor.putInt("INT_VAULE", 20);        
+editor.putString("STRING_VAULE", "hahaha");
+editor.putBoolean("BOOLEAN_VAULE", true);
+
+// 根据key取出数据
+Log.v("SP", sp.getString("STRING_VAULE", "none"));
+
+// 输出int型要转成 string的
+Log.v("SP", sp.getInt("INT_VAULE", -1)+"");
+
+// 删除所有数据,没commit是没生效的
+editor.clear();
+
+
+// 找不到key输出第二个参数 false
+Log.v("SP", sp.getBoolean("BOOLEAN_VAULE22", false)+"");
+</code></pre>
+
+<p>日志输出：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/042015418421201.png" alt="image" /></p>
+
+<p>在FileExplorer视图/data/data/com.example.sharedpreferences/shared_prefs生成的SP.xml</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/042018518312913.png" alt="image" /></p>
+
+<p>　　但是在模拟器内部存储的文件，当你通过FileExplorer选中某个目录或者文件时，右上角有两个小按钮一个是类似于软盘的按钮一个是类似于手机的按钮，通过这两个按钮就可以从模拟器中拷贝文件或者往模拟器中添加文件。拷贝到电脑查看xml内容：</p>
+
+<p>```xml
+&lt;?xml version=&lsquo;1.0&rsquo; encoding=&lsquo;utf-8&rsquo; standalone=&lsquo;yes&rsquo; ?></p>
+
+<map>
+<int name="INT_VAULE" value="20" />
+<string name="STRING_VAULE">hahaha</string>
+<boolean name="BOOLEAN_VAULE" value="true" />
+</map>
+
+
+<p>```</p>
+
+<p>优点：
+相对而言更加方便，简洁，适合存储数据量较少的配置信息。</p>
+
+<p>缺点：
+只能存储boolean，int，float，long和String五种简单的数据类型，功能单一。</p>
+]]></content>
+  </entry>
+  
+</feed>

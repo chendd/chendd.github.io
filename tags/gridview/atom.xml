@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: GridView | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/gridview/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记16--GridView(网格视图)]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/17/android_study_16/"/>
+    <updated>2013-03-17T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/17/android_study_16</id>
+    <content type="html"><![CDATA[<h2>一、GridView</h2>
+
+<h4>1、简述　　</h4>
+
+<p>&#160; &#160; &#160; &#160;GridView按照行列来显示图片或文本的一种视图，排列其实有点类似TableLayout布局，不过和TableLayout还是差别很大的,倒比较像二维的ListView。位于android.widget包下，常常用来实现类似九宫格的图像。
+实现手法和ListView有点相似，用Apapter把数据绑定到控件上，为容器提供子视图，利用视图的数据和元数据来构建每个子视图自定义Adapter显示。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;如果需要自定义适配器 可以扩展抽象类BaseAdapter。</p>
+
+<h4>2、常用属性和对应方法如下：</h4>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/162158428083277.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;下面用实例化SimpleAdapter和继承抽象类BaseAdapter方法实现下图的例子：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/162200143404280.png" alt="image" /></p>
+
+<h4>3、实例化SimpleAdapter实现</h4>
+
+<p> Activity代码：</p>
+
+<pre><code class="java">private GridView gv; 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) { 
+       // TODO Auto-generated method stub 
+       super.onCreate(savedInstanceState); 
+       setContentView(R.layout.gridview); 
+
+       //准备要添加的数据条目 
+       List&lt;Map&lt;String, Object&gt;&gt; items = new ArrayList&lt;Map&lt;String,Object&gt;&gt;(); 
+       for (int i = 0; i &lt; 9; i++) { 
+         Map&lt;String, Object&gt; item = new HashMap&lt;String, Object&gt;(); 
+         item.put("imageItem", R.drawable.ic_launcher);//添加图像资源的ID   
+         item.put("textItem", "icon" + i);//按序号添加ItemText   
+         items.add(item); 
+       } 
+
+      //实例化SimpleAdapter适配器 
+       SimpleAdapter adapter = new SimpleAdapter(this,  
+                                                   items,  
+                                                   R.layout.grid_item,  
+                                                   new String[]{"imageItem", "textItem"},  
+                                                   new int[]{R.id.image_item, R.id.text_item}); 
+
+
+       //获得GridView实例 
+       gv = (GridView)findViewById(R.id.mygridview); 
+       //为GridView设置适配器 
+       gv.setAdapter(adapter); 
+
+    }
+</code></pre>
+
+<p>单个组件XML:</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:id="@+id/RelativeLayout1"
+   android:layout_width="wrap_content"  
+   android:layout_height="fill_parent"
+   android:paddingBottom="6dip"
+   &gt;
+   &lt;ImageView  
+      android:id="@+id/image_item"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:src="@drawable/ic_launcher"
+      /&gt;
+   &lt;TextView  
+      android:id="@+id/text_item"
+      android:layout_below="@+id/image_item"
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:layout_centerHorizontal="true"    
+      /&gt;
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<p>页面主布局XML：</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   &gt;
+   &lt;GridView  
+      android:id="@+id/mygridview"
+      android:numColumns="3"
+      android:gravity="center_horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:stretchMode="columnWidth"
+      /&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+
+<h4>4、继承抽象类BaseAdapter实现</h4>
+
+<p>替换成自己GridAdapter代码：</p>
+
+<pre><code class="java">//       //准备要添加的数据条目 
+//       List&lt;Map&lt;String, Object&gt;&gt; items = new ArrayList&lt;Map&lt;String,Object&gt;&gt;(); 
+//       for (int i = 0; i &lt; 9; i++) { 
+//         Map&lt;String, Object&gt; item = new HashMap&lt;String, Object&gt;(); 
+//         item.put("imageItem", R.drawable.ic_launcher);//添加图像资源的ID   
+//         item.put("textItem", "icon" + i);//按序号添加ItemText   
+//         items.add(item); 
+//       } 
+//
+//      //实例化SimpleAdapter适配器 
+//       SimpleAdapter adapter = new SimpleAdapter(this,  
+//                                                   items,  
+//                                                   R.layout.grid_item,  
+//                                                   new String[]{"imageItem", "textItem"},  
+//                                                   new int[]{R.id.image_item, R.id.text_item}); 
+
+
+      List&lt;GridInfo&gt; list = new ArrayList&lt;GridInfo&gt;();  
+       for (int i = 0; i &lt; 9; i++) { 
+           list.add(new GridInfo("icon"+i));  
+       } 
+
+       GridAdapter adapter = new GridAdapter(this);  
+       adapter.setList(list);
+</code></pre>
+
+<p>补上GridAdapter代码：</p>
+
+<pre><code class="java">public class GridAdapter extends BaseAdapter {  
+
+    private class GridHolder {  
+        ImageView appImage;  
+        TextView appName;  
+    }  
+
+    private Context context;  
+
+    private List&lt;GridInfo&gt; list;  
+    private LayoutInflater mInflater;  
+
+    public GridAdapter(Context c) {  
+        super();  
+        this.context = c;  
+    }  
+
+    public void setList(List&lt;GridInfo&gt; list) {  
+        this.list = list;  
+        mInflater = (LayoutInflater) context  
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);  
+
+    }  
+
+    public int getCount() {  
+        // TODO Auto-generated method stub  
+        return list.size();  
+    }  
+
+    @Override  
+    public Object getItem(int index) {  
+
+        return list.get(index);  
+    }  
+
+    @Override  
+    public long getItemId(int index) {  
+        return index;  
+    }  
+
+    @Override  
+    public View getView(int index, View convertView, ViewGroup parent) {  
+        GridHolder holder;  
+        if (convertView == null) {     
+            convertView = mInflater.inflate(R.layout.grid_item, null);     
+            holder = new GridHolder();  
+            holder.appImage = (ImageView)convertView.findViewById(R.id.image_item);  
+            holder.appName = (TextView)convertView.findViewById(R.id.text_item);  
+            convertView.setTag(holder);     
+
+        }else{  
+             holder = (GridHolder) convertView.getTag();     
+
+        }  
+        GridInfo info = list.get(index);  
+        if (info != null) {     
+            holder.appName.setText(info.getName());  
+        }  
+        return convertView;  
+    }
+
+}
+</code></pre>
+
+<p>比较麻烦还是重写getView()方法。里面的GridInfo只是普通的JAVA bean类。</p>
+]]></content>
+  </entry>
+  
+</feed>

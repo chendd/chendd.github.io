@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>android学习日记19--四大组件之Services(服务) - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="&#160; &#160; &#160; &#160;一个Android应用主要由四个基本组件组成，Android四大基本组件分别是Activity，Content Provider内容提供者，Service服务，BroadcastReceiver广播接收器。其中Activity和Content &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/22/android_study_19_1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">android学习日记19--四大组件之Services(服务)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-22T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>&#160; &#160; &#160; &#160;一个Android应用主要由四个基本组件组成，Android四大基本组件分别是Activity，Content Provider内容提供者，Service服务，BroadcastReceiver广播接收器。其中Activity和Content Provider在前面都有介绍过。这里主要讲讲Service服务和BroadcastReceiver广播接收器。</p>
+
+<h2>一、Services(服务)</h2>
+
+<!--more-->
+
+
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;Services(服务)简单来说就是剥夺界面的Activity。它和Activity很多概念都是相似的，都是封装有一个完整的功能逻辑实现。
+Services是运行在后台的一段代码，它可以运行在它自己的进程,也可以运行在其他应用程序进程的上下文（context）里面，
+其它的组件可以绑定到一个服务（Service）上面，通过远程过程调用（RPC）来调用这个方法。常见的Services如后台音乐播放，
+后台计算数据。</p>
+
+<h4>2、运行原理</h4>
+
+<p>&#160; &#160; &#160; &#160;有两种运行方式，原理如下：</p>
+
+<ul>
+<li>a、使用Context.startService()来启动一个Service，从而可以在后台调用Service。同时，系统也将保持这个Service一直执行，
+　　　  直到这个Service运行结束。</li>
+<li>b、使用Context.bindService()方法，连接到一个Service上（如果这个Service还没有运行将启动它）。当连接到一个Service之后，
+　　     我们还可以Service提供的接口与它进行通讯。</li>
+</ul>
+
+
+<h4>3、生命周期</h4>
+
+<p>　　官方生命周期的图示:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/221040533348708.png" alt="image" />　　</p>
+
+<ul>
+<li>a、startService后，即使调用startService的进程结束了，Service仍然还存在，直到有进程调用stopService，或者Service自己自杀(stopSelf())。</li>
+<li>b、bindService后，Service就和调用bindService的进程同生共死了，也就是说当调用bindService的进程死了，那么它bind的Service也要跟着被结束，
+　　　  当然期间也可以调用unbindservice让 Service结束。</li>
+<li>c、两种方式混合使用时，比如说你startService了，我bindService了，那么只有你stopService了而且我也unbindservice了，这个Service才会被结束。</li>
+</ul>
+
+
+<h4>4、使用步骤</h4>
+
+<ul>
+<li><p>a、继承service类(位于android.app包下，一般用它的子类IntentService)</p></li>
+<li><p>b、AndroidManifast.xml配置清单文件中<application>节点里对服务进行配置</p></li>
+</ul>
+
+
+<p>　　　 <service name=".SMSService"/>
+- c、服务不能自己运行,需要通过Contex.startService()或Contex.bindService()启动服务</p>
+
+<p>&#160; &#160; &#160; &#160;通过startService()方法启动的服务于调用者没有关系,即使调用者关闭了,服务仍然运行想停止服务要调用Context.stopService(),
+此时系统会调用onDestory(),使用此方法启动时,服务首次启动系统先调用服务的onCreate()&ndash;>onStart(),如果服务已经启动再次调用只会触发onStart()方法
+使用bindService()启动的服务与调用者绑定,只要调用者关闭服务就终止,使用此方法启动时,服务首次启动系统先调用服务的onCreate()&ndash;>onBind(),
+如果服务已经启动再次调用不会再触发这2个方法,调用者退出时系统会调用服务的onUnbind()&ndash;>onDestory(),想主动解除绑定可使用Contex.unbindService(),
+系统依次调用onUnbind()&ndash;>onDestory();</p>
+
+<p>&#160; &#160; &#160; &#160;区别使用 startService()还是bindService()就要看是否要和调用者进行通信，由于startService()和访问者不存在太多联系，所有有进行通信的要用bindService()。</p>
+
+<p>通过Service提供IBinder OnBind(Intent intent) 返回要通信的数据，在OnServiceConnected()方法 返回该Binder给调用者。</p>
+
+<h4>5、运行实例</h4>
+
+<p>&#160; &#160; &#160; &#160;运用两种启动Service服务写个后台播放音乐的例子</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/221327089598932.png" alt="image" /></p>
+
+<p>MyServices主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TAG</span> <span class="o">=</span> <span class="s">&quot;MyService&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">MediaPlayer</span> <span class="n">player</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">IBinder</span> <span class="nf">onBind</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Created&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onCreate&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">player</span> <span class="o">=</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">ten_year</span><span class="o">);</span><span class="c1">//运行例子是，需要替换具体音乐的名称  </span>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">setLooping</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span> <span class="c1">// Set looping  </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Stopped&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onDestroy&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStart</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startid</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Started&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onStart&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>MyBindService主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TAG</span> <span class="o">=</span> <span class="s">&quot;MyBindService&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">MediaPlayer</span> <span class="n">player</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">MyBinder</span> <span class="n">mybinder</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyBinder</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">class</span> <span class="nc">MyBinder</span> <span class="kd">extends</span> <span class="n">Binder</span><span class="o">{</span><span class="c1">//需要新建个内部的Binder类</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">MyBindService</span> <span class="nf">getService</span><span class="o">(){</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">MyBindService</span><span class="o">.</span><span class="na">this</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">IBinder</span> <span class="nf">onBind</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">mybinder</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Created&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onCreate&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">player</span> <span class="o">=</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">ten_year</span><span class="o">);</span><span class="c1">//运行例子是，需要替换音乐的名称  </span>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">setLooping</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span> <span class="c1">// Set looping   </span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">playMusic</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;playMusic&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Stopped&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onDestroy&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">player</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStart</span><span class="o">(</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startid</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;My Service Started&quot;</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onStart&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Activity注册按钮事件，调用Service服务：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ServiceConnection</span> <span class="n">conn</span><span class="o">=</span><span class="k">new</span> <span class="nf">ServiceConnection</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onServiceDisconnected</span><span class="o">(</span><span class="n">ComponentName</span> <span class="n">arg0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onServiceConnected</span><span class="o">(</span><span class="n">ComponentName</span> <span class="n">arg0</span><span class="o">,</span> <span class="n">IBinder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>            <span class="n">MyBinder</span> <span class="n">mBinder</span> <span class="o">=</span> <span class="o">(</span><span class="n">MyBinder</span><span class="o">)</span> <span class="n">binder</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MyBindService</span> <span class="n">mService</span> <span class="o">=</span> <span class="n">mBinder</span><span class="o">.</span><span class="na">getService</span><span class="o">();</span><span class="c1">//取到自己的Service</span>
+</span><span class='line'>            <span class="n">mService</span><span class="o">.</span><span class="na">playMusic</span><span class="o">();</span> <span class="c1">// 调用服务要执行的方法</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">};</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">src</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_start</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onClick: start srvice&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">startService</span><span class="o">(</span><span class="k">new</span> <span class="nf">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">MyService</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_stop</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onClick: stop srvice&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">stopService</span><span class="o">(</span><span class="k">new</span> <span class="nf">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">MyService</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_bind</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onClick: bind srvice&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">bindService</span><span class="o">(</span><span class="k">new</span> <span class="nf">Intent</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span><span class="n">MyBindService</span><span class="o">.</span><span class="na">class</span><span class="o">),</span> <span class="n">conn</span><span class="o">,</span><span class="n">BIND_AUTO_CREATE</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_unbind</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;onClick: unbind srvice&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">unbindService</span><span class="o">(</span><span class="n">conn</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">flag</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>          <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意：unbind()调用是要进行判断，没bind()后不能多次调用unbind()，否则会报异常:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">IllegalArgumentException</span><span class="o">:</span> <span class="n">Service</span> <span class="n">not</span> <span class="n">registered</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后别忘了AndroidManifast.xml里声明服务：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;service</span> <span class="na">android:enabled=</span><span class="s">&quot;true&quot;</span> <span class="na">android:name=</span><span class="s">&quot;.MyService&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;service</span> <span class="na">android:enabled=</span><span class="s">&quot;true&quot;</span> <span class="na">android:name=</span><span class="s">&quot;.MyBindService&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>依次点击四个按钮打印的日志：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>03-22 07:19:44.116: V/ServicesDemo(18347): onClick: start srvice
+</span><span class='line'>03-22 07:19:44.166: V/MyService(18347): onStart
+</span><span class='line'>03-22 07:19:48.807: V/ServicesDemo(18347): onClick: stop srvice
+</span><span class='line'>03-22 07:19:48.837: V/MyService(18347): onDestroy
+</span><span class='line'>03-22 07:19:50.957: V/ServicesDemo(18347): onClick: bind srvice
+</span><span class='line'>03-22 07:19:50.997: V/MyBindService(18347): onCreate
+</span><span class='line'>03-22 07:19:51.067: V/MyBindService(18347): playMusic
+</span><span class='line'>03-22 07:19:55.997: V/ServicesDemo(18347): onClick: unbind srvice
+</span><span class='line'>03-22 07:19:56.097: V/MyBindService(18347): onDestroy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;这里可以同时start srvice和bind srvice，这时就有两个相同的服务，根据调用的不同时间，播放不同进度的音乐。</p>
+
+<p>&#160; &#160; &#160; &#160;调用系统服务getSystemService是Activity中的方法，根据传入的name来取得对应的服务对象，这些服务名称参数都是Context类中的常量：</p>
+
+<p>传入的Name 返回的对象 说明</p>
+
+<pre><code>WINDOW_SERVICE WindowManager 管理打开的窗口程序
+LAYOUT_INFLATER_SERVICE LayoutInflater 取得xml里定义的view
+ACTIVITY_SERVICE ActivityManager 管理应用程序的系统状态
+POWER_SERVICE PowerManger 电源的服务
+ALARM_SERVICE AlarmManager 闹钟的服务
+NOTIFICATION_SERVICE NotificationManager 状态栏的服务
+KEYGUARD_SERVICE KeyguardManager 键盘锁的服务
+LOCATION_SERVICE LocationManager 位置的服务，如GPS
+SEARCH_SERVICE SearchManager 搜索的服务
+VEBRATOR_SERVICE Vebrator 手机震动的服务
+CONNECTIVITY_SERVICE Connectivity 网络连接的服务
+WIFI_SERVICE WifiManager Wi-Fi服务
+TELEPHONY_SERVICE TeleponyManager 电话服务
+</code></pre>
+
+<p>BroadcastReceiver广播接收器放在下一篇介绍吧！</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-22T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/19/android_study_18/" title="Previous Post: android学习日记18--Adapter简介">&laquo; android学习日记18--Adapter简介</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/22/android_study_19_2/" title="Next Post: android学习日记19--四大组件之BroadcastReciver(广播接收者)">android学习日记19--四大组件之BroadcastReciver(广播接收者) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/22/android_study_19_1" data-title="android学习日记19--四大组件之Services(服务)" data-url="http://chendd.github.io/blog/2013/03/22/android_study_19_1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

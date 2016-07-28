@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: File | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/file/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记13--数据存储之File存储]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/13/android_study_13_4/"/>
+    <updated>2013-03-13T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/13/android_study_13_4</id>
+    <content type="html"><![CDATA[<h2>4、文件存储File</h2>
+
+<p>&#160; &#160; &#160; &#160;File即传统的I/O 流存储文件，Activity提供了openFileOutput()方法可以用于把数据输出到文件中，
+具体的实现过程与在J2SE环境中保存数据到文件中是一样的。</p>
+
+<p>&#160; &#160; &#160; &#160;下面例子演示 如何保存文件、读取文件和把文件保存在SD卡上。</p>
+
+<p> <!--more-->　　</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/142228035435470.png" alt="image" /></p>
+
+<h4>(1) 保存文件</h4>
+
+<pre><code class="java">public void save(String str) {
+
+        try {
+            FileOutputStream output = this.openFileOutput("test.txt", Context.MODE_WORLD_READABLE);
+            output.write(str.getBytes());
+            output.close();
+            Toast.makeText(MainActivity.this,"Saved",Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            // TODO: handle exception
+        }
+
+    }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;openFileOutput()方法的第一参数用于指定文件名称，不能包含路径分隔符“/” ，如果文件不存在，Android 会自动创建它。
+创建的文件保存在/data/data/<package name>/files目录，如： /data/data/com.example.filesave/files/test.txt</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/132023545892953.png" alt="image" /></p>
+
+<p>openFileOutput()方法的第二参数用于指定操作模式，有四种模式，分别为：</p>
+
+<ul>
+<li>Context.MODE_PRIVATE</li>
+<li>Context.MODE_APPEND</li>
+<li>Context.MODE_WORLD_READABLE</li>
+<li>Context.MODE_WORLD_WRITEABLE</li>
+<li>Context.MODE_PRIVATE：为默认操作模式，代表该文件是私有数据，只能被应用本身访问，在该模式下，写入的内容会覆盖原文件的内容，</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;如果想把新写入的内容追加到原文件中。可以使用Context.MODE_APPEND
+Context.MODE_APPEND：模式会检查文件是否存在，存在就往文件追加内容，否则就创建新文件。
+Context.MODE_WORLD_READABLE和Context.MODE_WORLD_WRITEABLE用来控制其他应用是否有权限读写该文件。
+MODE_WORLD_READABLE：表示当前文件可以被其他应用读取；MODE_WORLD_WRITEABLE：表示当前文件可以被其他应用写入。
+如果希望文件被其他应用读和写，可以传入：</p>
+
+<pre><code class="java">openFileOutput("test.txt", Context.MODE_WORLD_READABLE + Context.MODE_WORLD_WRITEABLE);
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;android有一套自己的安全模型，当应用程序(.apk)在安装时系统就会分配给他一个userid，当该应用要去访问其他资源比如文件的时候，就需要userid匹配。默认情况下，</p>
+
+<p>&#160; &#160; &#160; &#160;任何应用创建的文件，sharedpreferences，数据库都应该是私有的（位于/data/data/<package name>/files），其他程序无法访问。
+除非在创建时指定了Context.MODE_WORLD_READABLE或者Context.MODE_WORLD_WRITEABLE ，只有这样其他程序才能正确访问。</p>
+
+<h4>(2) 读取文件</h4>
+
+<pre><code class="java">public String load() {
+        String str = "";
+        try {
+            FileInputStream input = this.openFileInput("test.txt");
+            ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024]; 
+
+            int length = -1;
+
+            while ((length=input.read(buffer))!=-1) {
+                byteOutput.write(buffer,0,length);
+
+            }
+
+            input.close();
+            byteOutput.close();
+
+            str = byteOutput.toString();
+            Toast.makeText(MainActivity.this,"Load",Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return str;
+
+    }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;对于私有文件只能被创建该文件的应用访问，如果希望文件能被其他应用读和写，可以在创建文件时，指定Context.MODE_WORLD_READABLE和Context.MODE_WORLD_WRITEABLE权限。
+Activity还提供了getCacheDir()和getFilesDir()方法：</p>
+
+<ul>
+<li>getCacheDir()方法用于获取/data/data/<package name>/cache目录</li>
+<li>getFilesDir()方法用于获取/data/data/<package name>/files目录。</li>
+</ul>
+
+
+<p>打印文件读取的内容：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/132034007243345.png" alt="image" /></p>
+
+<p>(3) 创建SD卡　　</p>
+
+<p>&#160; &#160; &#160; &#160;使用Activity的openFileOutput()方法保存文件，文件是存放在手机空间上，一般手机的存储空间不是很大，存放些小文件还行，如果要存放像视频这样的大文件，是不可行的。对于像视频这样的大文件，我们可以把它存放在SDCard。 SDCard是干什么的？你可以把它看作是插在手机上的移动硬盘或U盘。</p>
+
+<p>创建模拟器SD卡有两种方法</p>
+
+<p>第一种：用命令行创建</p>
+
+<ul>
+<li>1.打开你安装Android的文件夹找到tools这个文件夹，复制路径</li>
+<li>2.设置命令提示符的默认路径为你复制的路径</li>
+<li><p>3.在后面输入如下命令（注意空格）：</p>
+
+<p>  mksdcard 256M C:\Users\chendd\Desktop\sdcard.img
+  256M是你要设置SD卡的大小，后面是你创建虚拟SD卡的路径。
+  回车，这样就创建好了SD卡的镜像文件，还要让Android模拟器知道这个SD卡在什么地方，命令如下：
+  dir C:\Users\chendd\Desktop\sdcard.img
+  再次回车</p></li>
+<li><p>4、设置模拟器,edit里SD Card 选择File，然后browse你的sdcard.img，再edit AVD结束。</p></li>
+</ul>
+
+
+<p>但是我这样创建这个时候File Exprorer下的sdcard的permissions变成了d&mdash;&mdash;&ndash;,没有读写权限，囧！</p>
+
+<p>第二种：直接在AVD manager创建</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/142238519804602.png" alt="image" /></p>
+
+<p>创建60M的内存卡sdcard的permissions变成了d&mdash;rwxr-x，可以读写，这样创建简单霸气！</p>
+
+<p>在程序中访问SDCard，你需要申请访问SDCard的权限。
+在AndroidManifest.xml中加入访问SDCard的权限如下:</p>
+
+<p>```xml</p>
+
+<!-- 在SDCard中创建与删除文件权限 -->
+
+
+<p><uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" /></p>
+
+<!-- 往SDCard写入数据权限 -->
+
+
+<p><uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```</p>
+
+<p>(4) 保存文件在SD卡上
+　　要往SDCard存放文件，程序必须先判断手机是否装有SDCard，并且可以进行读写</p>
+
+<pre><code class="java">public void save_sd(String str) {
+
+        File sdCardDir = Environment.getExternalStorageDirectory();//获取SDCard目录
+
+        File saveFile = new File(sdCardDir, "testsd.txt");
+
+        FileOutputStream outStream;
+        try {
+            if(!saveFile.exists())
+            {
+                saveFile.createNewFile();
+            }
+            outStream = new FileOutputStream(saveFile);
+            outStream.write(str.getBytes());
+            outStream.close();
+            Toast.makeText(MainActivity.this,"Save_sd",Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;Environment.getExternalStorageState()方法用于获取SDCard的状态，如果手机装有SDCard，并且可以进行读写，那么方法返回的状态等于Environment.MEDIA_MOUNTED。</p>
+
+<p>&#160; &#160; &#160; &#160;Environment.getExternalStorageDirectory()方法用于获取SDCard的目录，当然要获取SDCard的目录，你也可以这样写：</p>
+
+<pre><code class="java">File sdCardDir = new File("/sdcard"); //获取SDCard目录
+
+File saveFile = new File(sdCardDir, "test.txt");
+
+// 第一种写法更灵活
+
+//上面两句代码可以合成一句： File saveFile = new File("/sdcard/a.txt");
+
+FileOutputStream outStream = new FileOutputStream(saveFile);
+
+outStream.write("test".getBytes());
+
+outStream.close();
+</code></pre>
+
+<p>文件对SD卡的读写一路报太多错误，在下一篇整理出来。</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,1008 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>android学习日记23--XML解析 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、简述 　　XML语言是跨平台，JAVA对XML语言支持得比较好，android系统的应用层平台是JAVA做的，所以用XML。
+XML解析比较简单。XML解析就是将获取到的数据分离出来，基本的网络数据传输，需要使用XML
+比如天气预报，从网上获取的是XML文件，通过XML解析可以把天气状态读出来 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/29/android_study_23/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">android学习日记23--XML解析</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-29T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、简述</h2>
+
+<p>　　XML语言是跨平台，JAVA对XML语言支持得比较好，android系统的应用层平台是JAVA做的，所以用XML。
+XML解析比较简单。XML解析就是将获取到的数据分离出来，基本的网络数据传输，需要使用XML
+比如天气预报，从网上获取的是XML文件，通过XML解析可以把天气状态读出来
+例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;forecast_date</span> <span class="na">data=</span><span class="s">&quot;2009-07-31&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;condition</span> <span class="na">data=</span><span class="s">&quot;晴&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;humidity</span> <span class="na">data=</span><span class="s">&quot;湿度： 65%&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可得到 2009-07-31 晴 湿度：65%</p>
+
+<p>还有一作用是保存你的数据，比如做个旅游网站，你需要把全国各个省、城市名称写到XML文件进行保存，在程序中通过解析读取调用。</p>
+
+<!--more-->
+
+
+<p>Android 平台上可用的XML解析有三种</p>
+
+<ul>
+<li>1、Simple API for XML(SAX)</li>
+<li>2、Document Object Model(DOM)</li>
+<li>3、Android附带的pull解析器</li>
+</ul>
+
+
+<h2>二、实例</h2>
+
+<p>分别用三种方法解析如下persons.xml文件（文件放在assert目录下）</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;persons&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;person</span> <span class="na">id=</span><span class="s">&quot;23&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>liming<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;age&gt;</span>30<span class="nt">&lt;/age&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/person&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;person</span> <span class="na">id=</span><span class="s">&quot;20&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>dehua<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;age&gt;</span>25<span class="nt">&lt;/age&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/person&gt;</span>
+</span><span class='line'><span class="nt">&lt;/persons&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>还需定义个javabean 用于存放解析出来的内容</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">xml</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Short</span> <span class="n">age</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Short</span> <span class="nf">getAge</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">age</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAge</span><span class="o">(</span><span class="n">Short</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//    @Override</span>
+</span><span class='line'><span class="c1">//    public String toString() {</span>
+</span><span class='line'><span class="c1">//        return &quot;id:&quot; + id + &quot;, name:&quot; + name + &quot;, age:&quot; + age;</span>
+</span><span class='line'><span class="c1">//    }</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>1、Simple API for XML(SAX)</h4>
+
+<p>　　SAX是一个解析速度快并且占用内存少的XML解析器，很适合用于Android等移动设备。
+SAX解析XML文件采用的是事件驱动，也就是说，它并不需要解析完整个文档，在按内容顺序解析文档的过程中，
+SAX会判断当前读到的字符是否合法XML语法中的某部分，如果符合就会触发事件。所谓事件，其实就是一些回调（callback）方法，
+这些方法(事件)定义在ContentHandler接口。</p>
+
+<p>　　直接看代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">XMLContentHandler</span> <span class="kd">extends</span> <span class="n">DefaultHandler</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Person</span> <span class="n">currentPerson</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">String</span> <span class="n">tagName</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span><span class="c1">// 当前解析的元素标签    </span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TAG</span> <span class="o">=</span> <span class="s">&quot;XMLContentHandler&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">getPersons</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">persons</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* </span>
+</span><span class='line'><span class="cm">     * 接收文档的开始的通知。</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">startDocument</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">SAXException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">persons</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;();</span>
+</span><span class='line'>         <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;startDocument&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* </span>
+</span><span class='line'><span class="cm">     * 结束文档的开始的通知。</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">endDocument</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">SAXException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">endDocument</span><span class="o">();</span>
+</span><span class='line'>         <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;endDocument&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* </span>
+</span><span class='line'><span class="cm">     * 接收字符数据的通知。</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">characters</span><span class="o">(</span><span class="kt">char</span><span class="o">[]</span> <span class="n">ch</span><span class="o">,</span> <span class="kt">int</span> <span class="n">start</span><span class="o">,</span> <span class="kt">int</span> <span class="n">length</span><span class="o">)</span>
+</span><span class='line'>            <span class="kd">throws</span> <span class="n">SAXException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">tagName</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">ch</span><span class="o">,</span> <span class="n">start</span><span class="o">,</span> <span class="n">length</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">tagName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">this</span><span class="o">.</span><span class="na">currentPerson</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">tagName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">this</span><span class="o">.</span><span class="na">currentPerson</span><span class="o">.</span><span class="na">setAge</span><span class="o">(</span><span class="n">Short</span><span class="o">.</span><span class="na">parseShort</span><span class="o">(</span><span class="n">data</span><span class="o">));</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;characters(&quot;</span><span class="o">+</span><span class="n">ch</span><span class="o">.</span><span class="na">toString</span><span class="o">()+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">start</span><span class="o">+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">length</span><span class="o">+</span><span class="s">&quot;)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">     * </span>
+</span><span class='line'><span class="cm">     * 接收元素开始的通知。</span>
+</span><span class='line'><span class="cm">     * 参数意义如下： </span>
+</span><span class='line'><span class="cm">     * namespaceURI：元素的命名空间 </span>
+</span><span class='line'><span class="cm">     * localName ：元素的本地名称（不带前缀） </span>
+</span><span class='line'><span class="cm">     * qName ：元素的限定名（带前缀）</span>
+</span><span class='line'><span class="cm">     * atts ：元素的属性集合</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">startElement</span><span class="o">(</span><span class="n">String</span> <span class="n">namespaceURI</span><span class="o">,</span> <span class="n">String</span> <span class="n">localName</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">qName</span><span class="o">,</span> <span class="n">Attributes</span> <span class="n">atts</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SAXException</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">localName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;person&quot;</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">currentPerson</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Person</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">currentPerson</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">atts</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)));</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">tagName</span> <span class="o">=</span> <span class="n">localName</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;startElement(&quot;</span><span class="o">+</span><span class="n">namespaceURI</span><span class="o">+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">localName</span><span class="o">+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">qName</span><span class="o">+</span><span class="n">atts</span><span class="o">+</span><span class="s">&quot;)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/* </span>
+</span><span class='line'><span class="cm">     * 接收文档的结尾的通知。</span>
+</span><span class='line'><span class="cm">     * 参数意义如下：</span>
+</span><span class='line'><span class="cm">     * uri ：元素的命名空间</span>
+</span><span class='line'><span class="cm">     * localName ：元素的本地名称（不带前缀）</span>
+</span><span class='line'><span class="cm">     * name ：元素的限定名（带前缀）</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">endElement</span><span class="o">(</span><span class="n">String</span> <span class="n">uri</span><span class="o">,</span> <span class="n">String</span> <span class="n">localName</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span>
+</span><span class='line'>            <span class="kd">throws</span> <span class="n">SAXException</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">localName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;person&quot;</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">persons</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">currentPerson</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">currentPerson</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">tagName</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;endElement(&quot;</span><span class="o">+</span><span class="n">uri</span><span class="o">+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">localName</span><span class="o">+</span><span class="s">&quot;,&quot;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2、Document Object Model(DOM)</h4>
+
+<p>　　DOM解析XML文件时，会将XML文件的所有内容读取到内存中，然后允许您使用DOM API遍历XML树、检索所需的数据。
+使用DOM操作XML的代码看起来比较直观，并且，在某些方面比基于SAX的实现更加简单。但是，因为DOM需要将XML文件的所有内容读取到内存中，
+所以内存的消耗比较大，特别对于运行Android的移动设备来说，因为设备的资源比较宝贵，所以建议还是采用SAX来解析XML文件，
+当然，如果XML文件的内容比较小采用DOM是可行的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DomParseXML</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">readXML</span><span class="o">(</span><span class="n">InputStream</span> <span class="n">inStream</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">DocumentBuilderFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="n">DocumentBuilderFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span><span class="c1">// 获取实例</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">DocumentBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">newDocumentBuilder</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">Document</span> <span class="n">dom</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">inStream</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">Element</span> <span class="n">root</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="na">getDocumentElement</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">NodeList</span> <span class="n">items</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">getElementsByTagName</span><span class="o">(</span><span class="s">&quot;person&quot;</span><span class="o">);</span><span class="c1">// 查找所有person节点</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">items</span><span class="o">.</span><span class="na">getLength</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Person</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 得到第一个person节点</span>
+</span><span class='line'>                <span class="n">Element</span> <span class="n">personNode</span> <span class="o">=</span> <span class="o">(</span><span class="n">Element</span><span class="o">)</span> <span class="n">items</span><span class="o">.</span><span class="na">item</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 获取person节点的id属性值</span>
+</span><span class='line'>                <span class="n">person</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="k">new</span> <span class="nf">Integer</span><span class="o">(</span><span class="n">personNode</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)));</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 获取person节点下的所有子节点(标签之间的空白节点和name/age元素)</span>
+</span><span class='line'>                <span class="n">NodeList</span> <span class="n">childsNodes</span> <span class="o">=</span> <span class="n">personNode</span><span class="o">.</span><span class="na">getChildNodes</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">childsNodes</span><span class="o">.</span><span class="na">getLength</span><span class="o">();</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">Node</span> <span class="n">node</span> <span class="o">=</span> <span class="o">(</span><span class="n">Node</span><span class="o">)</span> <span class="n">childsNodes</span><span class="o">.</span><span class="na">item</span><span class="o">(</span><span class="n">j</span><span class="o">);</span> <span class="c1">// 判断是否为元素类型</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">getNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">.</span><span class="na">ELEMENT_NODE</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">Element</span> <span class="n">childNode</span> <span class="o">=</span> <span class="o">(</span><span class="n">Element</span><span class="o">)</span> <span class="n">node</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="c1">// 判断是否name元素</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">childNode</span><span class="o">.</span><span class="na">getNodeName</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                            <span class="c1">// 获取name元素下Text节点,然后从Text节点获取数据</span>
+</span><span class='line'>                            <span class="n">person</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">childNode</span><span class="o">.</span><span class="na">getFirstChild</span><span class="o">()</span>
+</span><span class='line'>                                    <span class="o">.</span><span class="na">getNodeValue</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="o">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">childNode</span><span class="o">.</span><span class="na">getNodeName</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">person</span><span class="o">.</span><span class="na">setAge</span><span class="o">(</span><span class="k">new</span> <span class="nf">Short</span><span class="o">(</span><span class="n">childNode</span><span class="o">.</span><span class="na">getFirstChild</span><span class="o">()</span>
+</span><span class='line'>                                    <span class="o">.</span><span class="na">getNodeValue</span><span class="o">()));</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="o">}</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="n">persons</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">inStream</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">persons</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3、Android附带的pull解析器</h4>
+
+<p>　　Pull解析和Sax解析很相似，都是轻量级的解析，在Android的内核中已经嵌入了Pull，所以我们不需要再添加第三方jar包来支持Pull。
+Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应的事件调用方法返回的是数字(2)pull可以在程序中控制想解析到哪里就可以停止解析。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PullParseXML</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">readXML</span><span class="o">(</span><span class="n">InputStream</span> <span class="n">inStream</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">XmlPullParserException</span><span class="o">,</span> <span class="n">IOException</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">XmlPullParser</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">Xml</span><span class="o">.</span><span class="na">newPullParser</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">parser</span><span class="o">.</span><span class="na">setInput</span><span class="o">(</span><span class="n">inStream</span><span class="o">,</span> <span class="s">&quot;UTF-8&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">event</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="na">getEventType</span><span class="o">();</span><span class="c1">//产生第一个事件  </span>
+</span><span class='line'>        <span class="k">while</span><span class="o">(</span><span class="n">event</span><span class="o">!=</span><span class="n">XmlPullParser</span><span class="o">.</span><span class="na">END_DOCUMENT</span><span class="o">){</span>
+</span><span class='line'>            <span class="k">switch</span><span class="o">(</span><span class="n">event</span><span class="o">){</span>
+</span><span class='line'>            <span class="k">case</span> <span class="n">XmlPullParser</span><span class="o">.</span><span class="na">START_DOCUMENT</span><span class="o">:</span><span class="c1">//判断当前事件是否是文档开始事件  </span>
+</span><span class='line'>                <span class="n">persons</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;();</span><span class="c1">//初始化Persons集合  </span>
+</span><span class='line'>                <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="n">XmlPullParser</span><span class="o">.</span><span class="na">START_TAG</span><span class="o">:</span><span class="c1">//判断当前事件是否是标签元素开始事件  </span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="s">&quot;person&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">getName</span><span class="o">())){</span><span class="c1">//判断开始标签元素是否是person  </span>
+</span><span class='line'>                    <span class="n">person</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Person</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">person</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">getAttributeValue</span><span class="o">(</span><span class="mi">0</span><span class="o">)));</span><span class="c1">//得到Person标签的属性值，并设置Person的id  </span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="n">person</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>                    <span class="k">if</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">getName</span><span class="o">())){</span><span class="c1">//判断开始标签元素是否是name  </span>
+</span><span class='line'>                        <span class="n">person</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">nextText</span><span class="o">());</span>
+</span><span class='line'>                    <span class="o">}</span><span class="k">else</span> <span class="nf">if</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">getName</span><span class="o">())){</span><span class="c1">//判断开始标签元素是否是price  </span>
+</span><span class='line'>                        <span class="n">person</span><span class="o">.</span><span class="na">setAge</span><span class="o">(</span><span class="n">Short</span><span class="o">.</span><span class="na">parseShort</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">nextText</span><span class="o">()));</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="n">XmlPullParser</span><span class="o">.</span><span class="na">END_TAG</span><span class="o">:</span><span class="c1">//判断当前事件是否是标签元素结束事件  </span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="s">&quot;person&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">parser</span><span class="o">.</span><span class="na">getName</span><span class="o">())){</span><span class="c1">//判断结束标签元素是否是Person  </span>
+</span><span class='line'>                    <span class="n">persons</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">person</span><span class="o">);</span><span class="c1">//将person添加到persons集合  </span>
+</span><span class='line'>                    <span class="n">person</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">event</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="na">next</span><span class="o">();</span><span class="c1">//进入下一个元素并触发相应事件  </span>
+</span><span class='line'>        <span class="o">}</span><span class="c1">//end while  </span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">persons</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行界面：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291207400008256.png" alt="image" /></p>
+
+<p>绑定按钮触发的事件代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">textView</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">textView</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sax_prase</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">sax_prase</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">dom_parse</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">dom_parse</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">pull_parse</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">pull_parse</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">inStream</span> <span class="o">=</span> <span class="n">getAssets</span><span class="o">().</span><span class="na">open</span><span class="o">(</span><span class="s">&quot;persons.xml&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// TODO Auto-generated catch block</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//绑定按钮监听器  </span>
+</span><span class='line'>        <span class="n">sax_prase</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">persons</span> <span class="o">=</span> <span class="n">SaxParseXML</span><span class="o">(</span><span class="n">inStream</span><span class="o">);</span>
+</span><span class='line'>                <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">persons</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="n">person</span><span class="o">.</span><span class="na">getId</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getName</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>        <span class="c1">//绑定按钮监听器  </span>
+</span><span class='line'>        <span class="n">dom_parse</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">DomParseXML</span> <span class="n">domParseXML</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DomParseXML</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">persons</span> <span class="o">=</span> <span class="n">domParseXML</span><span class="o">.</span><span class="na">readXML</span><span class="o">(</span><span class="n">inStream</span><span class="o">);</span>
+</span><span class='line'>                <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">persons</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="n">person</span><span class="o">.</span><span class="na">getId</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getName</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>        <span class="n">pull_parse</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">PullParseXML</span> <span class="n">pullParseXML</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">PullParseXML</span><span class="o">();</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">persons</span> <span class="o">=</span> <span class="n">pullParseXML</span><span class="o">.</span><span class="na">readXML</span><span class="o">(</span><span class="n">inStream</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">XmlPullParserException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="c1">// TODO Auto-generated catch block</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="c1">// TODO Auto-generated catch block</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">person</span> <span class="o">:</span> <span class="n">persons</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="n">person</span><span class="o">.</span><span class="na">getId</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getName</span><span class="o">()+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">SaxParseXML</span><span class="o">(</span><span class="n">InputStream</span> <span class="n">inStream</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">SAXParserFactory</span> <span class="n">spf</span> <span class="o">=</span> <span class="n">SAXParserFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">SAXParser</span> <span class="n">saxParser</span> <span class="o">=</span> <span class="n">spf</span><span class="o">.</span><span class="na">newSAXParser</span><span class="o">();</span> <span class="c1">// 创建解析器</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// 设置解析器的相关特性，http://xml.org/sax/features/namespaces = true</span>
+</span><span class='line'>            <span class="c1">// 表示开启命名空间特性,缺省情况设为true，设置使代码更具可读性,但我加进去报错，索性注释掉</span>
+</span><span class='line'>            <span class="c1">//saxParser.setProperty(&quot;http://xml.org/sax/features/namespaces&quot;,true);</span>
+</span><span class='line'>            <span class="n">XMLContentHandler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">XMLContentHandler</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">saxParser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">inStream</span><span class="o">,</span> <span class="n">handler</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">inStream</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="na">getPersons</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>分别点击三个按钮用不同方法解析出来的结果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291210425004835.png" alt="image" /></p>
+
+<h2>三、总结</h2>
+
+<p>　　对于三种解析XML方法，各有千秋，倾向于PULL解析器，因为SAX解析器操作起来太笨重，DOM不适合文档较大，内存较小的场景，
+唯有Pull轻巧灵活，速度快，占用内存小，使用非常顺手，Pull解析可以用于很多场合，例如接受google天气，rss新闻等。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-29T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/26/android_study_22/" title="Previous Post: android学习日记22--Animation动画简介">&laquo; android学习日记22--Animation动画简介</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/30/android_study_24/" title="Next Post: android学习日记24--菜单开发">android学习日记24--菜单开发 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/29/android_study_23" data-title="android学习日记23--XML解析" data-url="http://chendd.github.io/blog/2013/03/29/android_study_23/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: android | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/android/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -14,635 +14,886 @@
 
   
   <entry>
-    <title type="html"><![CDATA[android学习日记10--裁剪区域]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/28/android_study_10/"/>
-    <updated>2014-02-28T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/28/android_study_10</id>
-    <content type="html"><![CDATA[<h2>裁剪区域</h2>
+    <title type="html"><![CDATA[编写高效的Android代码]]></title>
+    <link href="http://chendd.github.io/blog/2013/05/15/efficient_android_code/"/>
+    <updated>2013-05-15T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/05/15/efficient_android_code</id>
+    <content type="html"><![CDATA[<p>　　为什么在这就意味着没有多少剩余空间给你去浪费了，因此，在你写Androi编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。
+　　对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
 
-<p>&#160; &#160; &#160; &#160;裁剪是画布的一个函数，区域可以是矩形和圆形，也可以通过设置 path 或Region来显示自定义区域，通过不同组合，Android几乎可以支持任意现状的裁剪区域。</p>
+<h4>1、不要做不必要做的事情。</h4>
 
-<p>&#160; &#160; &#160; &#160;android.graphics包中定义了Point, Rect, Path, Region 这几种几何形状，Path可以为有圆弧，椭圆，二次曲线，三次曲线，线段，矩形等基本几何图形或是由这些基本几何图形组合而成，Path可以为开放或是闭合曲线。Rect提供了定义矩形的简洁方法。</p>
+<h4>2、尽可能的节省内存的使用。</h4>
 
 <!--more-->
 
 
-<pre><code class="java">//绘制一张背景图片，充满整个屏幕
-Bitmap bitmap1 = BitmapFactory.decodeResource(this.getResources(), R.drawable.background);
+<p>下面是常用的几点优化建议：</p>
 
-canvas.save();
-// 四个参数 表示左上角的坐标和宽高
-canvas.clipRect(0, 0, 30, 30);        
-canvas.drawBitmap(bitmap1, 0, 0, paint);
-canvas.restore();
+<h4>1、尽可能避免创建对象（Object）</h4>
 
+<p>　　因为对象的创建并不是没有代价的，如果你在一个用户界面的循环中分配一个对象，你不得不强制的进行内存回收，那么就会使用户体验出现稍微“打嗝”的现象。
+当从原始的输入数据中提取字符串时，试着从原始字符串返回一个子字符串，而不是创建一份拷贝。</p>
 
-canvas.save();
-Path path = new Path();
-// 添加一个圆形区域 
-path.addCircle(130, 130, 30, Direction.CCW);
-// 也可以通过设置 path 来显示自定义区域
-canvas.clipPath(path);
-canvas.drawBitmap(bitmap1, 0, 0, paint);
-canvas.restore();
+<h4>2、使用自身方法（Use Native Methods）</h4>
+
+<p>　　当处理字符串的时候，不要犹豫，尽可能多的使用诸如String.indexOf()、String.lastIndexOf()这样对象自身带有的方法。因为这些方法使用C/C++来实现的，
+要比在一个java循环中做同样的事情快10-100倍。</p>
+
+<h4>3、缓冲属性调用Cache Field Lookups</h4>
+
+<p>　　访问对象属性要比访问本地变量慢得多。你不应该这样写你的代码：</p>
+
+<pre><code class="java">for (int i = 0; i &lt; this.mCount; i++)
+      dumpItem(this.mItems[i]);
 </code></pre>
 
-<p>效果如下：</p>
+<p>而是应该这样写：</p>
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/252027498664351.jpg" alt="image" /></p>
+<pre><code class="java">  int count = this.mCount;
+  Item[] items = this.mItems;
 
-<p>需注意的是 裁剪区域的函数是对 整个画布的操作
-为了避免对其他绘制受到影响，需对画布save保存，裁剪完之后 restore复原</p>
-
-<p>此外也可以通过Region来进行裁剪区域的划分 第三个参数比较复杂(在最后说明)</p>
-
-<pre><code class="java">canvas.save();
-Region region = new Region();
-// op是添加区域的函数，最后一个参数表示显示的参数，有交并补差等等
-region.op(new Rect(20,20,100,100), Region.Op.UNION);
-region.op(new Rect(40,20,80,150), Region.Op.XOR);
-canvas.clipRegion(region);
-canvas.drawBitmap(bitmap1, 0, 0, paint);
-canvas.restore();
+  for (int i = 0; i &lt; count; i++)
+      dumpItems(items[i]);
 </code></pre>
 
-<p>效果如下：</p>
+<p>我们直接使用“this”表明这些是它的成员变量</p>
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/252028493998838.jpg" alt="image" /></p>
+<h4>4、声明Final常量</h4>
 
-<p>为了方便说明，把第一次clipRect的绘制范围设为A，第二次clipRect设定的范围设为B</p>
+<p>　　我们可以看看下面一个类顶部的声明：</p>
 
-<ul>
-<li>Op.DIFFERENCE，实际上就是求得的A和B的差集范围，即A－B，只有在此范围内的绘制内容才会被显示；</li>
-<li>Op.REVERSE_DIFFERENCE，实际上就是求得的B和A的差集范围，即B－A，只有在此范围内的绘制内容才会被显示；；</li>
-<li>Op.INTERSECT，即A和B的交集范围，只有在此范围内的绘制内容才会被显示；</li>
-<li>Op.REPLACE，不论A和B的集合状况，B的范围将全部进行显示，如果和A有交集，则将覆盖A的交集范围；</li>
-<li>Op.UNION，即A和B的并集范围，即两者所包括的范围的绘制内容都会被显示；</li>
-<li>Op.XOR，A和B的补集范围，此例中即A除去B以外的范围，只有在此范围内的绘制内容才会被显示</li>
-</ul>
+<pre><code class="java">static int intVal = 42;
+static String strVal = "Hello, world!";
+</code></pre>
 
+<p>当一个类第一次使用时，编译器会调用一个类初始化方法，这个方法将42存入变量intVal，并且为strVal在类文件字符串常量表中提取一个引用，当这些值在后面引用时，就会直接属性调用。
+我们可以用关键字“final”来改进代码：</p>
+
+<pre><code class="java">static final int intVal = 42;
+static final String strVal = "Hello, world!";
+</code></pre>
+
+<p>这个类将不会调用类初始化方法，因为这些常量直接写入了类文件静态属性初始化中，这个初始化直接由虚拟机来处理。代码访问intVal将会使用Integer类型的42，访问strVal将使用相对节省的“字符串常量”来替代一个属性调用。
+将一个类或者方法声明为“final”并不会带来任何的执行上的好处，它能够进行一定的最优化处理。例如，如果编译器知道一个Get方法不能被子类重载，那么它就把该函数设置成Inline。</p>
+
+<h4>5、避免浮点类型的使用</h4>
+
+<p>　　嵌入式的处理器通常并不支持浮点数的处理，因此所有的“float”和“double”操作都是通过软件进行的，一些基本的浮点数的操作就需要花费毫秒级的时间。
+同事，即使是整数，一些芯片也只有乘法而没有除法。在这些情况下，整数的除法和取模操作都是通过软件实现。</p>
+
+<h4>6、避免列举类型Avoid Enums</h4>
+
+<p>　　列举类型非常好用，当考虑到尺寸和速度的时候，就会显得代价很高，例如：</p>
+
+<pre><code class="java">public class Foo {
+   public enum Shrubbery { GROUND, CRAWLING, HANGING }
+}
+</code></pre>
+
+<p>这会转变成为一个900字节的class文件（Foo$Shrubbery.class）。第一次使用时，类的初始化要在独享上面调用方法去描述列举的每一项，每一个对象都要有它自身的静态空间，整个被储存在一个数组里面（一个叫做“$VALUE”的静态数组）。那是一大堆的代码和数据，仅仅是为了三个整数值。
+Shrubbery shrub = Shrubbery.GROUND;
+这会引起一个静态属性的调用，如果GROUND是一个静态的Final变量，编译器会把它当做一个常数嵌套在代码里面。</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记9--BitMap操作]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/25/android_study_09/"/>
-    <updated>2014-02-25T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/25/android_study_09</id>
-    <content type="html"><![CDATA[<h2>Bitmap</h2>
+    <title type="html"><![CDATA[android学习日记25--ANR和Hander消息机制]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/30/android_study_25/"/>
+    <updated>2013-03-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/30/android_study_25</id>
+    <content type="html"><![CDATA[<h4>1、ANR(Application Not Responding)定义</h4>
 
-<p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
+<p>　　在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，
+这个对话框称作应用程序无响应（ANR：Application Not Responding）对话框。用户可以选择“等待”而让程序继续运行，
+也可以选择“强制关闭”。所以一个流畅的合理的应用程序中不能出现anr，而让用户每次都要处理这个对话框。
+因此，在程序里对响应性能的设计很重要，这样系统不会显示ANR给用户。默认情况下，在android中Activity的最长执行时间是5秒，
+BroadcastReceiver的最长执行时间则是10秒。</p>
 
 <!--more-->
 
 
-<p>&#160; &#160; &#160; &#160;android支持一些方法对图像的平移、剪切、旋转、缩放等操作这样子可以用一张图片经过变化得到自己想要的，节省很多系统资源。</p>
+<p><img src="http://images.cnitblog.com/i/602984/201404/172223300108690.jpg" alt="image" /></p>
 
-<p>&#160; &#160; &#160; &#160;由于手机系统资源有限，没用的图像要及时回收，否则会产生OOM，isRecycled()判读该Bitmap是否可回收，recycle()强制Bitmap自我回收。</p>
+<h4>2、如何避免ANR</h4>
 
-<h4>1、android 系统图像的简单变化例子：</h4>
+<p>　　Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
+特别是，Activity应该在它的关键生命周期方法（如onCreate()和onResume()）里尽可能少的去做创建操作。
+潜在的耗时操作，例如网络或数据库操作，或者高耗时的计算如改变位图尺寸，应该在子线程里
+（或者以数据库操作为例，通过异步请求的方式）来完成。然而，不是说你的主线程阻塞在那里等待子线程的完成——也不是调用
+Thread.wait()或是Thread.sleep()。替代的方法是，主线程应该为子线程提供一个Handler，以便完成时能够提交给主线程。</p>
 
-<pre><code class="java">// 获取图标图像的实例
-Bitmap bitmap = BitmapFactory.decodeResource(this.getResources()
-　　　　　　　　　　　　　　, R.drawable.ic_launcher);
-// 绘制图像
-canvas.drawBitmap(bitmap, 0, 0, paint);
-// 保存当前状态
-canvas.save();
+<h4>3、Hander 定义</h4>
 
-// 绕图像中点旋转90度
-canvas.rotate(30, bitmap.getWidth()/2, bitmap.getHeight()/2);
-// 为了不重叠，画在(50,0)这点,x,y轴相对旋转也发生变化
-canvas.drawBitmap(bitmap, 50, 0, paint);
+<p>　　主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
+直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：
+android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
+翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
+所有的UI线程要去负责View的创建并且维护它，例如更新冒个TextView的显示，都必须在主线程中去做，我们不能直接在UI线程中去创建子线程，
+要利用消息机制：handler，如下就是handler的简单工作原理图:</p>
 
-//恢复上次保存的状态与save()对应
-canvas.restore();
-canvas.drawBitmap(bitmap, 100, 100, paint);
+<p><img src="http://images.cnitblog.com/i/602984/201404/181859021979455.gif" alt="image" /></p>
 
-//平移
-canvas.translate(0, 50);
-canvas.drawBitmap(bitmap, 100, 100, paint);
+<p>　　Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
 
-// 缩放，参数分别表示：x轴缩放2倍，y轴缩放2倍，3，4参数表示缩放的起始点
-canvas.scale(2, 2, 50+bitmap.getWidth()/2, 50+bitmap.getHeight()/2);
-canvas.drawBitmap(bitmap, 100, 100, paint);
+<p>就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
 
-// 相对y轴镜像
-canvas.scale(1, -1, 50+bitmap.getWidth()/2, 50+bitmap.getHeight()/2);
-canvas.drawBitmap(bitmap, 100, 100, paint);
+<pre><code class="java">class WorkThread extends Thread {
+          public Handler mHandler;
+
+          public void run() {
+              Looper.prepare();
+
+              mHandler = new Handler() {
+                  public void handleMessage(Message msg) {
+                      // 处理收到的消息
+                  }
+              };
+
+              Looper.loop();
+          }
+      }
 </code></pre>
 
-<p>效果如下：</p>
+<p>这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/202006478416495.jpg" alt="image" /></p>
+<p>Looper.prepare()和Looper.loop();</p>
 
-<h4>2、png格式和其他图像格式的区别是，png图像支持背景是透明的，</h4>
+<h4>4、Hander 用法</h4>
 
-<p>可以多个图像叠加在一起，而其他格式的图片就会被旁白覆盖</p>
+<p>　　继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
+如下实例：</p>
 
-<pre><code class="java">//绘制一张背景图片，充满整个屏幕
-Bitmap bitmap1 = BitmapFactory.decodeResource(this.getResources()
-　　　　　　　　　　　　　　　　　　　　, R.drawable.background);
-canvas.drawBitmap(bitmap1, 0, 0, paint);
+<p>启动后，更新后的值一直在增加</p>
 
-// png的图片，左边螃蟹边缘是透明的，因此不会有问题
-Bitmap bitmap2 = BitmapFactory.decodeResource(this.getResources()
-　　　　　　　　　　　　　　, R.drawable.crab);
-canvas.drawBitmap(bitmap2, 20, 200, paint);
+<p><img src="http://images.cnitblog.com/i/602984/201404/172206262912209.png" alt="image" /></p>
 
-// jpg的图片，右边螃蟹边缘把背景遮挡了
-Bitmap bitmap3 = BitmapFactory.decodeResource(this.getResources()
-　　　　　　　　　　　　　　, R.drawable.carb2);
-canvas.drawBitmap(bitmap3, 200, 230, paint);
-</code></pre>
+<p>主要代码：</p>
 
-<p>效果图如下：</p>
+<pre><code class="java">public class MainActivity extends Activity {
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/202009215387750.jpg" alt="image" /></p>
+    private TextView tv;
+    private static final int UPDATE = 0;
+    private Handler handler = new Handler() {
 
-<p>左边的螃蟹图片是png格式的，右边则是jpg格式的，明显右边螃蟹还留有矩形的空白。</p>
-
-<p>3、Bitmap通过均匀改变draw的横纵坐标或者切换图片就会呈现动画的效果,</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/161125238409409.png" alt="image" /></p>
-
-<p>上图是一张波浪的图片</p>
-
-<p>canvas.drawBitmap(bmp, x, y, new Paint());</p>
-
-<p>新建个线程：x+=1，就可以看到海水在动。</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/161127479021832.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161127569961254.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128073712718.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128152938597.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128248241719.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128354964625.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128440747904.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128538556482.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129022463520.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129090278613.png" alt="image" /></p>
-
-<p>上面则是9张卡通鱼的图片，分别命名fish0~fish9，通过来回不断切换图片，就会看到鱼儿在游动</p>
-
-<p>运行效果（由于博主不会录制gif图片，囧！就截2张图，读者自己脑补吧）：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/161133207937998.png" alt="image" /> <img src="http://images.cnitblog.com/i/602984/201403/161215537618984.png" alt="image" /></p>
-
-<p>SurfaceView主要代码：</p>
-
-<pre><code class="java">public MySurfaceView(Context context) {
-        super(context);
-        // TODO Auto-generated constructor stub
-        sfh = this.getHolder();
-        sfh.addCallback(this);
-        paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setAntiAlias(true);
-        setFocusable(true);
-        for (int i = 0; i &lt; fishBmp.length; i++) {
-            fishBmp[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.fish0 + i);
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-            int height) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-        bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.water);
-        x = -bmp.getWidth() + this.getWidth();
-        //Log.v("chendd", "bmp:"+bmp.getWidth() );
-        //Log.v("chendd", "this:"+this.getWidth() );
-        y = this.getHeight() - bmp.getHeight();
-        flag = true;
-        //实例线程
-        th = new Thread(this);
-        //启动线程
-        th.start();
-        //Mydraw();
-    }
-
-    private void Mydraw() {
-        // TODO Auto-generated method stub
-        try {
-            canvas = sfh.lockCanvas();
-            if (canvas != null) {
-                canvas.drawColor(Color.WHITE);
-                canvas.drawBitmap(bmp, x, y, new Paint());
-                canvas.drawBitmap(fishBmp[currentFrame], this.getWidth()/2, this.getHeight()-60, paint);
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO 接收消息并且去更新UI线程上的控件内容
+            if (msg.what == UPDATE) {
+                // Bundle b = msg.getData();
+                // tv.setText(b.getString("num"));
+                tv.setText(String.valueOf(msg.obj));
             }
-        } catch (Exception e) {
-            // TODO: handle exception
-        } finally {
-            if (canvas != null)
-                sfh.unlockCanvasAndPost(canvas);
+            super.handleMessage(msg);
         }
-    }
+    };
 
+    /** Called when the activity is first created. */
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tv = (TextView) findViewById(R.id.tv);
 
-    }
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // TODO Auto-generated method stub
-        Mydraw();
-        return true;
-    }
-
-    @Override
-    public void run() {
-        // TODO Auto-generated method stub
-        while (flag) {
-            long start = System.currentTimeMillis();
-            Mydraw();
-            logic();
-            long end = System.currentTimeMillis();
-            try {
-                if (end - start &lt; 10) {
-                    Thread.sleep(10 - (end - start));
+        new Thread() {
+            @Override
+            public void run() {
+                // TODO 子线程中通过handler发送消息给handler接收，由handler去更新TextView的值
+                try {
+                    for (int i = 0; i &lt; 100; i++) {
+                        Thread.sleep(500);
+                        Message msg = new Message();
+                        msg.what = UPDATE;
+                        // Bundle b = new Bundle();
+                        // b.putString("num", "更新后的值：" + i);
+                        // msg.setData(b);
+                        msg.obj = "更新后的值：" + i;
+                        handler.sendMessage(msg);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
-        }
+        }.start();
     }
-
-    private void logic() {
-        // TODO Auto-generated method stub
-        //Log.v("chendd", "x:"+x );
-        if(x == (-bmp.getWidth()/2 + this.getWidth())){
-            x = -bmp.getWidth() + this.getWidth();
-        }else {
-            x+=1;
-        }
-        currentFrame++;
-        if (currentFrame &gt;= fishBmp.length) {
-            currentFrame = 0;
-        }
-
-    }
-</code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android学习日记8--Paint画笔]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/24/android_study_08/"/>
-    <updated>2014-02-24T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/24/android_study_08</id>
-    <content type="html"><![CDATA[<h2>Paint</h2>
-
-<p>&#160; &#160; &#160; &#160;要绘图，首先得调整画笔，待画笔调整好之后，再将图像绘制到画布Canvas上，
-这样才可以显示在手机屏幕上。Android 中的画笔是 Paint类，Paint 中包含了很多方法对其属性进行设置，</p>
-
-<p>Paint方法一般可分两类，图形的绘制和文本的绘制
-主要方法如下：（没有全部列出，大家可以查看<a href="http://android.toolib.net/reference/android/graphics/Paint.html">官方文档</a> ）</p>
-
-<!--more-->
-
-
-<pre><code class="java">canvas.drawColor(Color.GREEN);
-
-Paint paint1 = new Paint();
-canvas.drawCircle(40, 30, 20, paint1);
-
-//设置画笔无锯齿，默认有锯齿
-paint1.setAntiAlias(true);
-canvas.drawCircle(100, 30, 20, paint1);
-
-//设置画笔的透明度
-canvas.drawText("无透明度", 100, 70, new Paint());
-Paint paint2 = new Paint();
-paint2.setAlpha(0x77);
-canvas.drawText("半透明度", 20, 70, paint2);
-
-//设置绘制文本的锚点
-canvas.drawText("锚点", 20, 90, new Paint());
-Paint paint3 = new Paint();
-
-//设置以文本的中心点绘制
-paint3.setTextAlign(Paint.Align.CENTER);
-canvas.drawText("锚点", 20, 105, paint3);
-
-//获取文本的长度
-Paint paint4 = new Paint();
-float len =paint4.measureText("文本宽度:");
-canvas.drawText("文本长度:"+len, 20, 130, new Paint());
-
-//设置画笔样式
-canvas.drawRect(new Rect(20,140,40,160), new Paint());
-Paint paint5 = new Paint();
-
-//设置画笔不填充
-paint5.setStyle(Style.STROKE);
-canvas.drawRect(new Rect(60,140,80,160), paint5);
-
-//设置画笔颜色
-Paint paint6 = new Paint();
-paint6.setColor(Color.GRAY);
-canvas.drawText("灰色", 30, 180, paint6);
-
-//设置画笔的粗细程度
-canvas.drawLine(20, 200,70, 200, new Paint());
-Paint paint7 = new Paint();
-paint7.setStrokeWidth(7);
-canvas.drawLine(20, 220,70, 220,paint7);
-
-//设置画笔绘制文本的字体粗细
-Paint paint8 = new Paint();
-paint8.setTextSize(20);
-canvas.drawText("文字尺寸", 20, 260, paint8);
-
-//设置画笔的ARGB分量 ，a值 (透明度)
-Paint paint9 = new Paint();
-paint9.setARGB(0x77, 0xff, 0x00, 0x00);
-canvas.drawText("红色半透明", 20, 290, paint9);
-</code></pre>
-
-<p><img src="http://images.cnitblog.com/blog/602984/201402/182002322713875.png" alt="image" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android学习日记7--Canvas画布]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/22/android_study_07/"/>
-    <updated>2014-02-22T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/22/android_study_07</id>
-    <content type="html"><![CDATA[<h4>1、Canvas</h4>
-
-<p>&#160; &#160; &#160; &#160;Canvas类主要实现了屏幕的绘制过程，其中包含了很多实用的方法，比如绘制一条路径、区域、贴图、画点、画线、渲染文本，
-当然Android官网提示大家很多方法有不同的重载版本，参数更灵活。</p>
-
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;2D部分是android SDK内部自己提供，3D部分是用Open GL ES(3D部分先直接pass，除非你要做些3D游戏之类的)。大部分2D使用的api都在android.graphics和android.graphics.drawable包中。</p>
-
-<p><a href="http://android.toolib.net/reference/android/graphics/Canvas.html">API参考地址</a></p>
-
-<p>&#160; &#160; &#160; &#160;下面是Canvas类常用的简单方法</p>
-
-<pre><code class="java">// 设置画布颜色为蓝色
-canvas.drawColor(Color.BLUE);
-
-//canvas.drawPoint(x, y, paint); x、y表示绘制点的坐标
-//canvas.drawPoints(pts, paint);pts表示绘制点存储的数组，两两值表示一个坐标点
-//canvas.drawPoints(pts, offset, count, paint);offset表示跳过哪些点,count表示实际绘制的个数
-float[] pts= {10,10,120,120,230,230,40,40,90,90};
-canvas.drawPoints(pts, paint);
-</code></pre>
-
-<p>绘制散点图：</p>
-
-<p><img src="http://images.cnitblog.com/blog/602984/201402/181939296215102.png" alt="image" /></p>
-
-<pre><code class="java">canvas.drawPoints(pts,3,4, paint);
-</code></pre>
-
-<p>跳过pts前3值后开始算4个值的数据(120,230,230,40)</p>
-
-<p>即绘制（120，230）、(230,40)两个点</p>
-
-<p><img src="http://images.cnitblog.com/blog/602984/201402/181940540028379.png" alt="image" /></p>
-
-<p>绘制几何图形：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201404/261129023103474.png" alt="image" /></p>
-
-<pre><code class="java">public GeometryView(Context context) {
-super(context);
-mPaint = new Paint();
-// 设置抗锯齿
-mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-}
-
-@Override
-protected void onDraw(Canvas canvas) {
-super.onDraw(canvas);
-
-//设置画布颜色 也就是背景颜色
-canvas.drawColor(Color.WHITE);
-
-mPaint.setColor(Color.BLACK);
-canvas.drawText("绘制无规则几何图形", 150, 30, mPaint);
-
-//绘制一条线
-mPaint.setColor(Color.BLACK);
-mPaint.setStrokeWidth(4);
-canvas.drawLine(0, 0, 100, 100, mPaint);
-
-//绘制一个矩形
-mPaint.setColor(Color.YELLOW);
-canvas.drawRect(0, 120, 100, 200, mPaint);
-
-//绘制一个圆形
-mPaint.setColor(Color.BLUE);
-canvas.drawCircle(80, 300, 50, mPaint);
-
-//绘制一个椭圆
-mPaint.setColor(Color.CYAN);
-canvas.drawOval(new RectF(300,370,120,100), mPaint);
-
-//绘制多边形
-mPaint.setColor(Color.BLACK);
-Path path = new Path();
-path.moveTo(150+5 , 400 -50);
-path.lineTo(150+45, 400 - 50);
-path.lineTo(150+30, 460 - 50);
-path.lineTo(150+20, 460 - 50);
-path.close();
-canvas.drawPath(path, mPaint);
 
 }
 </code></pre>
 
-<p>&#160; &#160; &#160; &#160;此外还有好多绘制各种简单图形的方法，偷懒就不一一写了，需要的时候可以去查api文档，</p>
+<p>　　关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
+我们通过在线程中使用Handler对象的sendEmptyMessage或sendMessage方法来传递一个Bundle对象到Handler处理器。
+对于Handler类提供了重写方法handleMessage(Message msg) 来判断，通过msg.what来区分每条信息。
+将Bundle解包来实现Handler类更新UI线程中的内容实现控件的刷新操作。相关的Handler对象有关消息发送sendXXXX相关方法如下，
+同时还有postXXXX相关方法，这些和Win32中的道理基本一致，一个为发送后直接返回，一个为处理后才返回。</p>
 
-<p>或者在eclipse 敲canvas.draw 按 ALT+/ 提示</p>
+<p>比如我们可以在message里封装Bundle对象。</p>
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/181944254378008.png" alt="image" /></p>
+<p>两边传递的代码如下：</p>
 
-<p>&#160; &#160; &#160; &#160;总的来说，Canvas可以绘制的对象有：弧线(arcs)、填充颜色(argb和color)、Bitmap、圆(circle和oval)、点(point)、线(line)、矩形(Rect)、图片(Picture)、圆角矩形(RoundRect)、文本(text)、顶点(Vertices)、路径(path)。通过组合这些对象我们可以画出一些简单有趣的界面出来，但是光有这些功能还是不够的，如果我要画一个仪表盘(数字围绕显示在一个圆圈中)就比较困难(不要告诉我直接贴一张仪表盘的图片上去，如果要让仪表盘指针会动呢？就没辙了吧！)。</p>
+<pre><code class="java">// 其他Thread里发送
+Message msg = new Message();
+Bundle b = new Bundle();// 存放数据
+b.putString("color", "我的");
+msg.setData(b);
 
-<p>&#160; &#160; &#160; &#160;幸好Android还提供了一些对Canvas位置转换的方法：rorate、scale、translate、skew(扭曲)等，而且它允许你通过获得它的转换矩阵对象(getMatrix方法)直接操作它。这些操作就像是虽然你的笔还是原来的地方画，但是画纸旋转或者移动了，所以你画的东西的方位就产生变化。为了方便一些转换操作，Canvas还提供了保存和回滚属性的方法(save和restore类似数据库commit和rollback)，比如你可以先保存目前画纸的位置(save)，然后旋转90度，向下移动100像素后画一些图形，画完后调用restore方法返回到刚才保存的位置，这些内容将在BitMap的操作中讲到。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android学习日记6--SurfaceView视图]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/20/android_study_06/"/>
-    <updated>2014-02-20T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/20/android_study_06</id>
-    <content type="html"><![CDATA[<h2>一、API关SurfaceView的介绍</h2>
+// handleMessage里接收
+Bundle b = msg.getData();
+String color = b.getString("color");
+</code></pre>
 
-<p>&#160; &#160; &#160; &#160;SurfaceView是视图(View)的继承类，这个视图里内嵌了一个专门用于绘制的Surface。你可以控制这个Surface的格式和尺寸。Surfaceview控制这个Surface的绘制位置。</p>
+<h4>5、单线程的消息机制</h4>
 
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;Surface是纵深排序的，这表明它总在自己所在窗口的后面。surfaceview提供了一个可见区域，只有在这个可见区域内 的surface部分内容才可见，可见区域外的部分不可见。surface的排版显示受到视图层级关系的影响，它的兄弟视图结点会在顶端显示。这意味者 surface的内容会被它的兄弟视图遮挡，这一特性可以用来放置遮盖物(overlays)(例如，文本和按钮等控件)。注意，如果surface上面 有透明控件，那么它的每次变化都会引起框架重新计算它和顶层控件的透明效果，这会影响性能。</p>
-
-<p>&#160; &#160; &#160; &#160;你可以通过SurfaceHolder接口访问这个surface，getHolder()方法可以得到这个接口。surfaceview变得可见时，surface被创建；surfaceview隐藏前，surface被销毁。这样能节省资源。如果你要查看 surface被创建和销毁的时机，可以重载surfaceCreated(SurfaceHolder)和 surfaceDestroyed(SurfaceHolder)。</p>
-
-<p>&#160; &#160; &#160; &#160;Surfaceview的核心在于提供了两个线程：UI线程和渲染线程。这里应注意：</p>
+<p>　　Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
 
 <ul>
-<li>所有SurfaceView和SurfaceHolder.Callback的方法都应该在UI线程里调用，一般来说就是应用程序主线程。渲染线程所要访问的各种变量应该作同步处理。</li>
-<li>由于surface可能被销毁，它只在SurfaceHolder.Callback.surfaceCreated()和 SurfaceHolder.Callback.surfaceDestroyed()之间有效，所以要确保渲染线程访问的是合法有效的surface。</li>
+<li>1、基于监听器的机制</li>
 </ul>
 
 
-<h2>二、SurfaceView流程</h2>
+<p>　　绑定特定的事件监听器，如Button的OnClickListener监听器， 监听器模型:包含事件源(EventSource)、事件(Event)、事件监听器(EventListener)。 一般内部类作为事件监听器类，主要因为 内部类可以在当前类复用;内部类可以调用外部类的组件。当然如果多个 GUI公用一个监听器类，还是使用外部类好一点，只需传入当前的context。当然大部分时间处理没什么复用价值， 更多的时候使用内部匿名类来实现。</p>
 
-<p>&#160; &#160; &#160; &#160;继承SurfaceView并实现SurfaceHolder.Callback接口 &mdash;-> SurfaceView.getHolder()获得SurfaceHolder对象 &mdash;->SurfaceHolder.addCallback(callback)添加回调函数&mdash;->SurfaceHolder.lockCanvas()获得Canvas对象并锁定画布&mdash;-> Canvas绘画 &mdash;->SurfaceHolder.unlockCanvasAndPost(Canvas canvas)结束锁定画图，并提交改变，将图形显示</p>
+<ul>
+<li>2、基于回调函数的机制</li>
+</ul>
 
-<h2>三、SurfaceView具体实现</h2>
 
-<p>&#160; &#160; &#160; &#160;用SurfaceView实现上篇View视图一样的例子</p>
+<p>　　重写回调方法，如View的OnKeyDown方法，基于回调函数的机制的事件源和事件监听器是统一的， Android为所有GUI提供一套事件处理方法，当重写回调函数处理完后必需返回true，事件才不会继续向上层调用。</p>
 
-<p><img src="http://images.cnitblog.com/blog/602984/201402/171953189042933.png" alt="image" /></p>
+<p>&#160; &#160; &#160; &#160;优劣：基于回调函数 使得更具通用型、代码更加简洁， 基于回调函数 事件模型分工明确、具有更好的维护性 对于特定事件，无法使用回调函数只能使用监听器。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记24--菜单开发]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/30/android_study_24/"/>
+    <updated>2013-03-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/30/android_study_24</id>
+    <content type="html"><![CDATA[<p>　　菜单是任何应用程序必不可少的一项。按下Menu键或者长按某个View就会弹出相应菜单，当然前提是应用程序有实现菜单功能。
+Android平台下的菜单有：Options Menu(选项菜单)、Submenu(子菜单)、Context Menu(上下文菜单)。
+这次的案例用以前的索尼真机测试，就不贴代码和运行截图，主要贴些理论知识。菜单这块比较简单，代码实例看<a href="http://www.cnblogs.com/giuz/archive/2010/10/19/1855235.html">这里</a></p>
 
-<p>讲解写在注释里</p>
+<!--more--> 
 
-<pre><code class="java">package com.example.gamesurfaceview2;
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceHolder.Callback;
-import android.view.SurfaceView;
+<h2>一、选项菜单和子菜单</h2>
 
-//SurfaceView 还要继承CallBack接口
-public class MySurfaceView extends SurfaceView implements Callback,Runnable{
+<p>　　Options Menu和Submenu 是一组的，放在一起介绍，一般用于开发普通的选项菜单。</p>
 
-    private SurfaceHolder sfh;
-    private Paint paint;
-    private int x,y;
-    private Thread thread;
-    private boolean flag;
-    private Canvas canvas;
-    private int w,h;
+<p>相关回调方法及说明：</p>
 
-    public MySurfaceView(Context context) {
-        super(context);
-        // TODO Auto-generated constructor stub
-        //通过SurfaceHolder来和Can打交道
-        sfh = this.getHolder();
-        //添加监听
-        sfh.addCallback(this);
-        x =20;
-        y =20;
-        paint = new Paint();
-        paint.setColor(Color.WHITE);
-        setFocusable(true);
+<p><img src="http://images.cnitblog.com/i/602984/201403/292323410312532.png" alt="image" /></p>
+
+<p>涉及到相关类详解：</p>
+
+<h4>1、Menu类</h4>
+
+<p>　　一个Menu对象代表一个菜单，Menu对象中可以添加菜单项MenuItem，也可以添加子菜单SubMenu。常用方法如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292324064696628.png" alt="image" /></p>
+
+<p>注意：clear() 方法用于清除已添加的菜单，通过代码运行中的clear()再add()可以用于动态配置菜单。</p>
+
+<h4>2、MenuItem类</h4>
+
+<p>　　一个MenuIten对象代表一个菜单项，通常MenuItem实例通过Menu的add方法获得。常用方法如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292325371093303.png" alt="image" /></p>
+
+<p>注意：Android最多支持6个MenuItem，多了以后就摆在More里面。</p>
+
+<h4>3、SubMenu类</h4>
+
+<p>　　一个SubMenu对象代表一个子菜单，可以理解为菜单的菜单，即Menu对象点进去弹出来的就叫子菜单，每个SubMenu实例代表一个子菜单，常用的方法如下</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292326297037235.png" alt="image" /></p>
+
+<p>一般用法：</p>
+
+<ul>
+<li>1、在主Activity中覆盖onCreateOptionsMenu(Menu menu)方法,子菜单也在这里添加</li>
+<li>2、如果要添加点击事件，则要覆盖onOptionsItemSelected(MenuItem item)方法</li>
+</ul>
+
+
+<h2>二、上下文菜单</h2>
+
+<p>　　Context Menu类似于电脑上的右键，长按某个View之后弹出来的菜单。也是继承自Menu，不同于选项菜单，
+选项菜单服务于Activity，而上下文是注册到某个VIew对象上的。如果一个View对象注册了上下文菜单，用户可以通过长按两秒该View对象调出上下文菜单。</p>
+
+<p>用法同普通菜单，方法名称由Options替换Context</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292327403289825.png" alt="image" /></p>
+
+<h2>三、用XML配置菜单</h2>
+
+<p>　　注意到新建项目的MainActivity 都会重写onCreateOptionsMenu方法
+里面代码：
+getMenuInflater().inflate(R.menu.main, menu);
+就是通过XML来设置菜单的。</p>
+
+<p>如下在res/menu/main.xml 就是本来的配置菜单</p>
+
+<pre><code class="xml">&lt;menu xmlns:android="http://schemas.android.com/apk/res/android" &gt;
+
+    &lt;item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/&gt;
+
+&lt;/menu&gt;
+</code></pre>
+
+<p>其他同再JAVA代码里的写法。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记23--XML解析]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/29/android_study_23/"/>
+    <updated>2013-03-29T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/29/android_study_23</id>
+    <content type="html"><![CDATA[<h2>一、简述</h2>
+
+<p>　　XML语言是跨平台，JAVA对XML语言支持得比较好，android系统的应用层平台是JAVA做的，所以用XML。
+XML解析比较简单。XML解析就是将获取到的数据分离出来，基本的网络数据传输，需要使用XML
+比如天气预报，从网上获取的是XML文件，通过XML解析可以把天气状态读出来
+例：</p>
+
+<pre><code class="xml">&lt;forecast_date data="2009-07-31" /&gt;
+&lt;condition data="晴" /&gt;
+&lt;humidity data="湿度： 65%" /&gt;
+</code></pre>
+
+<p>可得到 2009-07-31 晴 湿度：65%</p>
+
+<p>还有一作用是保存你的数据，比如做个旅游网站，你需要把全国各个省、城市名称写到XML文件进行保存，在程序中通过解析读取调用。</p>
+
+<!--more-->
+
+
+<p>Android 平台上可用的XML解析有三种</p>
+
+<ul>
+<li>1、Simple API for XML(SAX)</li>
+<li>2、Document Object Model(DOM)</li>
+<li>3、Android附带的pull解析器</li>
+</ul>
+
+
+<h2>二、实例</h2>
+
+<p>分别用三种方法解析如下persons.xml文件（文件放在assert目录下）</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;persons&gt;
+    &lt;person id="23"&gt;
+        &lt;name&gt;liming&lt;/name&gt;
+        &lt;age&gt;30&lt;/age&gt;
+    &lt;/person&gt;
+    &lt;person id="20"&gt;
+        &lt;name&gt;dehua&lt;/name&gt;
+        &lt;age&gt;25&lt;/age&gt;
+    &lt;/person&gt;
+&lt;/persons&gt;
+</code></pre>
+
+<p>还需定义个javabean 用于存放解析出来的内容</p>
+
+<pre><code class="java">package com.example.xml;
+
+public class Person {
+    private Integer id;
+    private String name;
+    private Short age;
+
+    public Integer getId() {
+        return id;
     }
 
-    @Override
-    /**
-     * surfaceView发生改变时执行的方法
-     */
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-            int height) {
-        // TODO Auto-generated method stub
-
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    @Override
-    /**
-     * surfaceView创建时执行的方法
-     */
-    public void surfaceCreated(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-        h = this.getHeight();
-        w = this.getWidth();
-        flag = true;
-        thread = new Thread(this);
-        thread.start();
+    public String getName() {
+        return name;
     }
 
-    /**
-     * 自己定义的绘画调用方法
-     */
-    private void Mydraw() {
-        try {
-            // 获取一个加锁的画布，防止被其他修改
-            canvas = sfh.lockCanvas();
-            if (canvas != null) {
-                //-----------利用填充矩形的方式，刷屏
-                ////绘制矩形
-                //canvas.drawRect(0,0,this.getWidth(),
-                //this.getHeight(), paint);
-                //-----------利用填充画布，刷屏
-                //        canvas.drawColor(Color.BLACK);
-                //-----------利用填充画布指定的颜色分量，刷屏
-                // 没重画图像会叠在一起
-                canvas.drawRGB(0, 0, 0);
-                canvas.drawText("Game", x, y, paint);
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
-        } finally {
-            if (canvas != null)
-                // 解锁和提交画布
-                sfh.unlockCanvasAndPost(canvas);
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @Override
-    /**
-     * surfaceView被销毁时执行的方法
-     */
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-
+    public Short getAge() {
+        return age;
     }
 
-
-    @Override
-    /**
-     * 触摸屏幕事件
-     */
-    public boolean onTouchEvent(MotionEvent event) {
-        // TODO Auto-generated method stub
-        x= (int) event.getX();
-        y= (int) event.getY();
-        return true;
+    public void setAge(Short age) {
+        this.age = age;
     }
 
-
-    /**
-     * 游戏逻辑
-     */
-    private void logic() {
-
-    }
-    @Override
-    public void run() {
-        while (flag) {
-            long start = System.currentTimeMillis();
-            Mydraw();
-            logic();
-            long end = System.currentTimeMillis();
-            try {
-                // 50毫秒刷新一次
-                if (end - start &lt; 50) {
-                    Thread.sleep(50 - (end - start));
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
+//    @Override
+//    public String toString() {
+//        return "id:" + id + ", name:" + name + ", age:" + age;
+//    }
 }
 </code></pre>
 
-<p>注意：当画布没有重画覆盖时，会出现如下重叠效果：</p>
+<h4>1、Simple API for XML(SAX)</h4>
+
+<p>　　SAX是一个解析速度快并且占用内存少的XML解析器，很适合用于Android等移动设备。
+SAX解析XML文件采用的是事件驱动，也就是说，它并不需要解析完整个文档，在按内容顺序解析文档的过程中，
+SAX会判断当前读到的字符是否合法XML语法中的某部分，如果符合就会触发事件。所谓事件，其实就是一些回调（callback）方法，
+这些方法(事件)定义在ContentHandler接口。</p>
+
+<p>　　直接看代码:</p>
+
+<pre><code class="java">public class XMLContentHandler extends DefaultHandler {
+    private List&lt;Person&gt; persons = null;
+    private Person currentPerson;
+    private String tagName = null;// 当前解析的元素标签    
+    private static final String TAG = "XMLContentHandler"; 
+
+    public List&lt;Person&gt; getPersons() {
+        return persons;
+    }
+
+    /* 
+     * 接收文档的开始的通知。
+     */
+
+    @Override
+    public void startDocument() throws SAXException {
+        persons = new ArrayList&lt;Person&gt;();
+         Log.i(TAG, "startDocument");  
+    }
+
+    /* 
+     * 结束文档的开始的通知。
+     */
+
+    @Override
+    public void endDocument() throws SAXException {
+        super.endDocument();
+         Log.i(TAG, "endDocument");  
+    }
+
+    /* 
+     * 接收字符数据的通知。
+     */
+
+    @Override
+    public void characters(char[] ch, int start, int length)
+            throws SAXException {
+        if (tagName != null) {
+            String data = new String(ch, start, length);
+            if (tagName.equals("name")) {
+                this.currentPerson.setName(data);
+            } else if (tagName.equals("age")) {
+                this.currentPerson.setAge(Short.parseShort(data));
+            }
+        }
+        Log.i(TAG, "characters("+ch.toString()+","+start+","+length+")"); 
+
+    }
+
+    /*
+     * 
+     * 接收元素开始的通知。
+     * 参数意义如下： 
+     * namespaceURI：元素的命名空间 
+     * localName ：元素的本地名称（不带前缀） 
+     * qName ：元素的限定名（带前缀）
+     * atts ：元素的属性集合
+     */
+
+    @Override
+    public void startElement(String namespaceURI, String localName,
+            String qName, Attributes atts) throws SAXException {
+
+        if (localName.equals("person")) {
+            currentPerson = new Person();
+            currentPerson.setId(Integer.parseInt(atts.getValue("id")));
+        }
+
+        this.tagName = localName;
+        Log.i(TAG, "startElement("+namespaceURI+","+localName+","+qName+atts+")"); 
+
+    }
+
+    /* 
+     * 接收文档的结尾的通知。
+     * 参数意义如下：
+     * uri ：元素的命名空间
+     * localName ：元素的本地名称（不带前缀）
+     * name ：元素的限定名（带前缀）
+     */
+    @Override
+    public void endElement(String uri, String localName, String name)
+            throws SAXException {
+
+        if (localName.equals("person")) {
+            persons.add(currentPerson);
+            currentPerson = null;
+        }
+
+        this.tagName = null;
+        Log.i(TAG, "endElement("+uri+","+localName+","+name+")"); 
+
+    }
+}
+</code></pre>
+
+<h4>2、Document Object Model(DOM)</h4>
+
+<p>　　DOM解析XML文件时，会将XML文件的所有内容读取到内存中，然后允许您使用DOM API遍历XML树、检索所需的数据。
+使用DOM操作XML的代码看起来比较直观，并且，在某些方面比基于SAX的实现更加简单。但是，因为DOM需要将XML文件的所有内容读取到内存中，
+所以内存的消耗比较大，特别对于运行Android的移动设备来说，因为设备的资源比较宝贵，所以建议还是采用SAX来解析XML文件，
+当然，如果XML文件的内容比较小采用DOM是可行的。</p>
+
+<pre><code class="java">public class DomParseXML {
+
+    public List&lt;Person&gt; readXML(InputStream inStream) {
+
+        List&lt;Person&gt; persons = new ArrayList&lt;Person&gt;();
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();// 获取实例
+
+        try {
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document dom = builder.parse(inStream);
+            Element root = dom.getDocumentElement();
+            NodeList items = root.getElementsByTagName("person");// 查找所有person节点
+
+            for (int i = 0; i &lt; items.getLength(); i++) {
+
+                Person person = new Person();
+
+                // 得到第一个person节点
+                Element personNode = (Element) items.item(i);
+
+                // 获取person节点的id属性值
+                person.setId(new Integer(personNode.getAttribute("id")));
+
+                // 获取person节点下的所有子节点(标签之间的空白节点和name/age元素)
+                NodeList childsNodes = personNode.getChildNodes();
+
+                for (int j = 0; j &lt; childsNodes.getLength(); j++) {
+
+                    Node node = (Node) childsNodes.item(j); // 判断是否为元素类型
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        Element childNode = (Element) node;
+
+                        // 判断是否name元素
+                        if ("name".equals(childNode.getNodeName())) {
+
+                            // 获取name元素下Text节点,然后从Text节点获取数据
+                            person.setName(childNode.getFirstChild()
+                                    .getNodeValue());
+
+                        } else if ("age".equals(childNode.getNodeName())) {
+                            person.setAge(new Short(childNode.getFirstChild()
+                                    .getNodeValue()));
+
+                        }
+                    }
+                }
+                persons.add(person);
+            }
+            inStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return persons;
+
+    }
+}
+</code></pre>
+
+<h4>3、Android附带的pull解析器</h4>
+
+<p>　　Pull解析和Sax解析很相似，都是轻量级的解析，在Android的内核中已经嵌入了Pull，所以我们不需要再添加第三方jar包来支持Pull。
+Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应的事件调用方法返回的是数字(2)pull可以在程序中控制想解析到哪里就可以停止解析。</p>
+
+<pre><code class="java">public class PullParseXML {
+
+    public List&lt;Person&gt; readXML(InputStream inStream) throws XmlPullParserException, IOException{
+
+        List&lt;Person&gt; persons = null;  
+        Person person = null;  
+        XmlPullParser parser = Xml.newPullParser();  
+        parser.setInput(inStream, "UTF-8");  
+
+        int event = parser.getEventType();//产生第一个事件  
+        while(event!=XmlPullParser.END_DOCUMENT){  
+            switch(event){  
+            case XmlPullParser.START_DOCUMENT://判断当前事件是否是文档开始事件  
+                persons = new ArrayList&lt;Person&gt;();//初始化Persons集合  
+                break;  
+            case XmlPullParser.START_TAG://判断当前事件是否是标签元素开始事件  
+                if("person".equals(parser.getName())){//判断开始标签元素是否是person  
+                    person = new Person();  
+                    person.setId(Integer.parseInt(parser.getAttributeValue(0)));//得到Person标签的属性值，并设置Person的id  
+                }  
+                if(person!=null){  
+                    if("name".equals(parser.getName())){//判断开始标签元素是否是name  
+                        person.setName(parser.nextText());  
+                    }else if("age".equals(parser.getName())){//判断开始标签元素是否是price  
+                        person.setAge(Short.parseShort(parser.nextText()));  
+                    }  
+                }  
+                break;  
+            case XmlPullParser.END_TAG://判断当前事件是否是标签元素结束事件  
+                if("person".equals(parser.getName())){//判断结束标签元素是否是Person  
+                    persons.add(person);//将person添加到persons集合  
+                    person = null;  
+                }  
+                break;  
+            }  
+            event = parser.next();//进入下一个元素并触发相应事件  
+        }//end while  
+        return persons;  
+
+    }
+}
+</code></pre>
+
+<p>运行界面：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291207400008256.png" alt="image" /></p>
+
+<p>绑定按钮触发的事件代码:</p>
+
+<pre><code class="java">@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        textView = (TextView)findViewById(R.id.textView);  
+        sax_prase = (Button)findViewById(R.id.sax_prase);  
+        dom_parse = (Button)findViewById(R.id.dom_parse);  
+        pull_parse = (Button)findViewById(R.id.pull_parse);
+
+
+        try {
+            inStream = getAssets().open("persons.xml");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //绑定按钮监听器  
+        sax_prase.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                persons = SaxParseXML(inStream); 
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+            }  
+        });  
+        //绑定按钮监听器  
+        dom_parse.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+
+                DomParseXML domParseXML = new DomParseXML();            
+                persons = domParseXML.readXML(inStream);
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+            }  
+        });  
+        pull_parse.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+
+                PullParseXML pullParseXML = new PullParseXML();                             
+                try {
+                    persons = pullParseXML.readXML(inStream);
+                } catch (XmlPullParserException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+
+            }  
+        });
+    }
+
+    private static List&lt;Person&gt; SaxParseXML(InputStream inStream) {
+        // TODO Auto-generated method stub
+        try {
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            SAXParser saxParser = spf.newSAXParser(); // 创建解析器
+
+            // 设置解析器的相关特性，http://xml.org/sax/features/namespaces = true
+            // 表示开启命名空间特性,缺省情况设为true，设置使代码更具可读性,但我加进去报错，索性注释掉
+            //saxParser.setProperty("http://xml.org/sax/features/namespaces",true);
+            XMLContentHandler handler = new XMLContentHandler();
+
+            saxParser.parse(inStream, handler);
+            inStream.close();
+
+            return handler.getPersons();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+</code></pre>
+
+<p>分别点击三个按钮用不同方法解析出来的结果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291210425004835.png" alt="image" /></p>
+
+<h2>三、总结</h2>
+
+<p>　　对于三种解析XML方法，各有千秋，倾向于PULL解析器，因为SAX解析器操作起来太笨重，DOM不适合文档较大，内存较小的场景，
+唯有Pull轻巧灵活，速度快，占用内存小，使用非常顺手，Pull解析可以用于很多场合，例如接受google天气，rss新闻等。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记22--Animation动画简介]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/26/android_study_22/"/>
+    <updated>2013-03-26T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/26/android_study_22</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;Animation动画主要有两种：帧动画(Frame Animation)和补间动画(Tween Animation)。
+补间动画主要包括对位置、角度、尺寸等属性的变化，而帧动画则是通过若干帧图片轮流切换显示的。</p>
+
+<h4>1、帧动画</h4>
+
+<p>&#160; &#160; &#160; &#160;按顺序显示事先准备好的图片，跟动漫类似。主要用到的类AnimationDrawable，每个帧都是AnimationDrawable对象。
+定义帧动画可以在代码直接进行。也可以通过XML文件定义，定义帧动画的文件存放在res/anim目录下。XML指定帧出现的顺序
+及每个帧的持续时间。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;帧动画XML主要标记和属性如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262025574051823.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;需要强调的是：启动Frame Animation动画的代码rocketAnimation.start();不能在OnCreate()中，因为在OnCreate()中
+AnimationDrawable还没有完全的与ImageView绑定，在OnCreate()中启动动画，就只能看到第一张图片。这里实在拖曳事件中实现的。</p>
+
+<p>&#160; &#160; &#160; &#160;AnimationDrawable的主要方法如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262028348437192.png" alt="image" />
+　　</p>
+
+<p>&#160; &#160; &#160; &#160;帧动画使用例子</p>
+
+<p>&#160; &#160; &#160; &#160;完整帧动画XML(frame_ani.xml)代码：</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+ &lt;animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+     android:oneshot="false"&gt;
+    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish2" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish3" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish4" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish5" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish6" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish7" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
+ &lt;/animation-list&gt;
+</code></pre>
+
+<p>启动帧动画JAVA代码：</p>
+
+<pre><code class="java">@Override    
+public void onClick(View v) {            //重写onClick方法
+      ImageView iv = (ImageView)findViewById(R.id.iv);
+      iv.setBackgroundResource(R.anim.frame_ani);
+      AnimationDrawable ad = (AnimationDrawable)iv.getBackground();
+      ad.start();        //启动AnimationDrawable
+}
+</code></pre>
+
+<p>点击按钮，启动帧动画，可以看见不同fish图片的切换，鱼儿在游动(自己脑补哈)。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262029485935994.png" alt="image" /></p>
+
+<h4>2、补间动画</h4>
+
+<p>&#160; &#160; &#160; &#160;补间动画作用于View视图，主要包括对View对象的位置、尺寸、旋转角度、透明度的变化。补间动画涉及的类主要有Animation、AnimationSet等。
+&#160; &#160; &#160; &#160;补间动画同帧动画可以在代码直接进行。也可以通过XML文件定义，推荐用XML，因为这样可读性比较高和利于扩展。
+XML文件存放在res/anim下。</p>
+
+<p>　　补间动画XML几种变化标记和属性如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262034318435727.png" alt="image" /></p>
+
+<p>　　公有属性如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262034454364374.png" alt="image" />　</p>
+
+<p>　　补间动画使用例子：</p>
+
+<p>完整补间动画XML代码：</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;!-- XML的版本以及编码方式 --&gt;
+&lt;set xmlns:android="http://schemas.android.com/apk/res/android"&gt; 
+  &lt;alpha
+    android:fromAlpha="0.0" 
+    android:toAlpha="1.0" 
+    android:duration="6000" 
+  /&gt; &lt;!-- 透明度的变换 --&gt;
+  &lt;scale
+    android:interpolator= "@android:anim/accelerate_decelerate_interpolator" 
+    android:fromXScale="0.0" 
+    android:toXScale="1.0" 
+    android:fromYScale="0.0" 
+    android:toYScale="1.0" 
+    android:pivotX="50%" 
+    android:pivotY="50%"
+    android:fillAfter="false" 
+    android:duration="9000"
+  /&gt; &lt;!-- 尺寸的变换 --&gt;
+  &lt;translate
+    android:fromXDelta="30" 
+    android:toXDelta="0" 
+    android:fromYDelta="30"
+    android:toYDelta="0" 
+    android:duration="10000" 
+  /&gt; &lt;!-- 尺位置的变换 --&gt;
+  &lt;rotate
+    android:interpolator="@android:anim/accelerate_decelerate_interpolator" 
+    android:fromDegrees="0" 
+    android:toDegrees="+360" 
+    android:pivotX="50%" 
+    android:pivotY="50%"
+    android:duration="10000"
+  /&gt; &lt;!-- 旋转变换 --&gt;
+&lt;/set&gt;
+</code></pre>
+
+<p>启动补间动画JAVA代码:</p>
+
+<pre><code class="java">@Override
+public void onClick(View v) {                //重写onClick方法
+       ImageView iv = (ImageView)findViewById(R.id.iv);
+       Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.tween_ani);
+       iv.startAnimation(animation);            //启动动画            
+}
+</code></pre>
+
+<p>点击按钮，启动补间动画，可以看见螃蟹从中心慢慢旋转显现出来。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262039309214990.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/262039459996150.png" alt="image" /></p>
 ]]></content>
   </entry>
   

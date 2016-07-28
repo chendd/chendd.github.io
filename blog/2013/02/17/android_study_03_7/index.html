@@ -1,0 +1,714 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记3--常用控件总结 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="常用控件 10、常用控件总结 &#160; &#160; &#160; &#160;Android控件种类繁多，但常用的无非这几种，当然有些高级控件可能特殊点，至此，常用控件就讲这些。如果开发时遇到陌生控件再去查API文档。 附件是转载的控件常用属性讲解，不求记忆，但得知道有这么些属性。 1
+2 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/02/17/android_study_03_7/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记3--常用控件总结</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-17T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>常用控件</h2>
+
+<h3>10、常用控件总结</h3>
+
+<p>&#160; &#160; &#160; &#160;Android控件种类繁多，但常用的无非这几种，当然有些高级控件可能特殊点，至此，常用控件就讲这些。如果开发时遇到陌生控件再去查API文档。</p>
+
+<p>附件是转载的控件常用属性讲解，不求记忆，但得知道有这么些属性。</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>android:orientation
+</span><span class='line'>horizontal/vertical
+</span><span class='line'>设置布局水平还是垂直，默认是垂直
+</span><span class='line'>
+</span><span class='line'>android:checked
+</span><span class='line'>true/false
+</span><span class='line'>标记默认选中，如果是单选则选中最后一个
+</span><span class='line'>
+</span><span class='line'>android:layout_gravity
+</span><span class='line'>center/right/left/bottom/top
+</span><span class='line'>位置
+</span><span class='line'>
+</span><span class='line'>android:gravity
+</span><span class='line'>center/right/left/bottom/top
+</span><span class='line'>位置(android:gravity属性是对该view内容的限定．比如一个button上面的text.你可以设置该text在view的靠左，靠右等位置．该属性就干了这个．android:layout_gravity是用来设置该view相对与起父view的位置．比如一个button在linearlayout里，你想把该button放在靠左靠右等位置就可以通过该属性设置．)
+</span><span class='line'>
+</span><span class='line'>android:hint
+</span><span class='line'>@string
+</span><span class='line'>提示信息，当文本框为空的时候显示
+</span><span class='line'>
+</span><span class='line'>android:numeric
+</span><span class='line'>integer/decimal
+</span><span class='line'>只能输入整数/小数
+</span><span class='line'>
+</span><span class='line'>android:singleLine
+</span><span class='line'>true/false
+</span><span class='line'>设置单行输入，一旦设置为true，则文字不会自动换行
+</span><span class='line'>
+</span><span class='line'>android:password
+</span><span class='line'>true/false
+</span><span class='line'>设置密码框
+</span><span class='line'>
+</span><span class='line'>android:textColor
+</span><span class='line'>#ffffff
+</span><span class='line'>字体颜色
+</span><span class='line'>
+</span><span class='line'>android:textStyle
+</span><span class='line'>bold/italic/bolditalic
+</span><span class='line'>设置字形[bold(粗体) 0, italic(斜体) 1, bolditalic(又粗又斜) 2] 可以设置一个或多个，用“｜”隔开
+</span><span class='line'>
+</span><span class='line'>android:textSize
+</span><span class='line'>20dip
+</span><span class='line'>字体大小
+</span><span class='line'>
+</span><span class='line'>android:capitalize
+</span><span class='line'>characters
+</span><span class='line'>设置英文字母大写类型。此处无效果，需要弹出输入法才能看得到
+</span><span class='line'>
+</span><span class='line'>android:textAlign
+</span><span class='line'>center/right/left
+</span><span class='line'>设置文字显示位置，EditText没有这个属性，但TextView有
+</span><span class='line'>
+</span><span class='line'>android:autoText
+</span><span class='line'>true/false
+</span><span class='line'>如果设置，将自动执行输入值的拼写纠正。此处无效果，在显示输入法并输入的时候起作用。
+</span><span class='line'>
+</span><span class='line'>android:editable
+</span><span class='line'>true/false
+</span><span class='line'>是否可编辑
+</span><span class='line'>
+</span><span class='line'>android:textColorHighlight
+</span><span class='line'>#ffffff
+</span><span class='line'>被选中文字的底色
+</span><span class='line'>
+</span><span class='line'>android:textColorHint
+</span><span class='line'>#ffffff
+</span><span class='line'>设置提示信息文字的颜色，默认为灰色
+</span><span class='line'>
+</span><span class='line'>android:textScaleX
+</span><span class='line'>1.5
+</span><span class='line'>控制字与字之间的间距
+</span><span class='line'>
+</span><span class='line'>android:typeface
+</span><span class='line'>normal/sans/serif/monospace
+</span><span class='line'>设置文本字体，必须是以下常量值之一：normal 0, sans 1, serif 2, monospace(等宽字体) 3
+</span><span class='line'>
+</span><span class='line'>android:background
+</span><span class='line'>@null
+</span><span class='line'>空间背景，这里没有，指透明，将EditText自定义的背景去掉
+</span><span class='line'>
+</span><span class='line'>android:layout_weight
+</span><span class='line'>1
+</span><span class='line'>权重，控制控件之间的地位,在控制控件显示的大小时蛮有用的。
+</span><span class='line'>
+</span><span class='line'>android:textAppearance
+</span><span class='line'>textAppearanceButton、textAppearanceInverse、textAppearanceLarge、textAppearanceLargeInverse、textAppearanceMedium、textAppearanceMediumInverse、textAppearanceSmall、textAppearanceSmallInverse
+</span><span class='line'>设置文字外观。如“?android:attr/textAppearanceLargeInverse”这里引用的是系统自带的一个外观，？表示系统是否有这种外观，否则使用默认的外观。
+</span><span class='line'>
+</span><span class='line'>android:autoLink
+</span><span class='line'>none、web、email、phone、map、all
+</span><span class='line'>设置是否当文本为URL链接/email/电话号码/map时，文本显示为可点击的链接。
+</span><span class='line'>
+</span><span class='line'>android:cursorVisible
+</span><span class='line'>true/false
+</span><span class='line'>设定光标为显示/隐藏，默认显示。
+</span><span class='line'>
+</span><span class='line'>android:digits
+</span><span class='line'>1234567890.+-*/%\n()
+</span><span class='line'>设置允许输入哪些字符。
+</span><span class='line'>
+</span><span class='line'>android:drawableBottom
+</span><span class='line'>在text的下方输出一个drawable，如图片。如果指定一个颜色的话会把text的背景设为该颜色，并且同时和background使用时覆盖后者。 
+</span><span class='line'>android:drawableLeft
+</span><span class='line'>
+</span><span class='line'>在text的左边输出一个drawable，如图片。 
+</span><span class='line'>android:drawableRight
+</span><span class='line'>在text的右边输出一个drawable，如图片。
+</span><span class='line'>
+</span><span class='line'>android:drawableTop
+</span><span class='line'>在text的正上方输出一个drawable，如图片。 
+</span><span class='line'>android:drawablePadding
+</span><span class='line'>
+</span><span class='line'>设置text与drawable(图片)的间隔，与drawableLeft、drawableRight、drawableTop、drawableBottom一起使用，可设置为负数，单独使用没有效果。 
+</span><span class='line'>android:editorExtras
+</span><span class='line'>指定特定输入法的扩展，如“com.mydomain.im.SOME_FIELD”。源码跟踪至EditorInfo.extras，暂无相关实现代码。
+</span><span class='line'>
+</span><span class='line'>android:ellipsize
+</span><span class='line'>start、end、middle、marquee
+</span><span class='line'>设置当文字过长时,该控件该如何显示。有如下值设置：”start”省略号显示在开头；”end”省略号显示在结尾；”middle”省略号显示在中间；”marquee”以跑马灯的方式显示(动画横向移动)
+</span><span class='line'>
+</span><span class='line'>android:freezesText
+</span><span class='line'>true/false
+</span><span class='line'>设置保存文本的内容以及光标的位置，再到相应的Activity中加上如下两个方法，实现方法网站找一下，这里不详细说明。
+</span><span class='line'>
+</span><span class='line'>android:imeOptions
+</span><span class='line'>normal，actionUnspecified，actionNone，actionGo，actionSearch，actionSend，actionNext，actionDone，flagNoExtractUi，flagNoAccessoryAction，flagNoEnterAction
+</span><span class='line'>设置软键盘的Enter键。可用’｜’设置多个。
+</span><span class='line'>
+</span><span class='line'>android:imeActionId
+</span><span class='line'>设置IME动作ID，在onEditorAction中捕获判断进行逻辑操作。
+</span><span class='line'>
+</span><span class='line'>android:imeActionLabel
+</span><span class='line'>设置IME动作标签。但是不能保证一定会使用，猜想在输入法扩展的时候应该有用。
+</span><span class='line'>
+</span><span class='line'>android:includeFontPadding
+</span><span class='line'>true/false
+</span><span class='line'>设置文本是否包含顶部和底部额外空白，默认为true。
+</span><span class='line'>
+</span><span class='line'>android:inputMethod
+</span><span class='line'>为文本指定输入法，需要完全限定名（完整的包名）
+</span><span class='line'>
+</span><span class='line'>android:inputType
+</span><span class='line'>设置文本的类型，用于帮助输入法显示合适的键盘类型。有如下值设置：none、text、textCapCharacters字母大小、textCapWords单词首字母大小、textCapSentences仅第一个字母大小、textAutoCorrect、textAutoComplete自动完成、textMultiLine多行输入、textImeMultiLine输入法多行（如果支持）、textNoSuggestions不提示、textEmailAddress电子邮件地址、textEmailSubject邮件主题、textShortMessage短信息（会多一个表情按钮出来）、textLongMessage长讯息？、textPersonName人名、textPostalAddress地址、textPassword密码、textVisiblePassword可见密码、textWebEditText作为网页表单的文本、textFilte文本筛选过滤、textPhonetic拼音输入、numberSigned有符号数字格式、numberDecimal可带小数点的浮点格式、phone电话号码、datetime时间日期、date日期、time时间。
+</span><span class='line'>
+</span><span class='line'>android:linksClickable
+</span><span class='line'>设置链接是否点击连接，即使设置了autoLink
+</span><span class='line'>
+</span><span class='line'>android:maxLines
+</span><span class='line'>设置文本的最大显示行数，与width或者layout_width结合使用，超出部分自动换行，超出行数将不显示
+</span><span class='line'>
+</span><span class='line'>android:minLines
+</span><span class='line'>设置文本的最小行数
+</span><span class='line'>
+</span><span class='line'>android:lineSpacingExtra
+</span><span class='line'>设置行间距。
+</span><span class='line'>
+</span><span class='line'>android:phoneNumber
+</span><span class='line'>true/false
+</span><span class='line'>设置为电话号码的输入方式。
+</span><span class='line'>
+</span><span class='line'>android:privateImeOptions
+</span><span class='line'>提供额外的输入法选项(字符串格式)。
+</span><span class='line'>
+</span><span class='line'>android:scrollHorizontally
+</span><span class='line'>true/false
+</span><span class='line'>设置文本超出TextView的宽度的情况下，是否出现横拉条。
+</span><span class='line'>
+</span><span class='line'>android:selectAllOnFocus
+</span><span class='line'>如果文本是可选择的，让他获取焦点而不是将光标移动为文本的开始位置或者末尾位置。
+</span><span class='line'>
+</span><span class='line'>android:shadowColor
+</span><span class='line'>指定文本阴影的颜色，需要与shadowRadius一起使用。
+</span><span class='line'>
+</span><span class='line'>android:shadowRadius
+</span><span class='line'>设置阴影的半径。设置为0.1就变成字体的颜色了，一般设置为3.0的效果比较好。
+</span><span class='line'>
+</span><span class='line'>android:shadowDx
+</span><span class='line'>设置阴影横向坐标开始位置。
+</span><span class='line'>
+</span><span class='line'>android:shadowDy
+</span><span class='line'>设置阴影纵向坐标开始位置。
+</span><span class='line'>
+</span><span class='line'>android:textColorLink
+</span><span class='line'>#ffffff
+</span><span class='line'>文字链接的颜色.
+</span><span class='line'>
+</span><span class='line'>android:maxHeight
+</span><span class='line'>设置文本区域的最大高度
+</span><span class='line'>
+</span><span class='line'>android:minHeight
+</span><span class='line'>设置文本区域的最小高度
+</span><span class='line'>
+</span><span class='line'>android:maxWidth
+</span><span class='line'>设置文本区域的最大宽度
+</span><span class='line'>
+</span><span class='line'>android:minWidth
+</span><span class='line'>设置文本区域的最小宽度
+</span><span class='line'>
+</span><span class='line'>android:clickable
+</span><span class='line'>true/false
+</span><span class='line'>view是否能对click事件作出反应
+</span><span class='line'>
+</span><span class='line'>android:onClick
+</span><span class='line'>当view被click之后，view的context的哪个方法被呼叫。通常这个context是指view所在的Activity。例如:android:onClick='sayHello'，则相应的Activity里面有一个方法public void sayHello(View view)方法，当这个view被click之后，sayHello方法就会被调用。
+</span><span class='line'>
+</span><span class='line'>android:longClickable
+</span><span class='line'>true/false
+</span><span class='line'>view是否可以对长时间的click事件作出反应。
+</span><span class='line'>
+</span><span class='line'>android:focusable
+</span><span class='line'>view是否能响应焦点事件
+</span><span class='line'>
+</span><span class='line'>android:cacheColorHint
+</span><span class='line'>#00000000
+</span><span class='line'>滚动时，列表里面的view重绘时，用的依旧是系统默认的透明色，颜色值为#FF191919，要改变这种情况，只需要调用 listView的setCacheColorHint(0)，颜色值设置为0或者xml文件中listView的属性 Android:cacheColorHint="#00000000"即可，滚动时，重绘View的时候就不会有背景颜色。
+</span><span class='line'>
+</span><span class='line'>android:fadingEdgeLength
+</span><span class='line'>设置边框渐变的长度。</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-02-17T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:22 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/16/android_study_03_6/" title="Previous Post: android学习日记3--常用控件Dialog">&laquo; android学习日记3--常用控件Dialog</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/02/19/android_study_04/" title="Next Post: android学习日记4--开发中的通用细节">android学习日记4--开发中的通用细节 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/02/17/android_study_03_7" data-title="android学习日记3--常用控件总结" data-url="http://chendd.github.io/blog/2013/02/17/android_study_03_7/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

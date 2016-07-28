@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: SQLite | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/sqlite/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记13--数据存储之SQLite]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/07/android_study_13_2/"/>
+    <updated>2013-03-07T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/07/android_study_13_2</id>
+    <content type="html"><![CDATA[<h4>2、SQLite</h4>
+
+<p>&#160; &#160; &#160; &#160;开源轻量级数据库，支持92-SQL标准，主要用于嵌入式系统，只占几百K系统资源此外，SQLite 不支持一些标准的 SQL 功能，特别是外键约束（FOREIGN KEY constrains），嵌套 transcaction 和 RIGHT OUTER JOIN 和 FULL OUTER JOIN, 还有一些 ALTER TABLE 功能</p>
+
+<p>&#160; &#160; &#160; &#160;许多开源项目（(Mozilla, PHP, Python）都使用了 SQLite.SQLite 由以下几个组件组成：SQL 编译器、内核、后端以及附件</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;具有如下特性：</p>
+
+<ul>
+<li>轻量性：只需要一个动态库，就可以享受全部功能，而且动态库尺寸也很小</li>
+<li>独立性：核心引擎不需要依赖第三方软件</li>
+<li>隔离性：数据库所有信息（表、视图、触发器）都放在同一个文件里</li>
+<li>跨平台：支持大部分操作系统，也可以在PC端使用</li>
+<li>安全性：独占性和共享锁来实现事务处理，支持多进程读取数据，只能一个进程修改</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;有五种常用数据类型：</p>
+
+<ul>
+<li>NULL：空值</li>
+<li>INTEGER：整形</li>
+<li>REAL：浮点型</li>
+<li>VARCHAR:字符型</li>
+<li>BLOB：大数据</li>
+</ul>
+
+
+<p>注意：SQLite不支持BOOLEAN和DATE，因此可以用0,1代替BOOLEAN(其它数据库也经常这么干)
+INTEGER或VARCHAR代替DATE，更多<a href="http://www.sqlite.org/">参考资料</a></p>
+
+<p>在Android系统中提供了android.database.sqlite包，用于进行SQLite数据库的增、删、改、查工作。其主要方法如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/072326293931382.png" alt="image" /></p>
+
+<p>1、创建数据库连接</p>
+
+<pre><code class="java">// 创建数据库的两种方法，推荐第一种，第二种使用绝对路径，较繁杂
+SQLiteDatabase db = this.openOrCreateDatabase("test_db.db", Context.MODE_PRIVATE, null);        
+SQLiteDatabase db2 = SQLiteDatabase.openOrCreateDatabase("/data/data/com.example.sqlite/databases/test_db2.db", null);
+</code></pre>
+
+<p>创建完/data/data/com.example.sqlite/databases/ 会有两个数据库文件。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/072256268934722.png" alt="image" /></p>
+
+<p>2、创建tab表，有两个字段<em>id和name,其中</em>id为自增序列,name不为空。</p>
+
+<pre><code class="java">// 创建tab表
+db.execSQL("create table tab(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)");
+</code></pre>
+
+<p>3、插入数据</p>
+
+<pre><code class="java">//插入数据
+// 类似map,键值对存储数据
+ContentValues values = new ContentValues();        
+for (int i = 0; i &lt; 5; i++) {
+      values.put("name", "test"+i);
+      // 插入到数据库，参数：表名， 指定表中的某列列名，数据
+      db.insert("tab", "_id", values);
+}
+</code></pre>
+
+<p>4、修改数据</p>
+
+<pre><code class="java">// 修改
+ContentValues values2 =new ContentValues();
+values2.put("name", "name");
+// 更改数据,参数分别：表名、新数据、where条件、子句(可为null)
+db.update("tab", values2, "_id=1", null);
+// where条件?为占位符，最后一个参数可替换占位符
+db.update("tab", values2, "_id=?", new String[]{"10"});
+</code></pre>
+
+<p>将数据库文件拷贝到本地电脑可以用 SQLite Expert Personal 3查看，修改后_id为0和10的name列 值都改掉了。</p>
+
+<p>由于我程序执行了4次，多插入3遍，因此有20条记录。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/072259083931916.png" alt="image" /></p>
+
+<p>5、查询数据</p>
+
+<pre><code class="java">//查询数据两种方法query、rawQuery
+// Cursor指游标，学过数据库的都知道吧,后面跟一系列参数，目标表名、where子句、order by子句、having子句等可不记，用第二种方法
+Cursor c = db.query("tab", null, null, null, null, null, null);
+// 在第一次读取Cursor对象中的数据时，一定要先移动游标，否则此游标的位置在第一条记录之前，会引发异常
+c.moveToFirst();
+while(!c.isAfterLast()){
+int index = c.getColumnIndex("name");
+      Log.d("SQLite", c.getString(index));
+      c.moveToNext();
+}
+
+//推荐用这种，不需记那么多参数
+c = db.rawQuery("select * from tab", null);
+c.moveToFirst();
+while(!c.isAfterLast()){
+   int index = c.getColumnIndex("name");
+       Log.d("SQLite", c.getString(index));
+       c.moveToNext();
+   }
+</code></pre>
+
+<p>日子打印结果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/072308325965984.png" alt="image" /></p>
+
+<p>针对游标的常用方法说明：</p>
+
+<p>6、删除数据和关闭连接</p>
+
+<pre><code class="java">// 删除数据
+db.delete("tab", "_id=? or name=?", new String[]{"8", "test0"});
+// 关闭数据库连接，释放资源
+db.close();
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;实际开发是继承数据库的辅助类SQLiteOpenHelper来方便操作的，主要做的工作就是重写以下两个方法：</p>
+
+<p>onCreate(SQLiteDatabase db) : 当数据库被首次创建时执行该方法，一般将创建表等初始化操作在该方法中执行。
+onUpgrade(SQLiteDatabse dv, int oldVersion,int new Version)：当打开数据库时传入的版本号与当前的版本号不同时会调用该方法。</p>
+
+<p>&#160; &#160; &#160; &#160;除了上述两个必须要实现的方法外，还可以选择性地实现onOpen 方法，该方法会在每次打开数据库时被调用。</p>
+
+<p>一般的代码结构:</p>
+
+<pre><code class="java">public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private static final String DB_NAME = "mydata.db"; //数据库名称
+    private static final int version = 1; //数据库版本
+
+    public DatabaseHelper(Context context) {
+        super(context, DB_NAME, null, version);
+        // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String sql = "create table user(username varchar(20) not null , password varchar(60) not null );";          
+        db.execSQL(sql);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // TODO Auto-generated method stub
+
+    }
+
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

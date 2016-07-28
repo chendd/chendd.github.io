@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: activity | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/activity/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Android学习日记2--Activity简介]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/09/android_study_02/"/>
-    <updated>2014-02-09T21:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/09/android_study_02</id>
+    <link href="http://chendd.github.io/blog/2013/02/09/android_study_02/"/>
+    <updated>2013-02-09T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/02/09/android_study_02</id>
     <content type="html"><![CDATA[<h2>一、Activity活动</h2>
 
 <p>&#160; &#160; &#160; &#160;学习Android，第一个都会接触Activity滴，Activity表示一个用户界面，是Android应用程序的入口，可以同时有多个界面，但只会显示栈顶的界面。</p>

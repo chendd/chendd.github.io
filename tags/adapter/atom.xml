@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Adapter | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/adapter/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记18--Adapter简介]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/19/android_study_18/"/>
+    <updated>2013-03-19T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/19/android_study_18</id>
+    <content type="html"><![CDATA[<h2>一、Adapter</h2>
+
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;最近学的GridView和Gallery 都有用到Adapter适配器，发现它貌似蛮重要的。专门上网搜了下有关Adapter的资料。android绝大多数应用是JAVA语言编写的，Adapter在JAVA里是专门的一种设计模式，目的是使两个原本没有关联的类结合一起使用。
+比如水管A是25mm的，水管B是40mm的，假设水管厚度不计，怎样连接两种水管一起使用？这时就需要适配器C，适配器C类似水管，一头25mm，另一头40mm，这样就可以连接A、B水管一起使用了。</p>
+
+<!--more-->
+
+
+<h4>2、Android中的Adapter</h4>
+
+<p>&#160; &#160; &#160; &#160;Android里的Adapter是View视图与data数据之间的桥梁，Adapter提供对数据的访问，也负责为每一项数据产生一个对应的视图。下图是Data、Adapter、View三者的关系：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/181940309126689.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;Andpter类结构体系：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/181940563966771.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;在这些适配器中，BaseAdapter由于比较灵活用得最多，SimpleCursorAdapter貌似也挺常用的，允许绑定游标来显示数据。</p>
+
+<h4>3、Adapter重要方法</h4>
+
+<p>&#160; &#160; &#160; &#160;无论重写哪种Adapter，一般都要重写底下四个方法：</p>
+
+<pre><code class="java">    // 所表示的数据的项数
+    int getCount();
+
+    // 返回指定位置的数据项
+    Object getItem(int position);
+
+    // 返回指定位置的数据项的ID
+    long getItemId(int position);
+
+    // 为每一个数据项产生相应的视图
+    View getView(int position, View convertView, ViewGroup parent);
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;有网友查看源码发现其中getItem(),和getItemId()这两个方法对于android来讲是没有用的，单纯是为了客户端调用的方便。就上我上一篇重写getItem()和getItemId()来设置初始position发现不起作用。</p>
+
+<h4>4、简单例子：</h4>
+
+<p>&#160; &#160; &#160; &#160;关于扩展BaseAdapter自定义的代码参考ListView、GridView、Gallery文章都有，这边不再贴出来。主要贴出如何构造一个SimpleCursorAdapter来显示联系人信息代码：</p>
+
+<pre><code class="java">listView = new ListView(this);
+        // 系统里的表
+        Cursor cursor = getContentResolver().query(People.CONTENT_URI, null,
+                null, null, null);
+
+        startManagingCursor(cursor);
+
+        ListAdapter listAdapter = new SimpleCursorAdapter(this,//上下文
+                android.R.layout.simple_expandable_list_item_1,//要显示ListView的样式
+
+                cursor,// 数据源
+
+                new String[] { People.NAME },// 对应的字段
+
+                new int[] { android.R.id.text1 });// 显示哪个控件上
+
+        listView.setAdapter(listAdapter);
+
+        setContentView(listView);
+</code></pre>
+
+<p>新增两个联系人，运行效果:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/182009187561690.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: BroadcastReciver | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/broadcastreciver/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记19--四大组件之BroadcastReciver(广播接收者)]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/22/android_study_19_2/"/>
+    <updated>2013-03-22T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/22/android_study_19_2</id>
+    <content type="html"><![CDATA[<h2>二、BroadcastReciver(广播接收者)</h2>
+
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;BroadcastReciver位于android.content包下，主要用于对广播消息(Intent)的过滤并响应的控件。可以理解为全局的监听器。
+BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某个广播消息后，BroadcastReceiver可以启动Activity作为响应，
+或者启动Service服务等等。</p>
+
+<!--more--> 
+
+
+<h4>2、运行原理</h4>
+
+<p>&#160; &#160; &#160; &#160;当其他应用程序发出广播消息之后，所有注册了BroadcastReciver的应用程序将会检测注册时的(过滤器)IntentFilter是否与发出的广播消息相匹配，匹配则会调用BroadcastReciver的onReceive()方法进行处理。所以开发BroadcastReciver应用，主要是对onReceive()方法的实现</p>
+
+<h4>3、生命周期</h4>
+
+<p>&#160; &#160; &#160; &#160;生命周期不像Activity那么复杂，一般生命周期是：启动(被其他程序调用，接收到匹配的广播)&ndash;>运行(执行onReceive()方法)&ndash;>结束(释放资源)
+每次广播到来时,会重新创建BroadcastReceiver对象 ,并且调用onReceive()方法,执行完以后,该对象即被销毁。当onReceive()方法在10秒内没有执行完毕，
+Android会认为该程序无响应。所以在BroadcastReceiver里不能做一些比较耗时的操作,否侧会弹出 ANR(Application NoResponse)的对话框。</p>
+
+<h4>4、广播的类型</h4>
+
+<p>&#160; &#160; &#160; &#160;主要有以下两种类型:</p>
+
+<ul>
+<li>a、普通广播
+　　普通广播对于多个接收者来说是完全异步的，通常每个接收者都无需等待即可以接收到广播，接收者相互之间不会有影响。对于这种广播，接收者无法终止广播，即无法阻止其他接收者的接收动作,也无法将处理结果传递给下一个接收者。</li>
+<li>b、有序广播
+　　有序广播比较特殊，它每次只发送到优先级较高的接收者那里，然后由优先级高的接受者再传播到优先级低的接收者那里，优先级高的接收者有能力终止这个广播，并且优先级高的广播可以传递消息给优先级底的广播。</li>
+</ul>
+
+
+<h4>5、广播的收发</h4>
+
+<ul>
+<li>a、发送广播:构建Intent对象，可调用sendBroadcast(Intent)方法将广播发出。另外还有sendOrderedBroadcast()，sendStickyBroadcast()等方法</li>
+<li>b、接收广播:通过定义一个继承BroadcastReceiver类来实现，继承该类后覆盖其onReceiver方法，并在该方法中响应事件</li>
+</ul>
+
+
+<h4>6、广播的注册</h4>
+
+<p>&#160; &#160; &#160; &#160;创建完BroadcastReceiver之后，还不能够使它进入工作状态，我们需要为它注册一个指定的广播地址,否则无法接收广播
+　　一般有如下两种注册:</p>
+
+<ul>
+<li>a、静态注册</li>
+</ul>
+
+
+<pre><code class="xml">&lt;receiver android:name=".MyReceiver"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="android.intent.action.MY_BROADCAST"/&gt;
+        &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+
+<ul>
+<li>b、动态注册</li>
+</ul>
+
+
+<pre><code class="java">MyReceiver receiver = new MyReceiver();
+IntentFilter filter = new IntentFilter();
+filter.addAction("android.intent.action.MY_BROADCAST");
+registerReceiver(receiver, filter);
+</code></pre>
+
+<p>　　两种注册方法的区别是静态注册是常驻内存的，应用关闭是也可以接收广播，而动态注册是根着程序的生命周期，所以当这个程序退出时如果没有解除注册，系统会报一个异常，提示我们是否忘记解除注册。这时要加入解除注册的代码:</p>
+
+<pre><code class="java">@Override
+protected void onDestroy() {
+    super.onDestroy();
+    unregisterReceiver(receiver);
+}
+</code></pre>
+
+<p>7、运行实例</p>
+
+<p>写个例子，运行程序时发送广播，后台日志打印消息。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/221645021152216.png" alt="image" /></p>
+
+<p>MyReceiver代码：</p>
+
+<pre><code class="java">public class MyReceiver extends BroadcastReceiver {
+
+    private static final String TAG = "MyReceiver";
+
+    @Override
+    public void onReceive(Context arg0, Intent intent) {
+        // TODO Auto-generated method stub
+        String msg = intent.getStringExtra("msg");
+        Log.i(TAG, msg); 
+    }
+
+}
+</code></pre>
+
+<p>Activity发送广播代码:</p>
+
+<pre><code class="java">Intent intent = new Intent("android.intent.action.MY_BROADCAST");
+intent.putExtra("msg", "Hello Receiver!");
+sendBroadcast(intent);
+</code></pre>
+
+<p>直接用静态注册广播。上述例子的广播是我们自己写的。Android提供许多丰富的原生广播地址。常用如下：</p>
+
+<ul>
+<li>开机启动:
+<code>
+&lt;action android:name="android.intent.action.BOOT_COMPLETED"/&gt;
+</code></li>
+<li>网络连接:
+<code>
+  &lt;action android:name="android.net.conn.CONNECTIVITY_CHANGE"/&gt;
+</code></li>
+<li>电量变化:
+<code>
+  &lt;action android:name="android.intent.action.BATTERY_CHANGED"/&gt;
+</code></li>
+<li>时间改变:
+<code>
+  &lt;action android:name="android.intent.action.DATE_CHANGED"/&gt;
+</code></li>
+</ul>
+
+
+<p>只要更改自定义Receiver就可以触发一些相应事件。</p>
+]]></content>
+  </entry>
+  
+</feed>

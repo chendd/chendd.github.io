@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: menu | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/menu/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记24--菜单开发]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/30/android_study_24/"/>
+    <updated>2013-03-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/30/android_study_24</id>
+    <content type="html"><![CDATA[<p>　　菜单是任何应用程序必不可少的一项。按下Menu键或者长按某个View就会弹出相应菜单，当然前提是应用程序有实现菜单功能。
+Android平台下的菜单有：Options Menu(选项菜单)、Submenu(子菜单)、Context Menu(上下文菜单)。
+这次的案例用以前的索尼真机测试，就不贴代码和运行截图，主要贴些理论知识。菜单这块比较简单，代码实例看<a href="http://www.cnblogs.com/giuz/archive/2010/10/19/1855235.html">这里</a></p>
+
+<!--more--> 
+
+
+<h2>一、选项菜单和子菜单</h2>
+
+<p>　　Options Menu和Submenu 是一组的，放在一起介绍，一般用于开发普通的选项菜单。</p>
+
+<p>相关回调方法及说明：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292323410312532.png" alt="image" /></p>
+
+<p>涉及到相关类详解：</p>
+
+<h4>1、Menu类</h4>
+
+<p>　　一个Menu对象代表一个菜单，Menu对象中可以添加菜单项MenuItem，也可以添加子菜单SubMenu。常用方法如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292324064696628.png" alt="image" /></p>
+
+<p>注意：clear() 方法用于清除已添加的菜单，通过代码运行中的clear()再add()可以用于动态配置菜单。</p>
+
+<h4>2、MenuItem类</h4>
+
+<p>　　一个MenuIten对象代表一个菜单项，通常MenuItem实例通过Menu的add方法获得。常用方法如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292325371093303.png" alt="image" /></p>
+
+<p>注意：Android最多支持6个MenuItem，多了以后就摆在More里面。</p>
+
+<h4>3、SubMenu类</h4>
+
+<p>　　一个SubMenu对象代表一个子菜单，可以理解为菜单的菜单，即Menu对象点进去弹出来的就叫子菜单，每个SubMenu实例代表一个子菜单，常用的方法如下</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292326297037235.png" alt="image" /></p>
+
+<p>一般用法：</p>
+
+<ul>
+<li>1、在主Activity中覆盖onCreateOptionsMenu(Menu menu)方法,子菜单也在这里添加</li>
+<li>2、如果要添加点击事件，则要覆盖onOptionsItemSelected(MenuItem item)方法</li>
+</ul>
+
+
+<h2>二、上下文菜单</h2>
+
+<p>　　Context Menu类似于电脑上的右键，长按某个View之后弹出来的菜单。也是继承自Menu，不同于选项菜单，
+选项菜单服务于Activity，而上下文是注册到某个VIew对象上的。如果一个View对象注册了上下文菜单，用户可以通过长按两秒该View对象调出上下文菜单。</p>
+
+<p>用法同普通菜单，方法名称由Options替换Context</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/292327403289825.png" alt="image" /></p>
+
+<h2>三、用XML配置菜单</h2>
+
+<p>　　注意到新建项目的MainActivity 都会重写onCreateOptionsMenu方法
+里面代码：
+getMenuInflater().inflate(R.menu.main, menu);
+就是通过XML来设置菜单的。</p>
+
+<p>如下在res/menu/main.xml 就是本来的配置菜单</p>
+
+<pre><code class="xml">&lt;menu xmlns:android="http://schemas.android.com/apk/res/android" &gt;
+
+    &lt;item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/&gt;
+
+&lt;/menu&gt;
+</code></pre>
+
+<p>其他同再JAVA代码里的写法。</p>
+]]></content>
+  </entry>
+  
+</feed>

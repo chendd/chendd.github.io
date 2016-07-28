@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: WebView | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/webview/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记15--WebView(网络视图)]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/16/android_study_15/"/>
+    <updated>2013-03-16T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/16/android_study_15</id>
+    <content type="html"><![CDATA[<h2>一、WebView</h2>
+
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;WebView(网络视图)内置WebKit引擎，能加载显示网页，还支持JS，并且能够在Android平台使用AJAX
+WebView可以在布局中声明，也可以在Activity中直接实例化</p>
+
+<!--more-->
+
+
+<h4>2、主要步骤</h4>
+
+<p>&#160; &#160; &#160; &#160;使用WebView 的主要步骤：</p>
+
+<ul>
+<li>1.在布局文件中声明WebView，通过findViewById或在Activity中实例化WebView组件：WebView webView = new WebView(this);</li>
+<li>2.调用WebView的loadUrl()方法，设置WevView要显示的网页：
+互联网用：webView.loadUrl(&ldquo;<a href="http://www.google.com">http://www.google.com</a>&rdquo;);
+本地文件用：webView.loadUrl(&ldquo;file:///android_asset/Todos.html&rdquo;); 本地文件存放在：assets 文件中</li>
+<li>3.调用Activity的setContentView( )方法来显示网页视图</li>
+<li>4.用WebView点链接看了很多页以后为了让WebView支持回退功能，需要覆盖覆盖Activity类的onKeyDown()方法，如果不做任何处理，点击系统回退剪键，整个浏览器会调用finish()而结束自身，而不是回退到上一页面</li>
+<li>5.需要在AndroidManifest.xml文件中添加权限，否则会出现Web page not available错误。
+<uses-permission android:name="android.permission.INTERNET" /></li>
+</ul>
+
+
+<h4>3、实例演示</h4>
+
+<p>Activity代码：</p>
+
+<pre><code class="java">@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_PROGRESS);
+        setContentView(R.layout.activity_main);
+        wv = (WebView) findViewById(R.id.wv);
+        wv.setWebChromeClient(new WebChromeClient() { // 为WebView设置WebChromeClient
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {// 重写onProgressChanged方法
+                MainActivity.this.setProgress(newProgress * 100);
+            }
+        });
+        wv.setWebViewClient(new WebViewClient() { // 为WebView设置WebViewClient
+            public void onReceivedError(WebView view, int errorCode,
+                    String description, String failingUrl) {// 重写onReceivedError方法
+                Toast.makeText(MainActivity.this, "Sorry!" + description,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        Button btn = (Button) findViewById(R.id.btn); // 获取Button对象
+        btn.setOnClickListener(new View.OnClickListener() { // 为Button对象设置OnClickListener监听器
+            @Override
+            public void onClick(View v) {
+
+                EditText et = (EditText) findViewById(R.id.et); // 获得WebView对象
+                String url = et.getText().toString().trim();
+                if (URLUtil.isNetworkUrl(url)) { // 判断是否是网址
+                    wv.loadUrl(url);
+                } else {
+                    Toast.makeText(MainActivity.this, "对不起，您输入的网址有错。",
+                            Toast.LENGTH_SHORT).show();
+                    et.requestFocus(); // 将焦点移到EditText
+                }
+            }
+        });
+        // 设置前进后退按钮
+        Button btnForward = (Button) findViewById(R.id.btnForward);
+        btnForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (wv.canGoForward()) { // 判断是否能够前进
+                    wv.goForward();
+                } else {
+                    Toast.makeText(MainActivity.this, "对不起，您现在不能前进！",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        Button btnBack = (Button) findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (wv.canGoBack()) { // 判断是否能够前进
+                    wv.goBack();
+                } else {
+                    Toast.makeText(MainActivity.this, "对不起，您现在不能后退！",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;第一次输入网址运行报错：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151919224807731.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;原因是没有在AndroidManifest配置权限，加入权限：</p>
+
+<pre><code class="xml">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+</code></pre>
+
+<p>再次输入博客园首页网址点击'浏览'：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151921391838701.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;竟然出现一张美女图片，无意中发现个彩蛋，网址输成<a href="http://www.cnblog.com/">http://www.cnblog.com/</a>  ，漏了个s</p>
+
+<p>重新输入网址浏览：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151924470437076.png" alt="image" /></p>
+
+<p>上面有个进度条显示网页加载进度，多输入几个网址测试'前进'，'后退'的功能。再输入本地文件测试，显示以前写的待办事项网页</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151926573559664.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;注意：在输入本地文件网址时，代码要把判断是否是网址URLUtil.isNetworkUrl(url)去掉，因为不会识别file:///为网址</p>
+
+<pre><code class="java">if (URLUtil.isNetworkUrl(url)) { // 判断是否是网址
+    wv.loadUrl(url);
+} else {
+    Toast.makeText(MainActivity.this, "对不起，您输入的网址有错。",
+            Toast.LENGTH_SHORT).show();
+    et.requestFocus(); // 将焦点移到EditText
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

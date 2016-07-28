@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记0--开发需要掌握的技能 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、开发android，我们需要哪些技能基础 &#160; &#160; &#160; &#160;1、Java基础知识 2、Linux基础知识 3、数据库基础知识 4、网络协议 5、Android基础知识 6、服务器端开发知识 1、Java基础知识 &#160; &#160; &#160; &# &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/02/06/android_study_00/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记0--开发需要掌握的技能</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-06T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、开发android，我们需要哪些技能基础</h2>
+
+<p>&#160; &#160; &#160; &#160;1、Java基础知识 2、Linux基础知识 3、数据库基础知识 4、网络协议 5、Android基础知识 6、服务器端开发知识</p>
+
+<!--more-->
+
+
+<h3>1、Java基础知识</h3>
+
+<p>&#160; &#160; &#160; &#160;很多朋友一上手就开始学习Android，似乎太着急了一些。Android应用程序开发是以Java语言为基础的，所以没有扎实的Java基础知识，只是机械的照抄别人的代码，是没有任何意义的。万丈高楼平地而起，Java就是筑起高楼的每一块砖头。那么Java学到什么程度才算是过关呢？我个人认为至少要掌握以下两个方面的内容：</p>
+
+<ul>
+<li>Java基础语法：具体的知识点列表可以在这里查看：<a href="http://blog.sina.com.cn/s/blog_4ba5b45e0102e0n1.html">《Java知识点列表》</a>。这部分内容没有讨价还价的余地，必须烂熟于胸。至于具体的学习方法，可以看书或者是看视频，但是关键是要多加练习，无论是书上的练习还是视频里面的练习，都需要仔仔细细的完成；</li>
+<li>设计模式：由于在Android系统的框架层当中，使用了大量的设计模式，如果没有这个方面的知识，对于Android的理解就会大打折扣。设计模式的种类非常之多，一个一个的全部掌握，是不现实的，必须首先掌握面向对象的基础设计原则，有了这些基础原则的支持，就可以举一反三。这部分内容可以在《Effective Java》和《Agile.Software.Development：Principles,Patterns.and.Practices》这两本书中找到。</li>
+</ul>
+
+
+<h3>2、Linux基础知识</h3>
+
+<p>&#160; &#160; &#160; &#160;大家都知道，Android系统的基础是Linux操作系统。在开发过程当中，我们也需要使用到一些Linux命令。所以说一些Linux的基础知识是必须的（话说现在的程序员，不懂Linux都不好意思跟人家打招呼），推荐大家看看《鸟哥的私房菜》这本书，写的相当不错；</p>
+
+<h3>3、数据库基础知识</h3>
+
+<p>&#160; &#160; &#160; &#160;这个比较简单，就是一个增删改查的数据库操作，可以看一下这本书：《SQL编程练习与解答》</p>
+
+<h3>4、网络协议</h3>
+
+<p>&#160; &#160; &#160; &#160;至少需要学习两种基础的协议，HTTP协议与Socket协议；</p>
+
+<h3>5、Android基础知识</h3>
+
+<p>&#160; &#160; &#160; &#160;有了以上的铺垫，再来看Android，是不是觉得轻松了很多呢？至于基础知识的学习顺序，最好的方法就是按照Android SDK帮助文档当中的Dev Guide里面的顺序。Android应该掌握的具体知识点包括：</p>
+
+<ul>
+<li>画面(GUI)，全面了解画面的生命周期，以及所有组件的创建和事件(Event)管理。</li>
+<li>数据交换(Data Exchange)，数据交换有不同的画面(Activity)间的，以及画面和Service间的，Service和Service间的，画面和系统事件间的。</li>
+<li>数据存储(Data Persistent)，文件操作和数据库操作。</li>
+<li>数据解析(Data Parser)，包括XML，JSON和Adobe的REST。</li>
+<li>消息处理(Message Handle)，消息处理创建和控制。</li>
+<li>服务(Service)，一些公共的后台处理，都可以做成相应的服务(Service)。</li>
+<li>中断处理(Alarm和Schedule)，许多定点的中断处理都需要用Alarm和Schedule。</li>
+<li>通讯处理(Data Transmission)，至少要会用HTTP和Web Service和服务器交换数据。</li>
+<li>系统事件(System Event)，会捕获相应的系统事件，来控制设备。</li>
+<li>对其他应用的调用。如声像控制，拨打电话，发邮件等</li>
+</ul>
+
+
+<h3>6、服务器端开发知识</h3>
+
+<p>&#160; &#160; &#160; &#160;由于很多Android应用程序都需要服务器端的支持，所以掌握一些服务器端开发知识还是非常有必要的。至于选择哪一种服务器端知识进行学习，就比较麻烦了，因为技术的种类实在是太多了：</p>
+
+<ul>
+<li>Java EE：就是上面邮件当中所提到的SSH—Struts+Spring+Hibernate。这种技术的优点的功能完整、强大，已经使用了很多年，而且既然大家已经非常熟悉Java了，那么学习SSH看起来也顺理成章。但是使用这种技术开发服务器端程序，非常麻烦。即使是一些简单的功能，也可能需要大量的代码和配置文件来实现；</li>
+<li>PHP：简单易学，开发快速。但是我们需要多学一种语言，是否得不偿失，就要大家自己判断了；</li>
+<li>.NET:这项技术的特点和Java EE差不多，但是要想掌握.NET，则需要掌握c#，也是个麻烦的事情；</li>
+<li>ruby on rails：这是我个人最喜欢的服务器端技术，简洁，优雅，寥寥几行代码，就可以实现很复杂的功能，但是这需要Ruby语言知识作为基础；
+至于选择哪一种知识，就看大家自己的判断了，毕竟每个人想法不一样，爱好也不相同。</li>
+</ul>
+
+
+<h2>二、怎样去获得这些技能基础</h2>
+
+<ul>
+<li>看书，这确实是一个不错的选择。如果你想从零开始学习Java、Linux、数据库、网络协议、android基础知识……没错这些你都需要看书，看很多书（这是一句废话，跳过好了）。但是！如果把获取这些技能基础量化为100%的话，那么看书这个途径只能为你提供15%的进步。</li>
+<li>看视频，这也是许多自学android开发的新手必经之路，毕竟看书只有你一个人的思维在活跃，看视频至少是两个人的思维在碰撞，你能发现你与别人的不同，如果你有心，你就能进步更多。基础知识不用我担心太多，至少想学android的，找基础知识的资料还是没有问题的。在此你也可以试着了解一些android的基础视频。也可以加入一下android的QQ群，去初步了解一下。感受一下氛围。这个我个人觉得很有意义。</li>
+<li>敲代码，不为了其它的什么，就为了你能够熟练的掌握android开发工具，你是不是应该多话一点心思在上面呢？他的重要性不比“看书+看视频”的总和小，也许我就这样轻描淡写地说过去了，但是你最好不要轻描淡写地看过去，不然“返工重做”是很让你不舒服的。
+思考，没错，就是“想”。想你怎么把这三块儿合在一块儿，让自己的学习效率更高；想你在学习中遇到哪些障碍，最后是怎么解决的，这很重要！</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;当然这些只是针对Android通用应用的开发，如果做多媒体、游戏开发，则还学要自己了解其他相关知识。这篇是从其他地方转拼凑来的，写得不错，适合我等android初学者了解自己的不足和学习的方向！</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-02-06T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:22 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/07/26/build_octopress_in_window/" title="Previous Post: Octopress写博客步骤">&laquo; Octopress写博客步骤</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/02/09/android_study_01/" title="Next Post: android学习日记1--综述">android学习日记1--综述 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/02/06/android_study_00" data-title="android学习日记0--开发需要掌握的技能" data-url="http://chendd.github.io/blog/2013/02/06/android_study_00/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

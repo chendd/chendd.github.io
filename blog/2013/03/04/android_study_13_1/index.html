@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>android学习日记13--数据存储之SharedPreference - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="android 数据存储 &#160; &#160; &#160; &#160;作为一个完整的应用程序，数据存储必不可少。android 提供了五种不同的数据存储方式:SharedPreferences、SQLite、ContentProvider、文件存储、网络存储。 1、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/04/android_study_13_1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">android学习日记13--数据存储之SharedPreference</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-04T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>android 数据存储</h2>
+
+<p>&#160; &#160; &#160; &#160;作为一个完整的应用程序，数据存储必不可少。android 提供了五种不同的数据存储方式:SharedPreferences、SQLite、ContentProvider、文件存储、网络存储。</p>
+
+<h4>1、SharedPreference</h4>
+
+<p>&#160; &#160; &#160; &#160;用来存储简单的配置信息，如用户名/密码，以键值对的方式存储，存储位置在/data/data/&lt;包名>/shared_prefs目录下
+SharedPreferences对象本身只能获取数据而不支持存储和修改，存储修改是通过Editor对象实现。实现SharedPreferences存储的步骤如下：</p>
+
+<!--more-->
+
+
+<ul>
+<li>根据Context获取SharedPreferences对象</li>
+<li>利用edit()方法获取Editor对象。</li>
+<li>通过Editor对象存储key-value键值对数据。</li>
+<li>通过commit()方法提交数据。</li>
+</ul>
+
+
+<p>实例演示：</p>
+
+<p>Activity代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Context</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 获取SharedPreferences实例，第二个参数表示操作模式，这里的意思是覆盖原有的</span>
+</span><span class='line'><span class="c1">// 此外还有追加MODE_APPEND，允许其他程序读取MODE_WORLD_READABLE，允许其他程序读取写入MODE_WORLD_WRITEABLE</span>
+</span><span class='line'><span class="n">SharedPreferences</span> <span class="n">sp</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getSharedPreferences</span><span class="o">(</span><span class="s">&quot;SP&quot;</span><span class="o">,</span> <span class="n">MODE_PRIVATE</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 获取编辑对象</span>
+</span><span class='line'><span class="n">Editor</span> <span class="n">editor</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="na">edit</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 存入数据</span>
+</span><span class='line'><span class="n">editor</span><span class="o">.</span><span class="na">putInt</span><span class="o">(</span><span class="s">&quot;INT_VAULE&quot;</span><span class="o">,</span> <span class="mi">20</span><span class="o">);</span>
+</span><span class='line'><span class="n">editor</span><span class="o">.</span><span class="na">putString</span><span class="o">(</span><span class="s">&quot;STRING_VAULE&quot;</span><span class="o">,</span> <span class="s">&quot;hahaha&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">editor</span><span class="o">.</span><span class="na">putBoolean</span><span class="o">(</span><span class="s">&quot;BOOLEAN_VAULE&quot;</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 根据key取出数据</span>
+</span><span class='line'><span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="s">&quot;SP&quot;</span><span class="o">,</span> <span class="n">sp</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;STRING_VAULE&quot;</span><span class="o">,</span> <span class="s">&quot;none&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 输出int型要转成 string的</span>
+</span><span class='line'><span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="s">&quot;SP&quot;</span><span class="o">,</span> <span class="n">sp</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">&quot;INT_VAULE&quot;</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">)+</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 删除所有数据,没commit是没生效的</span>
+</span><span class='line'><span class="n">editor</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 找不到key输出第二个参数 false</span>
+</span><span class='line'><span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="s">&quot;SP&quot;</span><span class="o">,</span> <span class="n">sp</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="s">&quot;BOOLEAN_VAULE22&quot;</span><span class="o">,</span> <span class="kc">false</span><span class="o">)+</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>日志输出：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/042015418421201.png" alt="image" /></p>
+
+<p>在FileExplorer视图/data/data/com.example.sharedpreferences/shared_prefs生成的SP.xml</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/042018518312913.png" alt="image" /></p>
+
+<p>　　但是在模拟器内部存储的文件，当你通过FileExplorer选中某个目录或者文件时，右上角有两个小按钮一个是类似于软盘的按钮一个是类似于手机的按钮，通过这两个按钮就可以从模拟器中拷贝文件或者往模拟器中添加文件。拷贝到电脑查看xml内容：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;utf-8&#39; standalone=&#39;yes&#39; ?&gt;</span>
+</span><span class='line'><span class="nt">&lt;map&gt;</span>
+</span><span class='line'><span class="nt">&lt;int</span> <span class="na">name=</span><span class="s">&quot;INT_VAULE&quot;</span> <span class="na">value=</span><span class="s">&quot;20&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">&quot;STRING_VAULE&quot;</span><span class="nt">&gt;</span>hahaha<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'><span class="nt">&lt;boolean</span> <span class="na">name=</span><span class="s">&quot;BOOLEAN_VAULE&quot;</span> <span class="na">value=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/map&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>优点：
+相对而言更加方便，简洁，适合存储数据量较少的配置信息。</p>
+
+<p>缺点：
+只能存储boolean，int，float，long和String五种简单的数据类型，功能单一。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-04T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/03/android_study_12/" title="Previous Post: android学习日记12--布局管理器">&laquo; android学习日记12--布局管理器</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/07/android_study_13_2/" title="Next Post: android学习日记13--数据存储之SQLite">android学习日记13--数据存储之SQLite &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/04/android_study_13_1" data-title="android学习日记13--数据存储之SharedPreference" data-url="http://chendd.github.io/blog/2013/03/04/android_study_13_1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

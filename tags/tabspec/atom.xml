@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: tabSpec | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/tabspec/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[android学习日记3--常用控件tabSpec/tabHost]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/12/android_study_03_4/"/>
-    <updated>2014-02-12T09:22:14+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/12/android_study_03_4</id>
+    <link href="http://chendd.github.io/blog/2013/02/12/android_study_03_4/"/>
+    <updated>2013-02-12T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/02/12/android_study_03_4</id>
     <content type="html"><![CDATA[<h2>常用控件</h2>
 
 <h4>7、TabSpec和TabHost</h4>

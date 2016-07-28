@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: ANR | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/anr/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记25--ANR和Hander消息机制]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/30/android_study_25/"/>
+    <updated>2013-03-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/30/android_study_25</id>
+    <content type="html"><![CDATA[<h4>1、ANR(Application Not Responding)定义</h4>
+
+<p>　　在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，
+这个对话框称作应用程序无响应（ANR：Application Not Responding）对话框。用户可以选择“等待”而让程序继续运行，
+也可以选择“强制关闭”。所以一个流畅的合理的应用程序中不能出现anr，而让用户每次都要处理这个对话框。
+因此，在程序里对响应性能的设计很重要，这样系统不会显示ANR给用户。默认情况下，在android中Activity的最长执行时间是5秒，
+BroadcastReceiver的最长执行时间则是10秒。</p>
+
+<!--more-->
+
+
+<p><img src="http://images.cnitblog.com/i/602984/201404/172223300108690.jpg" alt="image" /></p>
+
+<h4>2、如何避免ANR</h4>
+
+<p>　　Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
+特别是，Activity应该在它的关键生命周期方法（如onCreate()和onResume()）里尽可能少的去做创建操作。
+潜在的耗时操作，例如网络或数据库操作，或者高耗时的计算如改变位图尺寸，应该在子线程里
+（或者以数据库操作为例，通过异步请求的方式）来完成。然而，不是说你的主线程阻塞在那里等待子线程的完成——也不是调用
+Thread.wait()或是Thread.sleep()。替代的方法是，主线程应该为子线程提供一个Handler，以便完成时能够提交给主线程。</p>
+
+<h4>3、Hander 定义</h4>
+
+<p>　　主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
+直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：
+android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
+翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
+所有的UI线程要去负责View的创建并且维护它，例如更新冒个TextView的显示，都必须在主线程中去做，我们不能直接在UI线程中去创建子线程，
+要利用消息机制：handler，如下就是handler的简单工作原理图:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201404/181859021979455.gif" alt="image" /></p>
+
+<p>　　Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
+
+<p>就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
+
+<pre><code class="java">class WorkThread extends Thread {
+          public Handler mHandler;
+
+          public void run() {
+              Looper.prepare();
+
+              mHandler = new Handler() {
+                  public void handleMessage(Message msg) {
+                      // 处理收到的消息
+                  }
+              };
+
+              Looper.loop();
+          }
+      }
+</code></pre>
+
+<p>这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
+
+<p>Looper.prepare()和Looper.loop();</p>
+
+<h4>4、Hander 用法</h4>
+
+<p>　　继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
+如下实例：</p>
+
+<p>启动后，更新后的值一直在增加</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201404/172206262912209.png" alt="image" /></p>
+
+<p>主要代码：</p>
+
+<pre><code class="java">public class MainActivity extends Activity {
+
+    private TextView tv;
+    private static final int UPDATE = 0;
+    private Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO 接收消息并且去更新UI线程上的控件内容
+            if (msg.what == UPDATE) {
+                // Bundle b = msg.getData();
+                // tv.setText(b.getString("num"));
+                tv.setText(String.valueOf(msg.obj));
+            }
+            super.handleMessage(msg);
+        }
+    };
+
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tv = (TextView) findViewById(R.id.tv);
+
+        new Thread() {
+            @Override
+            public void run() {
+                // TODO 子线程中通过handler发送消息给handler接收，由handler去更新TextView的值
+                try {
+                    for (int i = 0; i &lt; 100; i++) {
+                        Thread.sleep(500);
+                        Message msg = new Message();
+                        msg.what = UPDATE;
+                        // Bundle b = new Bundle();
+                        // b.putString("num", "更新后的值：" + i);
+                        // msg.setData(b);
+                        msg.obj = "更新后的值：" + i;
+                        handler.sendMessage(msg);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+}
+</code></pre>
+
+<p>　　关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
+我们通过在线程中使用Handler对象的sendEmptyMessage或sendMessage方法来传递一个Bundle对象到Handler处理器。
+对于Handler类提供了重写方法handleMessage(Message msg) 来判断，通过msg.what来区分每条信息。
+将Bundle解包来实现Handler类更新UI线程中的内容实现控件的刷新操作。相关的Handler对象有关消息发送sendXXXX相关方法如下，
+同时还有postXXXX相关方法，这些和Win32中的道理基本一致，一个为发送后直接返回，一个为处理后才返回。</p>
+
+<p>比如我们可以在message里封装Bundle对象。</p>
+
+<p>两边传递的代码如下：</p>
+
+<pre><code class="java">// 其他Thread里发送
+Message msg = new Message();
+Bundle b = new Bundle();// 存放数据
+b.putString("color", "我的");
+msg.setData(b);
+
+// handleMessage里接收
+Bundle b = msg.getData();
+String color = b.getString("color");
+</code></pre>
+
+<h4>5、单线程的消息机制</h4>
+
+<p>　　Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
+
+<ul>
+<li>1、基于监听器的机制</li>
+</ul>
+
+
+<p>　　绑定特定的事件监听器，如Button的OnClickListener监听器， 监听器模型:包含事件源(EventSource)、事件(Event)、事件监听器(EventListener)。 一般内部类作为事件监听器类，主要因为 内部类可以在当前类复用;内部类可以调用外部类的组件。当然如果多个 GUI公用一个监听器类，还是使用外部类好一点，只需传入当前的context。当然大部分时间处理没什么复用价值， 更多的时候使用内部匿名类来实现。</p>
+
+<ul>
+<li>2、基于回调函数的机制</li>
+</ul>
+
+
+<p>　　重写回调方法，如View的OnKeyDown方法，基于回调函数的机制的事件源和事件监听器是统一的， Android为所有GUI提供一套事件处理方法，当重写回调函数处理完后必需返回true，事件才不会继续向上层调用。</p>
+
+<p>&#160; &#160; &#160; &#160;优劣：基于回调函数 使得更具通用型、代码更加简洁， 基于回调函数 事件模型分工明确、具有更好的维护性 对于特定事件，无法使用回调函数只能使用监听器。</p>
+]]></content>
+  </entry>
+  
+</feed>

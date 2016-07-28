@@ -1,0 +1,773 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记14--网络通信 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、Android网络通信 &#160; &#160; &#160; &#160;android网络通信一般有三种：java.net.(标准Java接口)、org.apache接口(基于http协议)和android.net.(Android网络接口)，涉及到包括流、数据包套接字(socket)、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/15/android_study_14/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记14--网络通信</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-15T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、Android网络通信</h2>
+
+<p>&#160; &#160; &#160; &#160;android网络通信一般有三种：java.net.<em>(标准Java接口)、org.apache接口(基于http协议)和android.net.</em>(Android网络接口)，涉及到包括流、数据包套接字(socket)、Internet协议、常见Http处理等。android 内置HttpClient，简化和网站间的交互。但是不支持Web Services,需要利用ksoap2_android才能支持。</p>
+
+<!--more-->
+
+
+<h4>1、使用Socket进行通信</h4>
+
+<p>&#160; &#160; &#160; &#160;Socket通常也称作"套接字"，用于描述IP地址和端口，是一个通信链的句柄。Android Socket开发和JAVA Socket开发类似
+无非是创建一个Socket服务端和Socket客户端进行通信。
+Socket服务端代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span><span class="o">{</span>
+</span><span class='line'>            <span class="c1">// 新建服务器Socket</span>
+</span><span class='line'>            <span class="n">ServerSocket</span> <span class="n">ss</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ServerSocket</span><span class="o">(</span><span class="mi">8888</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Listening...&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+</span><span class='line'>                <span class="c1">// 监听是否有客户端连上</span>
+</span><span class='line'>                <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client Connected...&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">DataOutputStream</span> <span class="n">dout</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DataOutputStream</span><span class="o">(</span><span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
+</span><span class='line'>                <span class="n">Date</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Date</span><span class="o">();</span>
+</span><span class='line'>                <span class="c1">// 演示传送个 当前时间给客户端</span>
+</span><span class='line'>                <span class="n">dout</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">d</span><span class="o">.</span><span class="na">toLocaleString</span><span class="o">());</span>
+</span><span class='line'>                <span class="n">dout</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">socket</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Socket客户端代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">connectToServer</span><span class="o">(){</span>                    <span class="c1">//方法：连接客户端</span>
+</span><span class='line'>            <span class="k">try</span><span class="o">{</span>
+</span><span class='line'>                <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Socket</span><span class="o">(</span><span class="s">&quot;10.0.2.2&quot;</span><span class="o">,</span> <span class="mi">8888</span><span class="o">);</span><span class="c1">//创建Socket对象</span>
+</span><span class='line'>                <span class="n">DataInputStream</span> <span class="n">din</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DataInputStream</span><span class="o">(</span><span class="n">socket</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">());</span>    <span class="c1">//获得DataInputStream对象</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">din</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>                             <span class="c1">//读取服务端发来的消息</span>
+</span><span class='line'>                <span class="n">EditText</span> <span class="n">et</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">);</span>        <span class="c1">//获得EditText对象</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>                                    <span class="c1">//设置EditText对象</span>
+</span><span class='line'>                <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;error data&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>                                        <span class="c1">//捕获并打印异常</span>
+</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;服务端是普通JAVA项目，先启动服务端，再启动客户端Android项目，客户端连上服务端，把当前时间数据从服务端发往客户端显示出来</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151231260271893.png" alt="image" /></p>
+
+<p>注意：服务器与客户端无法链接的可能原因有：</p>
+
+<ul>
+<li>a、AndroidManifest没有加访问网络的权限：<uses-permission android:name="android.permission.INTERNET"></uses-- permission></li>
+<li>b、IP地址要使用：10.0.2.2，不能用localhost</li>
+<li>c、模拟器不能配置代理</li>
+</ul>
+
+
+<h4>2、使用Http进行通信</h4>
+
+<p>&#160; &#160; &#160; &#160;使用HttpClient在Android客户端访问Web，有点html知识都知道，提交表单有两种方式
+get和post，Android客户端访问Web也是这两种方式。在本机先建个web应用(方便演示)。
+data.jsp的代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='jsp'><span class='line'><span class="k">&lt;%@</span><span class="n">page</span> <span class="n">language</span><span class="o">=</span><span class="s">&quot;java&quot;</span> <span class="n">import</span><span class="o">=</span><span class="s">&quot;java.util.*&quot;</span> <span class="n">pageEncoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="k">%&gt;</span>
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'><span class="nt">&lt;title&gt;</span>
+</span><span class='line'>Http Test
+</span><span class='line'><span class="nt">&lt;/title&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'><span class="k">&lt;%</span>
+</span><span class='line'><span class="n">String</span> <span class="n">type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;parameter&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">type</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="s">&quot;iso-8859-1&quot;</span><span class="o">),</span><span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&lt;h1&gt;&quot;</span> <span class="o">+</span> <span class="n">result</span> <span class="o">+</span> <span class="s">&quot;&lt;/h1&gt;&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="k">%&gt;</span>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>启动tomcat，访问<a href="http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0">http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0</a></p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151234538404137.png" alt="image" /></p>
+
+<p>注意：192.168.1.101是我本机的IP，要替换成自己的IP。</p>
+
+<p> 按钮监听代码:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//绑定按钮监听器  </span>
+</span><span class='line'>        <span class="n">get</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">//注意：此处ip不能用127.0.0.1或localhost,Android模拟器已将它自己作为了localhost  </span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/data.jsp?parameter=以Get方式发送请求&quot;</span><span class="o">;</span>
+</span><span class='line'>                <span class="n">textView</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">uri</span><span class="o">));</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>        <span class="c1">//绑定按钮监听器  </span>
+</span><span class='line'>        <span class="n">post</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/data.jsp&quot;</span><span class="o">;</span>
+</span><span class='line'>                <span class="n">textView</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">uri</span><span class="o">));</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> get方式请求代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/** </span>
+</span><span class='line'><span class="cm">     * 以get方式发送请求，访问web </span>
+</span><span class='line'><span class="cm">     * @param uri web地址 </span>
+</span><span class='line'><span class="cm">     * @return 响应数据 </span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">get</span><span class="o">(</span><span class="n">String</span> <span class="n">uri</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">BufferedReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">StringBuffer</span> <span class="n">sb</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DefaultHttpClient</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">HttpGet</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">HttpGet</span><span class="o">(</span><span class="n">uri</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">//发送请求，得到响应  </span>
+</span><span class='line'>            <span class="n">HttpResponse</span> <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">//请求成功  </span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getStatusLine</span><span class="o">().</span><span class="na">getStatusCode</span><span class="o">()</span> <span class="o">==</span> <span class="n">HttpStatus</span><span class="o">.</span><span class="na">SC_OK</span><span class="o">){</span>
+</span><span class='line'>                <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getEntity</span><span class="o">().</span><span class="na">getContent</span><span class="o">()));</span>
+</span><span class='line'>                <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuffer</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">NL</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;line.separator&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="k">while</span><span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>                    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClientProtocolException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">finally</span><span class="o">{</span>
+</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">reader</span><span class="o">){</span>
+</span><span class='line'>                    <span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">sb</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">=</span>  <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> post方式请求代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/** </span>
+</span><span class='line'><span class="cm">     * 以post方式发送请求，访问web </span>
+</span><span class='line'><span class="cm">     * @param uri web地址 </span>
+</span><span class='line'><span class="cm">     * @return 响应数据 </span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">post</span><span class="o">(</span><span class="n">String</span> <span class="n">uri</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">BufferedReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">StringBuffer</span> <span class="n">sb</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DefaultHttpClient</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">HttpPost</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">HttpPost</span><span class="o">(</span><span class="n">uri</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">//保存要传递的参数  </span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">NameValuePair</span><span class="o">&gt;</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">NameValuePair</span><span class="o">&gt;();</span>
+</span><span class='line'>        <span class="c1">//添加参数  </span>
+</span><span class='line'>        <span class="n">params</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nf">BasicNameValuePair</span><span class="o">(</span><span class="s">&quot;parameter&quot;</span><span class="o">,</span><span class="s">&quot;以Post方式发送请求&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">//设置字符集  </span>
+</span><span class='line'>            <span class="n">HttpEntity</span> <span class="n">entity</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">UrlEncodedFormEntity</span><span class="o">(</span><span class="n">params</span><span class="o">,</span><span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="c1">//请求对象  </span>
+</span><span class='line'>            <span class="n">request</span><span class="o">.</span><span class="na">setEntity</span><span class="o">(</span><span class="n">entity</span><span class="o">);</span>
+</span><span class='line'>            <span class="c1">//发送请求  </span>
+</span><span class='line'>            <span class="n">HttpResponse</span> <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">//请求成功  </span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getStatusLine</span><span class="o">().</span><span class="na">getStatusCode</span><span class="o">()</span> <span class="o">==</span> <span class="n">HttpStatus</span><span class="o">.</span><span class="na">SC_OK</span><span class="o">){</span>
+</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;post success&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getEntity</span><span class="o">().</span><span class="na">getContent</span><span class="o">()));</span>
+</span><span class='line'>                <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuffer</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">NL</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;line.separator&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="k">while</span><span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>                    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClientProtocolException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">finally</span><span class="o">{</span>
+</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">//关闭流  </span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">reader</span><span class="o">){</span>
+</span><span class='line'>                    <span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">sb</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">=</span>  <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>点击'get'按钮：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151240451685606.png" alt="image" /></p>
+
+<p>点击'post'按钮</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151240579655195.png" alt="image" /></p>
+
+<h4>3、获取http网络资源</h4>
+
+<p>&#160; &#160; &#160; &#160;其实这里就是前面讲Android数据存储的最后一种：网络存储。将txt文件和png图片放在tomcat服务器上，模拟器通过http路径去获取资源显示出来。</p>
+
+<p>获取路径为：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">stringURL</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/test.txt&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="n">String</span> <span class="n">bitmapURL</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/crab.png&quot;</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>获取文本资源代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//方法，根据指定URL字符串获取网络资源</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getStringURLResources</span><span class="o">(){</span>
+</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
+</span><span class='line'>            <span class="n">URL</span> <span class="n">myUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">URL</span><span class="o">(</span><span class="n">stringURL</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">URLConnection</span> <span class="n">myConn</span> <span class="o">=</span> <span class="n">myUrl</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>    <span class="c1">//打开连接</span>
+</span><span class='line'>            <span class="n">InputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="n">myConn</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">();</span>        <span class="c1">//获取输入流</span>
+</span><span class='line'>            <span class="n">BufferedInputStream</span> <span class="n">bis</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedInputStream</span><span class="o">(</span><span class="n">in</span><span class="o">);</span><span class="c1">//获取BufferedInputStream对象</span>
+</span><span class='line'>            <span class="n">ByteArrayBuffer</span> <span class="n">baf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ByteArrayBuffer</span><span class="o">(</span><span class="n">bis</span><span class="o">.</span><span class="na">available</span><span class="o">());</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">data</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">while</span><span class="o">((</span><span class="n">data</span> <span class="o">=</span> <span class="n">bis</span><span class="o">.</span><span class="na">read</span><span class="o">())!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>        <span class="c1">//读取BufferedInputStream中数据</span>
+</span><span class='line'>                <span class="n">baf</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">byte</span><span class="o">)</span><span class="n">data</span><span class="o">);</span>                <span class="c1">//将数据读取到ByteArrayBuffer中</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">EncodingUtils</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">baf</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">(),</span> <span class="s">&quot;GBK&quot;</span><span class="o">);</span>    <span class="c1">//转换为字符串，用UTF-8中文会乱码</span>
+</span><span class='line'>            <span class="n">EditText</span> <span class="n">et</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">);</span>        <span class="c1">//获得EditText对象</span>
+</span><span class='line'>            <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>                        <span class="c1">//设置EditText控件中的内容</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>获取图片资源代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">getBitmapURLResources</span><span class="o">(){</span>
+</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
+</span><span class='line'>            <span class="n">URL</span> <span class="n">myUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">URL</span><span class="o">(</span><span class="n">bitmapURL</span><span class="o">);</span>    <span class="c1">//创建URL对象</span>
+</span><span class='line'>            <span class="n">URLConnection</span> <span class="n">myConn</span> <span class="o">=</span> <span class="n">myUrl</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>            <span class="c1">//打开连接</span>
+</span><span class='line'>            <span class="n">InputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="n">myConn</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">();</span>            <span class="c1">//获得InputStream对象</span>
+</span><span class='line'>            <span class="n">Bitmap</span> <span class="n">bmp</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeStream</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>        <span class="c1">//创建Bitmap</span>
+</span><span class='line'>            <span class="n">ImageView</span> <span class="n">iv</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageView</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">iv</span><span class="o">);</span>    <span class="c1">//获得ImageView对象</span>
+</span><span class='line'>            <span class="n">iv</span><span class="o">.</span><span class="na">setImageBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">);</span>                    <span class="c1">//设置ImageView显示的内容</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意：String msg = EncodingUtils.getString(baf.toByteArray(), &ldquo;GBK&rdquo;);//转换为字符串，用UTF-8中文会乱码</p>
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151250158712853.png" alt="image" /></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-15T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/13/android_study_13_4/" title="Previous Post: android学习日记13--数据存储之File存储">&laquo; android学习日记13--数据存储之File存储</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/16/android_study_15/" title="Next Post: android学习日记15--WebView(网络视图)">android学习日记15--WebView(网络视图) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/15/android_study_14" data-title="android学习日记14--网络通信" data-url="http://chendd.github.io/blog/2013/03/15/android_study_14/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

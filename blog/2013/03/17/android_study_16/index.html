@@ -1,0 +1,617 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>android学习日记16--GridView(网格视图) - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、GridView 1、简述　　 &#160; &#160; &#160; &#160;GridView按照行列来显示图片或文本的一种视图，排列其实有点类似TableLayout布局，不过和TableLayout还是差别很大的,倒比较像二维的ListView。位于android.widget包下 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/17/android_study_16/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">android学习日记16--GridView(网格视图)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-17T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、GridView</h2>
+
+<h4>1、简述　　</h4>
+
+<p>&#160; &#160; &#160; &#160;GridView按照行列来显示图片或文本的一种视图，排列其实有点类似TableLayout布局，不过和TableLayout还是差别很大的,倒比较像二维的ListView。位于android.widget包下，常常用来实现类似九宫格的图像。
+实现手法和ListView有点相似，用Apapter把数据绑定到控件上，为容器提供子视图，利用视图的数据和元数据来构建每个子视图自定义Adapter显示。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;如果需要自定义适配器 可以扩展抽象类BaseAdapter。</p>
+
+<h4>2、常用属性和对应方法如下：</h4>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/162158428083277.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;下面用实例化SimpleAdapter和继承抽象类BaseAdapter方法实现下图的例子：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/162200143404280.png" alt="image" /></p>
+
+<h4>3、实例化SimpleAdapter实现</h4>
+
+<p> Activity代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="n">GridView</span> <span class="n">gv</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>       <span class="c1">// TODO Auto-generated method stub </span>
+</span><span class='line'>       <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>       <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">gridview</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="c1">//准备要添加的数据条目 </span>
+</span><span class='line'>       <span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;&gt;();</span>
+</span><span class='line'>       <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>         <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">item</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+</span><span class='line'>         <span class="n">item</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;imageItem&quot;</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_launcher</span><span class="o">);</span><span class="c1">//添加图像资源的ID   </span>
+</span><span class='line'>         <span class="n">item</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;textItem&quot;</span><span class="o">,</span> <span class="s">&quot;icon&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span><span class="c1">//按序号添加ItemText   </span>
+</span><span class='line'>         <span class="n">items</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">item</span><span class="o">);</span>
+</span><span class='line'>       <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">//实例化SimpleAdapter适配器 </span>
+</span><span class='line'>       <span class="n">SimpleAdapter</span> <span class="n">adapter</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SimpleAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">,</span>
+</span><span class='line'>                                                   <span class="n">items</span><span class="o">,</span>
+</span><span class='line'>                                                   <span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">grid_item</span><span class="o">,</span>
+</span><span class='line'>                                                   <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&quot;imageItem&quot;</span><span class="o">,</span> <span class="s">&quot;textItem&quot;</span><span class="o">},</span>
+</span><span class='line'>                                                   <span class="k">new</span> <span class="kt">int</span><span class="o">[]{</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">image_item</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text_item</span><span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>       <span class="c1">//获得GridView实例 </span>
+</span><span class='line'>       <span class="n">gv</span> <span class="o">=</span> <span class="o">(</span><span class="n">GridView</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">mygridview</span><span class="o">);</span>
+</span><span class='line'>       <span class="c1">//为GridView设置适配器 </span>
+</span><span class='line'>       <span class="n">gv</span><span class="o">.</span><span class="na">setAdapter</span><span class="o">(</span><span class="n">adapter</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>单个组件XML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>   <span class="na">android:id=</span><span class="s">&quot;@+id/RelativeLayout1&quot;</span>
+</span><span class='line'>   <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>   <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>   <span class="na">android:paddingBottom=</span><span class="s">&quot;6dip&quot;</span>
+</span><span class='line'>   <span class="nt">&gt;</span>
+</span><span class='line'>   <span class="nt">&lt;ImageView</span>
+</span><span class='line'>      <span class="na">android:id=</span><span class="s">&quot;@+id/image_item&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_centerHorizontal=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>      <span class="na">android:src=</span><span class="s">&quot;@drawable/ic_launcher&quot;</span>
+</span><span class='line'>      <span class="nt">/&gt;</span>
+</span><span class='line'>   <span class="nt">&lt;TextView</span>
+</span><span class='line'>      <span class="na">android:id=</span><span class="s">&quot;@+id/text_item&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_below=</span><span class="s">&quot;@+id/image_item&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_centerHorizontal=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>      <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/RelativeLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>页面主布局XML：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>   <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>   <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>   <span class="nt">&gt;</span>
+</span><span class='line'>   <span class="nt">&lt;GridView</span>
+</span><span class='line'>      <span class="na">android:id=</span><span class="s">&quot;@+id/mygridview&quot;</span>
+</span><span class='line'>      <span class="na">android:numColumns=</span><span class="s">&quot;3&quot;</span>
+</span><span class='line'>      <span class="na">android:gravity=</span><span class="s">&quot;center_horizontal&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>      <span class="na">android:stretchMode=</span><span class="s">&quot;columnWidth&quot;</span>
+</span><span class='line'>      <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4、继承抽象类BaseAdapter实现</h4>
+
+<p>替换成自己GridAdapter代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//       //准备要添加的数据条目 </span>
+</span><span class='line'><span class="c1">//       List&lt;Map&lt;String, Object&gt;&gt; items = new ArrayList&lt;Map&lt;String,Object&gt;&gt;(); </span>
+</span><span class='line'><span class="c1">//       for (int i = 0; i &lt; 9; i++) { </span>
+</span><span class='line'><span class="c1">//         Map&lt;String, Object&gt; item = new HashMap&lt;String, Object&gt;(); </span>
+</span><span class='line'><span class="c1">//         item.put(&quot;imageItem&quot;, R.drawable.ic_launcher);//添加图像资源的ID   </span>
+</span><span class='line'><span class="c1">//         item.put(&quot;textItem&quot;, &quot;icon&quot; + i);//按序号添加ItemText   </span>
+</span><span class='line'><span class="c1">//         items.add(item); </span>
+</span><span class='line'><span class="c1">//       } </span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">//      //实例化SimpleAdapter适配器 </span>
+</span><span class='line'><span class="c1">//       SimpleAdapter adapter = new SimpleAdapter(this,  </span>
+</span><span class='line'><span class="c1">//                                                   items,  </span>
+</span><span class='line'><span class="c1">//                                                   R.layout.grid_item,  </span>
+</span><span class='line'><span class="c1">//                                                   new String[]{&quot;imageItem&quot;, &quot;textItem&quot;},  </span>
+</span><span class='line'><span class="c1">//                                                   new int[]{R.id.image_item, R.id.text_item}); </span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">List</span><span class="o">&lt;</span><span class="n">GridInfo</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">GridInfo</span><span class="o">&gt;();</span>
+</span><span class='line'>       <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>           <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nf">GridInfo</span><span class="o">(</span><span class="s">&quot;icon&quot;</span><span class="o">+</span><span class="n">i</span><span class="o">));</span>
+</span><span class='line'>       <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">GridAdapter</span> <span class="n">adapter</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">GridAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>       <span class="n">adapter</span><span class="o">.</span><span class="na">setList</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>补上GridAdapter代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GridAdapter</span> <span class="kd">extends</span> <span class="n">BaseAdapter</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">GridHolder</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">ImageView</span> <span class="n">appImage</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">TextView</span> <span class="n">appName</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">GridInfo</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">LayoutInflater</span> <span class="n">mInflater</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">GridAdapter</span><span class="o">(</span><span class="n">Context</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">c</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setList</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">GridInfo</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">list</span> <span class="o">=</span> <span class="n">list</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mInflater</span> <span class="o">=</span> <span class="o">(</span><span class="n">LayoutInflater</span><span class="o">)</span> <span class="n">context</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">Context</span><span class="o">.</span><span class="na">LAYOUT_INFLATER_SERVICE</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getCount</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub  </span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">list</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getItem</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getItemId</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">index</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">View</span> <span class="nf">getView</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span> <span class="n">View</span> <span class="n">convertView</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">parent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">GridHolder</span> <span class="n">holder</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">convertView</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">convertView</span> <span class="o">=</span> <span class="n">mInflater</span><span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">grid_item</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">holder</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">GridHolder</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">holder</span><span class="o">.</span><span class="na">appImage</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageView</span><span class="o">)</span><span class="n">convertView</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">image_item</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">holder</span><span class="o">.</span><span class="na">appName</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span><span class="n">convertView</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text_item</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">convertView</span><span class="o">.</span><span class="na">setTag</span><span class="o">(</span><span class="n">holder</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span><span class='line'>             <span class="n">holder</span> <span class="o">=</span> <span class="o">(</span><span class="n">GridHolder</span><span class="o">)</span> <span class="n">convertView</span><span class="o">.</span><span class="na">getTag</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">GridInfo</span> <span class="n">info</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">info</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">holder</span><span class="o">.</span><span class="na">appName</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">info</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">convertView</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>比较麻烦还是重写getView()方法。里面的GridInfo只是普通的JAVA bean类。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-17T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/16/android_study_15/" title="Previous Post: android学习日记15--WebView(网络视图)">&laquo; android学习日记15--WebView(网络视图)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/18/android_study_17/" title="Next Post: android学习日记17--Gallery(画廊视图)">android学习日记17--Gallery(画廊视图) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/17/android_study_16" data-title="android学习日记16--GridView(网格视图)" data-url="http://chendd.github.io/blog/2013/03/17/android_study_16/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

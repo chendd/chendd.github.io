@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记3--常用控件button/imagebutton - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="常用控件 &#160; &#160; &#160; &#160;控件是对数据和方法的封装。控件可以有自己的属性和方法。属性是控件数据的简单访问者。方法则是控件的一些简单而可见的功能。所有控件都是继承View类 &#160; &#160; &#160; &#160; &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/02/10/android_study_03_1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记3--常用控件button/imagebutton</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-10T08:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>常用控件</h2>
+
+<p>&#160; &#160; &#160; &#160;控件是对数据和方法的封装。控件可以有自己的属性和方法。属性是控件数据的简单访问者。方法则是控件的一些简单而可见的功能。所有控件都是继承View类</p>
+
+<p>&#160; &#160; &#160; &#160;介绍android原生提供几种常用的控件button/imagebutton、checkbox/radiobutton、progressbar/seekbar、tabSpec/tabHost、ListView、Dialog，主要为了掌握控件使用的一般规律。</p>
+
+<!--more-->
+
+
+<h3>1、button 按钮</h3>
+
+<p>&#160; &#160; &#160; &#160;Button是各种UI中最常用的控件之一，用户可以通过触摸它来触发一系列事件，要知道一个没有点击事件的Button是没有任何意义的，</p>
+
+<p>因为使用者的固定思维是见到它就想去点！</p>
+
+<p>&#160; &#160; &#160; &#160;布局文件里button的xml声明:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Button</span>
+</span><span class='line'>       <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>       <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>       <span class="na">android:text=</span><span class="s">&quot;@string/btn_ok&quot;</span>
+</span><span class='line'>       <span class="na">android:id=</span><span class="s">&quot;@+id/btn_ok&quot;</span><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>android:layout_width=&quot;wrap_content&quot; --自适应，据自己的值占据控件来决定大小
+</span><span class='line'>android:layout_height=&quot;fill_parent&quot; --充满父控件，自动放大到与父控件一样的大小
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;其中每个组件的layout_width和layout_height属性是必须的
+&#160; &#160; &#160; &#160;一般也可以是具体的大小，即：数字+单位，如android:layout_height =&ldquo;30px"，由于移动设备屏幕尺寸太多了，不推荐使用强制设定大小，通用性不好。</p>
+
+<p>&#160; &#160; &#160; &#160;@+表示声明，新增一个id，会自动在R.java文件里创建。如 android:id=&ldquo;@+id/btn_ok&rdquo;,@表示引用 如</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>android:text=&quot;@string/hello_world&quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;引用string.xml的名为hello_world的值。xml自定义值可以这样:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">&quot;hello_world&quot;</span><span class="nt">&gt;</span>Hello world!<span class="nt">&lt;/string&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;有些人会问直接 android:text=&ldquo;Hello world!"不是更方便，为什么还要引用xml文件?其实android这样设计为了国际化和编写弹性的应用程序，</p>
+
+<p>&#160; &#160; &#160; &#160;布局组件等一般设置格式：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;布局</span><span class="err">/组件名称</span>
+</span><span class='line'>  <span class="na">android:属性=</span><span class="s">&quot;属性类型&quot;</span>
+</span><span class='line'><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;如底下的xml：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:tools=</span><span class="s">&quot;http://schemas.android.com/tools&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingBottom=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingLeft=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingRight=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingTop=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
+</span><span class='line'>    <span class="na">tools:context=</span><span class="s">&quot;.MainActivity&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>    <span class="c">&lt;!-- 线性布局  --&gt;</span>
+</span><span class='line'>     <span class="nt">&lt;LinearLayout</span>
+</span><span class='line'>     <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>     <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>     <span class="na">android:orientation=</span><span class="s">&quot;horizontal&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;TextView</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/hello_world&quot;</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/tv&quot;</span>
+</span><span class='line'>            <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;Button</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/btn_ok&quot;</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/btn_ok&quot;</span>
+</span><span class='line'>            <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c">&lt;!-- wrap_content:自适应 --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Button</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/btn_cancle&quot;</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/btn_cancle&quot;</span>
+</span><span class='line'>            <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;ImageButton</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;@drawable/blank&quot;</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/btn_img&quot;</span>
+</span><span class='line'>            <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;/LinearLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/RelativeLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;几乎每个组件都是上面的声明方式。</p>
+
+<p>&#160; &#160; &#160; &#160;java代码里定义btn_ok = (Button)findViewById(R.id.btn_ok);其他组件也可以通过类似的方法获得，前提是在布局文件里有指定id，获得的类型都是Object，记得类型转化添加监听器 可以implements OnClickListener 重写 OnClick方法来自定义按钮按下触发事件。也可以通过内部类实现:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">btn_ok</span><span class="o">.</span><span class="na">setOnClickListincer</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnclickListner</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nd">@override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">OnClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>           <span class="o">...</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;具体代码在第二点imagebutton里贴出代码。</p>
+
+<h3>2、imagebutton</h3>
+
+<p>&#160; &#160; &#160; &#160;可添加背景图片，其他同Button。指定背景图片为res/drawable 下名为blank的图片:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>android:background=&quot;@drawable/blank&quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;注意：android res包底下的资源文件名都不能是中文或大写字母开头的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">()==</span><span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span> <span class="c1">//监听按钮按下事件</span>
+</span><span class='line'><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">()==</span><span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_UP</span> <span class="c1">//监听按钮弹起事件</span>
+</span><span class='line'><span class="n">getResources</span><span class="o">().</span><span class="na">getDrawable</span> <span class="c1">//获得资源图片的方法</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">button</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.app.Activity</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.Menu</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.MotionEvent</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.View</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.View.OnClickListener</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.View.OnTouchListener</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.widget.Button</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.widget.ImageButton</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.widget.TextView</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span><span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">TextView</span> <span class="n">tv</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Button</span> <span class="n">btn_ok</span><span class="o">,</span><span class="n">btn_cancle</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ImageButton</span> <span class="n">btn_img</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">tv</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">btn_ok</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_ok</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">btn_cancle</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_cancle</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">btn_img</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_img</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 内部类 实现 监听</span>
+</span><span class='line'>        <span class="n">btn_img</span><span class="o">.</span><span class="na">setOnTouchListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnTouchListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouch</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">()==</span><span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">btn_img</span><span class="o">.</span><span class="na">setBackgroundDrawable</span><span class="o">(</span><span class="n">getResources</span><span class="o">().</span><span class="na">getDrawable</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">face1</span><span class="o">));</span>
+</span><span class='line'>                <span class="o">}</span><span class="k">else</span> <span class="nf">if</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">()==</span><span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_UP</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">btn_img</span><span class="o">.</span><span class="na">setBackgroundDrawable</span><span class="o">(</span><span class="n">getResources</span><span class="o">().</span><span class="na">getDrawable</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">blank</span><span class="o">));</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 也可以 通过implements OnClickListener 实现监听</span>
+</span><span class='line'>        <span class="n">btn_ok</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="n">v</span> <span class="o">==</span> <span class="n">btn_ok</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;触发确定按钮事件&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 内部类 实现监听器</span>
+</span><span class='line'>        <span class="n">btn_cancle</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>                <span class="k">if</span><span class="o">(</span><span class="n">v</span> <span class="o">==</span> <span class="n">btn_cancle</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;触发取消按钮事件&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onCreateOptionsMenu</span><span class="o">(</span><span class="n">Menu</span> <span class="n">menu</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Inflate the menu; this adds items to the action bar if it is present.</span>
+</span><span class='line'>        <span class="n">getMenuInflater</span><span class="o">().</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">menu</span><span class="o">.</span><span class="na">main</span><span class="o">,</span> <span class="n">menu</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;代码运行效果：</p>
+
+<p>点击'确定'按钮，左边textview 显示'触发确定按钮'</p>
+
+<p>点击 imagebutton 显示笑脸，放开即还原。</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/102125438269722.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;顺便说点监听器的题外话：</p>
+
+<ul>
+<li><p>监听器是个抽象类，它包含了一个事件触发时系统会去调用的函数；</p></li>
+<li><p>在子类中，根据您项目的需要重写这个函数；</p></li>
+<li><p>派生后的监听器需要绑定到按钮上，就像一个耳机可以发出声音，但您不去戴它，您是听不到它发出的声音的。一般的情况是这个按钮可能需要这个监听器，而另外一个按钮需要另外一个监听器，每个监听器各司其职，但功能相似时，也可以多个按钮共同绑定一个监听器；</p></li>
+<li><p>各种控件，都有常用的事件，如点击按钮，拖动一个滚动条，切换一个ListView的选项等等，他的绑定监听器的函数命名规则是setOnXXListener</p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-02-10T08:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:22 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/09/android_study_02/" title="Previous Post: Android学习日记2--Activity简介">&laquo; Android学习日记2--Activity简介</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/02/10/android_study_03_2/" title="Next Post: android学习日记3--常用控件checkbox/radiobutton">android学习日记3--常用控件checkbox/radiobutton &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/02/10/android_study_03_1" data-title="android学习日记3--常用控件button/imagebutton" data-url="http://chendd.github.io/blog/2013/02/10/android_study_03_1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

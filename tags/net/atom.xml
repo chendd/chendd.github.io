@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: net | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/net/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记14--网络通信]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/15/android_study_14/"/>
+    <updated>2013-03-15T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/15/android_study_14</id>
+    <content type="html"><![CDATA[<h2>一、Android网络通信</h2>
+
+<p>&#160; &#160; &#160; &#160;android网络通信一般有三种：java.net.<em>(标准Java接口)、org.apache接口(基于http协议)和android.net.</em>(Android网络接口)，涉及到包括流、数据包套接字(socket)、Internet协议、常见Http处理等。android 内置HttpClient，简化和网站间的交互。但是不支持Web Services,需要利用ksoap2_android才能支持。</p>
+
+<!--more-->
+
+
+<h4>1、使用Socket进行通信</h4>
+
+<p>&#160; &#160; &#160; &#160;Socket通常也称作"套接字"，用于描述IP地址和端口，是一个通信链的句柄。Android Socket开发和JAVA Socket开发类似
+无非是创建一个Socket服务端和Socket客户端进行通信。
+Socket服务端代码：</p>
+
+<pre><code class="java">try{
+            // 新建服务器Socket
+            ServerSocket ss = new ServerSocket(8888);
+            System.out.println("Listening...");
+            while(true){
+                // 监听是否有客户端连上
+                Socket socket = ss.accept();
+                System.out.println("Client Connected...");
+                DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+                Date d = new Date();
+                // 演示传送个 当前时间给客户端
+                dout.writeUTF(d.toLocaleString());
+                dout.close();
+                socket.close();
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+</code></pre>
+
+<p>Socket客户端代码：</p>
+
+<pre><code class="java">public void connectToServer(){                    //方法：连接客户端
+            try{
+                Socket socket = new Socket("10.0.2.2", 8888);//创建Socket对象
+                DataInputStream din = new DataInputStream(socket.getInputStream());    //获得DataInputStream对象
+                String msg = din.readUTF();                             //读取服务端发来的消息
+                EditText et = (EditText)findViewById(R.id.et);        //获得EditText对象
+                if (null != msg) {
+                    et.setText(msg);                                    //设置EditText对象
+                }else {
+                    et.setText("error data");
+                }
+
+
+            }
+            catch(Exception e){                                        //捕获并打印异常
+                e.printStackTrace();
+            }
+        }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;服务端是普通JAVA项目，先启动服务端，再启动客户端Android项目，客户端连上服务端，把当前时间数据从服务端发往客户端显示出来</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151231260271893.png" alt="image" /></p>
+
+<p>注意：服务器与客户端无法链接的可能原因有：</p>
+
+<ul>
+<li>a、AndroidManifest没有加访问网络的权限：<uses-permission android:name="android.permission.INTERNET"></uses-- permission></li>
+<li>b、IP地址要使用：10.0.2.2，不能用localhost</li>
+<li>c、模拟器不能配置代理</li>
+</ul>
+
+
+<h4>2、使用Http进行通信</h4>
+
+<p>&#160; &#160; &#160; &#160;使用HttpClient在Android客户端访问Web，有点html知识都知道，提交表单有两种方式
+get和post，Android客户端访问Web也是这两种方式。在本机先建个web应用(方便演示)。
+data.jsp的代码：</p>
+
+<pre><code class="jsp">&lt;%@page language="java" import="java.util.*" pageEncoding="utf-8"%&gt; 
+&lt;html&gt; 
+&lt;head&gt; 
+&lt;title&gt; 
+Http Test 
+&lt;/title&gt; 
+&lt;/head&gt; 
+&lt;body&gt; 
+&lt;% 
+String type = request.getParameter("parameter"); 
+String result = new String(type.getBytes("iso-8859-1"),"utf-8"); 
+out.println("&lt;h1&gt;" + result + "&lt;/h1&gt;"); 
+%&gt; 
+&lt;/body&gt; 
+&lt;/html&gt;
+</code></pre>
+
+<p>启动tomcat，访问<a href="http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0">http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0</a></p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151234538404137.png" alt="image" /></p>
+
+<p>注意：192.168.1.101是我本机的IP，要替换成自己的IP。</p>
+
+<p> 按钮监听代码:</p>
+
+<pre><code class="java">//绑定按钮监听器  
+        get.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                //注意：此处ip不能用127.0.0.1或localhost,Android模拟器已将它自己作为了localhost  
+                String uri = "http://192.168.1.101:8080/test/data.jsp?parameter=以Get方式发送请求";  
+                textView.setText(get(uri));  
+            }  
+        });  
+        //绑定按钮监听器  
+        post.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                String uri = "http://192.168.1.101:8080/test/data.jsp";  
+                textView.setText(post(uri));  
+            }  
+        });
+</code></pre>
+
+<p> get方式请求代码：</p>
+
+<pre><code class="java">/** 
+     * 以get方式发送请求，访问web 
+     * @param uri web地址 
+     * @return 响应数据 
+     */  
+    private static String get(String uri){  
+        BufferedReader reader = null;  
+        StringBuffer sb = null;  
+        String result = "";  
+        HttpClient client = new DefaultHttpClient();  
+        HttpGet request = new HttpGet(uri);  
+        try {  
+            //发送请求，得到响应  
+            HttpResponse response = client.execute(request);  
+
+            //请求成功  
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){  
+                reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));  
+                sb = new StringBuffer();  
+                String line = "";  
+                String NL = System.getProperty("line.separator");  
+                while((line = reader.readLine()) != null){  
+                    sb.append(line);  
+                }  
+            }  
+        } catch (ClientProtocolException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        finally{  
+            try {  
+                if (null != reader){  
+                    reader.close();  
+                    reader = null;  
+                }  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        if (null != sb){  
+            result =  sb.toString();  
+        }  
+        return result;  
+    }
+</code></pre>
+
+<p> post方式请求代码：</p>
+
+<pre><code class="java">/** 
+     * 以post方式发送请求，访问web 
+     * @param uri web地址 
+     * @return 响应数据 
+     */  
+    private static String post(String uri){  
+        BufferedReader reader = null;  
+        StringBuffer sb = null;  
+        String result = "";  
+        HttpClient client = new DefaultHttpClient();  
+        HttpPost request = new HttpPost(uri);  
+
+        //保存要传递的参数  
+        List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();  
+        //添加参数  
+        params.add(new BasicNameValuePair("parameter","以Post方式发送请求"));  
+
+        try {  
+            //设置字符集  
+            HttpEntity entity = new UrlEncodedFormEntity(params,"utf-8");  
+            //请求对象  
+            request.setEntity(entity);  
+            //发送请求  
+            HttpResponse response = client.execute(request);  
+
+            //请求成功  
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){  
+                System.out.println("post success");  
+                reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));  
+                sb = new StringBuffer();  
+                String line = "";  
+                String NL = System.getProperty("line.separator");  
+                while((line = reader.readLine()) != null){  
+                    sb.append(line);  
+                }  
+            }  
+        } catch (ClientProtocolException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        finally{  
+            try {  
+                //关闭流  
+                if (null != reader){  
+                    reader.close();  
+                    reader = null;  
+                }  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        if (null != sb){  
+            result =  sb.toString();  
+        }  
+        return result;  
+    }
+</code></pre>
+
+<p>点击'get'按钮：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151240451685606.png" alt="image" /></p>
+
+<p>点击'post'按钮</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151240579655195.png" alt="image" /></p>
+
+<h4>3、获取http网络资源</h4>
+
+<p>&#160; &#160; &#160; &#160;其实这里就是前面讲Android数据存储的最后一种：网络存储。将txt文件和png图片放在tomcat服务器上，模拟器通过http路径去获取资源显示出来。</p>
+
+<p>获取路径为：</p>
+
+<pre><code class="java">String stringURL = "http://192.168.1.101:8080/test/test.txt";
+String bitmapURL = "http://192.168.1.101:8080/test/crab.png";
+</code></pre>
+
+<p>获取文本资源代码：</p>
+
+<pre><code class="java">//方法，根据指定URL字符串获取网络资源
+    public void getStringURLResources(){
+        try{
+            URL myUrl = new URL(stringURL);
+            URLConnection myConn = myUrl.openConnection();    //打开连接
+            InputStream in = myConn.getInputStream();        //获取输入流
+            BufferedInputStream bis = new BufferedInputStream(in);//获取BufferedInputStream对象
+            ByteArrayBuffer baf = new ByteArrayBuffer(bis.available());
+            int data = 0;
+            while((data = bis.read())!= -1){        //读取BufferedInputStream中数据
+                baf.append((byte)data);                //将数据读取到ByteArrayBuffer中
+            }
+            String msg = EncodingUtils.getString(baf.toByteArray(), "GBK");    //转换为字符串，用UTF-8中文会乱码
+            EditText et = (EditText)findViewById(R.id.et);        //获得EditText对象
+            et.setText(msg);                        //设置EditText控件中的内容
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }    
+    }
+</code></pre>
+
+<p>获取图片资源代码：</p>
+
+<pre><code class="java">public void getBitmapURLResources(){
+        try{
+            URL myUrl = new URL(bitmapURL);    //创建URL对象
+            URLConnection myConn = myUrl.openConnection();            //打开连接
+            InputStream in = myConn.getInputStream();            //获得InputStream对象
+            Bitmap bmp = BitmapFactory.decodeStream(in);        //创建Bitmap
+            ImageView iv = (ImageView)findViewById(R.id.iv);    //获得ImageView对象
+            iv.setImageBitmap(bmp);                    //设置ImageView显示的内容
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+</code></pre>
+
+<p>注意：String msg = EncodingUtils.getString(baf.toByteArray(), &ldquo;GBK&rdquo;);//转换为字符串，用UTF-8中文会乱码</p>
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/151250158712853.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

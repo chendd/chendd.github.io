@@ -79,7 +79,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/12/android_study_03_4/">android学习日记3--常用控件tabSpec/tabHost</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/18/android_study_17/">android学习日记17--Gallery(画廊视图)</a></h1>
     
     
       <p class="meta">
@@ -88,27 +88,24 @@
 
 
 
-<time class='entry-date' datetime='2014-02-12T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-18T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>一、Gallery</h2>
 
-<h4>7、TabSpec和TabHost</h4>
+<h4>1、简述</h4>
 
-<p>&#160; &#160; &#160; &#160;比较常用的控件，感觉手机QQ的整体布局就是这个，只不过tab放在底部而已。TabSpec相当于浏览器的分页，而TabHost就相当于分页的集合。TabSpec分页可以相当于一个独立的组件，也可以是一个布局，将每个分页装进TabHost里
-Activity extends TabActivity
-以前都是 继承android.app.Activity
-这里为了获得Activity分页菜单，继承它，显然TabActivity和Activity有同个父类。</p>
+<p>&#160; &#160; &#160; &#160;Gallery有道翻译为画廊，就叫它画廊控件，主要用来可切换的图片展示，左右滑动可以选择上一张或下一张图片。个人感觉蛮实用的，不过google貌似不推荐使用啊！</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/12/android_study_03_4/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/18/android_study_17/">Read on &rarr;</a>
     </footer>
   
 
@@ -120,7 +117,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/11/android_study_03_3/">Android学习日记3--常用控件progressbar/seekbar</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/17/android_study_16/">android学习日记16--GridView(网格视图)</a></h1>
     
     
       <p class="meta">
@@ -129,24 +126,25 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-11T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-17T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>一、GridView</h2>
 
-<h3>5、progressbar</h3>
+<h4>1、简述　　</h4>
 
-<p>&#160; &#160; &#160; &#160;进度条，比较常用的组件，在某些操作的进度中的可视指示器，为用户呈现操作的进度，还它有一个次要的进度条，用来显示中间进度，如在流媒体播放的缓冲区的进度。一个进度条也可不确定其进度。在不确定模式下，进度条显示循环动画。一般有圆形和条形两种；</p>
+<p>&#160; &#160; &#160; &#160;GridView按照行列来显示图片或文本的一种视图，排列其实有点类似TableLayout布局，不过和TableLayout还是差别很大的,倒比较像二维的ListView。位于android.widget包下，常常用来实现类似九宫格的图像。
+实现手法和ListView有点相似，用Apapter把数据绑定到控件上，为容器提供子视图，利用视图的数据和元数据来构建每个子视图自定义Adapter显示。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/11/android_study_03_3/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/17/android_study_16/">Read on &rarr;</a>
     </footer>
   
 
@@ -158,7 +156,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/10/android_study_03_2/">Android学习日记3--常用控件checkbox/radiobutton</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/16/android_study_15/">android学习日记15--WebView(网络视图)</a></h1>
     
     
       <p class="meta">
@@ -167,24 +165,25 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-10T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-16T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>一、WebView</h2>
 
-<h3>3、checkbox</h3>
+<h4>1、简述</h4>
 
-<p>&#160; &#160; &#160; &#160;复选框，确定是否勾选,点击一下勾选，点击第二下取消，当有一系列备选项时适合用checkbox控件，方便用户提交数据。</p>
+<p>&#160; &#160; &#160; &#160;WebView(网络视图)内置WebKit引擎，能加载显示网页，还支持JS，并且能够在Android平台使用AJAX
+WebView可以在布局中声明，也可以在Activity中直接实例化</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/10/android_study_03_2/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/16/android_study_15/">Read on &rarr;</a>
     </footer>
   
 
@@ -196,7 +195,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/10/android_study_03_1/">Android学习日记3--常用控件button/imagebutton</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/15/android_study_14/">Android学习日记14--网络通信</a></h1>
     
     
       <p class="meta">
@@ -205,24 +204,22 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-10T08:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
+<time class='entry-date' datetime='2013-03-15T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>一、Android网络通信</h2>
 
-<p>&#160; &#160; &#160; &#160;控件是对数据和方法的封装。控件可以有自己的属性和方法。属性是控件数据的简单访问者。方法则是控件的一些简单而可见的功能。所有控件都是继承View类</p>
-
-<p>&#160; &#160; &#160; &#160;介绍android原生提供几种常用的控件button/imagebutton、checkbox/radiobutton、progressbar/seekbar、tabSpec/tabHost、ListView、Dialog，主要为了掌握控件使用的一般规律。</p>
+<p>&#160; &#160; &#160; &#160;android网络通信一般有三种：java.net.<em>(标准Java接口)、org.apache接口(基于http协议)和android.net.</em>(Android网络接口)，涉及到包括流、数据包套接字(socket)、Internet协议、常见Http处理等。android 内置HttpClient，简化和网站间的交互。但是不支持Web Services,需要利用ksoap2_android才能支持。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/10/android_study_03_1/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/15/android_study_14/">Read on &rarr;</a>
     </footer>
   
 
@@ -234,7 +231,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/09/android_study_02/">Android学习日记2--Activity简介</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/13/android_study_13_4/">android学习日记13--数据存储之File存储</a></h1>
     
     
       <p class="meta">
@@ -243,24 +240,25 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-09T21:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-13T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>一、Activity活动</h2>
+  <div class="entry-content"><h2>4、文件存储File</h2>
 
-<p>&#160; &#160; &#160; &#160;学习Android，第一个都会接触Activity滴，Activity表示一个用户界面，是Android应用程序的入口，可以同时有多个界面，但只会显示栈顶的界面。</p>
+<p>&#160; &#160; &#160; &#160;File即传统的I/O 流存储文件，Activity提供了openFileOutput()方法可以用于把数据输出到文件中，
+具体的实现过程与在J2SE环境中保存数据到文件中是一样的。</p>
 
-<p>&#160; &#160; &#160; &#160;Activity是Android的重要组成部分，一个程序包括多个Activity，新建项目都会有个程序启动时就调用的MainActivity。新定义Activity需在AndroidManifest配置。</p>
+<p>&#160; &#160; &#160; &#160;下面例子演示 如何保存文件、读取文件和把文件保存在SD卡上。</p>
 
-</div>
+<p> </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/09/android_study_02/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/13/android_study_13_4/">Read on &rarr;</a>
     </footer>
   
 
@@ -272,7 +270,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/09/android_study_01/">Android学习日记1--综述</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/08/android_study_13_3/">android学习日记13--数据存储之ContentProvide</a></h1>
     
     
       <p class="meta">
@@ -281,24 +279,24 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-09T19:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-08T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;写点关于Android的知识，希望温故而知新吧！</p>
+  <div class="entry-content"><h4>3、ContentProvider</h4>
 
-<h2>一、总体框架</h2>
-
-<p>&#160; &#160; &#160; &#160;先上一张google提供官方的Android框架图：</p>
+<p>&#160; &#160; &#160; &#160;数据在Android当中是私有的，当然这些数据包括文件数据和数据库数据以及一些其他类型的数据。ContentProvider实现多应用程序间的数据共享类
+一般利用ContentProvider为需要共享的数据定义一个URI(统一资源定位符)
+然后其他程序通过Context获得ContentResolver并将数据的URI传入即可</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/09/android_study_01/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/08/android_study_13_3/">Read on &rarr;</a>
     </footer>
   
 
@@ -310,7 +308,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/06/android_study_00/">Android学习日记0--开发需要掌握的技能</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/07/android_study_13_2/">android学习日记13--数据存储之SQLite</a></h1>
     
     
       <p class="meta">
@@ -319,22 +317,24 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2014-02-06T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-07T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>一、开发android，我们需要哪些技能基础</h2>
+  <div class="entry-content"><h4>2、SQLite</h4>
 
-<p>&#160; &#160; &#160; &#160;1、Java基础知识 2、Linux基础知识 3、数据库基础知识 4、网络协议 5、Android基础知识 6、服务器端开发知识</p>
+<p>&#160; &#160; &#160; &#160;开源轻量级数据库，支持92-SQL标准，主要用于嵌入式系统，只占几百K系统资源此外，SQLite 不支持一些标准的 SQL 功能，特别是外键约束（FOREIGN KEY constrains），嵌套 transcaction 和 RIGHT OUTER JOIN 和 FULL OUTER JOIN, 还有一些 ALTER TABLE 功能</p>
+
+<p>&#160; &#160; &#160; &#160;许多开源项目（(Mozilla, PHP, Python）都使用了 SQLite.SQLite 由以下几个组件组成：SQL 编译器、内核、后端以及附件</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/06/android_study_00/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/07/android_study_13_2/">Read on &rarr;</a>
     </footer>
   
 
@@ -346,7 +346,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/07/26/build_octopress_in_window/">Octopress写博客步骤</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/04/android_study_13_1/">android学习日记13--数据存储之SharedPreference</a></h1>
     
     
       <p class="meta">
@@ -355,26 +355,27 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2012-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2013-03-04T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>使用Octopress写博客大致有一下几个步骤：</p>
+  <div class="entry-content"><h2>android 数据存储</h2>
 
-<ol>
-<li><p>执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；</p></li>
-<li><p>找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑；</p></li>
-</ol>
+<p>&#160; &#160; &#160; &#160;作为一个完整的应用程序，数据存储必不可少。android 提供了五种不同的数据存储方式:SharedPreferences、SQLite、ContentProvider、文件存储、网络存储。</p>
 
+<h4>1、SharedPreference</h4>
+
+<p>&#160; &#160; &#160; &#160;用来存储简单的配置信息，如用户名/密码，以键值对的方式存储，存储位置在/data/data/&lt;包名>/shared_prefs目录下
+SharedPreferences对象本身只能获取数据而不支持存储和修改，存储修改是通过Editor对象实现。实现SharedPreferences存储的步骤如下：</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2012/07/26/build_octopress_in_window/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/04/android_study_13_1/">Read on &rarr;</a>
     </footer>
   
 
@@ -386,7 +387,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/03/android_study_12/">Android学习日记12--布局管理器</a></h1>
     
     
       <p class="meta">
@@ -395,20 +396,67 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2012-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2013-03-03T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
+  <div class="entry-content"><h4>1、概述</h4>
+
+<p>&#160; &#160; &#160; &#160;布局管理器的用途：</p>
+
+<ul>
+<li>a、可以更好的管理组件;</li>
+<li>b、通过使用布局管理器，Android应用程序可以做到平台无关性</li>
+</ul>
+
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2012/07/25/use_markdown_in_octopress/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/03/android_study_12/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/02/android_study_11/">Android学习日记11--音频播放类</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-02T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、android 音频播放类</h2>
+
+<p>&#160; &#160; &#160; &#160;MediaPlayer和SoundPool都可以用来播放音频。
+区别是MediaPlayer占用资源高，延迟时间高，播放长音乐的，并且不能同时播放多个音乐，
+而SoundPool占用资源较少，没什么延迟，但要提前加载，只能播放1M以下的音频文件，能同时播放多个音乐
+因此MediaPlayer一般用来播放背景音乐，而SoundPool主要用来播放游戏音效。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/02/android_study_11/">Read on &rarr;</a>
     </footer>
   
 
@@ -416,6 +464,8 @@ Activity extends TabActivity
     </article>
   
   <div class="pagination">
+    
+      <a class="prev" href="/posts/3">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -430,23 +480,23 @@ Activity extends TabActivity
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a>
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a>
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a>
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a>
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a>
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
       </li>
     
   </ul>
@@ -458,33 +508,20 @@ Activity extends TabActivity
 <section>
   <h1>Tags</h1>
   <ul class="tag-cloud">
-<li><a style="font-size: 60%" href="/tags/bitmap/">BitMap</a></li>
-<li><a style="font-size: 60%" href="/tags/canvas/">Canvas</a></li>
-<li><a style="font-size: 60%" href="/tags/dialog/">Dialog</a></li>
-<li><a style="font-size: 60%" href="/tags/listview/">ListView</a></li>
-<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
-<li><a style="font-size: 86%" href="/tags/octopress/">Octopress</a></li>
-<li><a style="font-size: 60%" href="/tags/paint/">Paint</a></li>
-<li><a style="font-size: 60%" href="/tags/surfaceview/">SurfaceView</a></li>
-<li><a style="font-size: 60%" href="/tags/view/">View</a></li>
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
 <li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
 <li><a style="font-size: 165%" href="/tags/android/">android</a></li>
 <li><a style="font-size: 60%" href="/tags/button/">button</a></li>
 <li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
 <li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
-<li><a style="font-size: 60%" href="/tags/progressbar/">progressbar</a></li>
 <li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
-<li><a style="font-size: 60%" href="/tags/seekbar/">seekbar</a></li>
-<li><a style="font-size: 60%" href="/tags/tabhost/">tabHost</a></li>
-<li><a style="font-size: 60%" href="/tags/tabspec/">tabSpec</a></li>
-<li><a style="font-size: 60%" href="/tags/xi-jie/">细节</a></li>
-<li><a style="font-size: 60%" href="/tags/cai-jian/">裁剪</a></li>
 
   </ul>
 </section><section>
   <h1>Categories</h1>
   <ul id="categories">
-    <li class='category'><a href='/blog/categories/android-study/'>android_study (17)</a></li>
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 
   </ul>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Animation | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/animation/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记22--Animation动画简介]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/26/android_study_22/"/>
+    <updated>2013-03-26T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/26/android_study_22</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;Animation动画主要有两种：帧动画(Frame Animation)和补间动画(Tween Animation)。
+补间动画主要包括对位置、角度、尺寸等属性的变化，而帧动画则是通过若干帧图片轮流切换显示的。</p>
+
+<h4>1、帧动画</h4>
+
+<p>&#160; &#160; &#160; &#160;按顺序显示事先准备好的图片，跟动漫类似。主要用到的类AnimationDrawable，每个帧都是AnimationDrawable对象。
+定义帧动画可以在代码直接进行。也可以通过XML文件定义，定义帧动画的文件存放在res/anim目录下。XML指定帧出现的顺序
+及每个帧的持续时间。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;帧动画XML主要标记和属性如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262025574051823.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;需要强调的是：启动Frame Animation动画的代码rocketAnimation.start();不能在OnCreate()中，因为在OnCreate()中
+AnimationDrawable还没有完全的与ImageView绑定，在OnCreate()中启动动画，就只能看到第一张图片。这里实在拖曳事件中实现的。</p>
+
+<p>&#160; &#160; &#160; &#160;AnimationDrawable的主要方法如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262028348437192.png" alt="image" />
+　　</p>
+
+<p>&#160; &#160; &#160; &#160;帧动画使用例子</p>
+
+<p>&#160; &#160; &#160; &#160;完整帧动画XML(frame_ani.xml)代码：</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+ &lt;animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+     android:oneshot="false"&gt;
+    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish2" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish3" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish4" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish5" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish6" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish7" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
+    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
+ &lt;/animation-list&gt;
+</code></pre>
+
+<p>启动帧动画JAVA代码：</p>
+
+<pre><code class="java">@Override    
+public void onClick(View v) {            //重写onClick方法
+      ImageView iv = (ImageView)findViewById(R.id.iv);
+      iv.setBackgroundResource(R.anim.frame_ani);
+      AnimationDrawable ad = (AnimationDrawable)iv.getBackground();
+      ad.start();        //启动AnimationDrawable
+}
+</code></pre>
+
+<p>点击按钮，启动帧动画，可以看见不同fish图片的切换，鱼儿在游动(自己脑补哈)。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262029485935994.png" alt="image" /></p>
+
+<h4>2、补间动画</h4>
+
+<p>&#160; &#160; &#160; &#160;补间动画作用于View视图，主要包括对View对象的位置、尺寸、旋转角度、透明度的变化。补间动画涉及的类主要有Animation、AnimationSet等。
+&#160; &#160; &#160; &#160;补间动画同帧动画可以在代码直接进行。也可以通过XML文件定义，推荐用XML，因为这样可读性比较高和利于扩展。
+XML文件存放在res/anim下。</p>
+
+<p>　　补间动画XML几种变化标记和属性如下:</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262034318435727.png" alt="image" /></p>
+
+<p>　　公有属性如下：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262034454364374.png" alt="image" />　</p>
+
+<p>　　补间动画使用例子：</p>
+
+<p>完整补间动画XML代码：</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;!-- XML的版本以及编码方式 --&gt;
+&lt;set xmlns:android="http://schemas.android.com/apk/res/android"&gt; 
+  &lt;alpha
+    android:fromAlpha="0.0" 
+    android:toAlpha="1.0" 
+    android:duration="6000" 
+  /&gt; &lt;!-- 透明度的变换 --&gt;
+  &lt;scale
+    android:interpolator= "@android:anim/accelerate_decelerate_interpolator" 
+    android:fromXScale="0.0" 
+    android:toXScale="1.0" 
+    android:fromYScale="0.0" 
+    android:toYScale="1.0" 
+    android:pivotX="50%" 
+    android:pivotY="50%"
+    android:fillAfter="false" 
+    android:duration="9000"
+  /&gt; &lt;!-- 尺寸的变换 --&gt;
+  &lt;translate
+    android:fromXDelta="30" 
+    android:toXDelta="0" 
+    android:fromYDelta="30"
+    android:toYDelta="0" 
+    android:duration="10000" 
+  /&gt; &lt;!-- 尺位置的变换 --&gt;
+  &lt;rotate
+    android:interpolator="@android:anim/accelerate_decelerate_interpolator" 
+    android:fromDegrees="0" 
+    android:toDegrees="+360" 
+    android:pivotX="50%" 
+    android:pivotY="50%"
+    android:duration="10000"
+  /&gt; &lt;!-- 旋转变换 --&gt;
+&lt;/set&gt;
+</code></pre>
+
+<p>启动补间动画JAVA代码:</p>
+
+<pre><code class="java">@Override
+public void onClick(View v) {                //重写onClick方法
+       ImageView iv = (ImageView)findViewById(R.id.iv);
+       Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.tween_ani);
+       iv.startAnimation(animation);            //启动动画            
+}
+</code></pre>
+
+<p>点击按钮，启动补间动画，可以看见螃蟹从中心慢慢旋转显现出来。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/262039309214990.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/262039459996150.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

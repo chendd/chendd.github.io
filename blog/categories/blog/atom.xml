@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Blog | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/blog/categories/blog/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -104,17 +104,17 @@
 
 <p>5、插入图片</p>
 
-<pre><code>![image](https://www.dkhs.com/static/common/img/logo5.png)
+<pre><code>![image](https://www.baidu.com/img/bd_logo1.png)
 </code></pre>
 
-<p><img src="https://www.dkhs.com/static/common/img/logo5.png" alt="image" /></p>
+<p><img src="https://www.baidu.com/img/bd_logo1.png" alt="image" /></p>
 
 <p>6、插入链接</p>
 
-<pre><code>[谁牛金融链接](http://www.dkhs.com)
+<pre><code>[百度链接](http://www.baidu.com)
 </code></pre>
 
-<p><a href="http://www.dkhs.com">谁牛金融链接</a></p>
+<p><a href="http://www.baidu.com">百度链接</a></p>
 
 <p>7、插入视频</p>
 

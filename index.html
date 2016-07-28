@@ -79,7 +79,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a></h1>
     
     
       <p class="meta">
@@ -88,24 +88,25 @@
 
 
 
-<time class='entry-date' datetime='2014-02-28T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-05-15T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>裁剪区域</h2>
+  <div class="entry-content"><p>　　为什么在这就意味着没有多少剩余空间给你去浪费了，因此，在你写Androi编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。
+　　对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
 
-<p>&#160; &#160; &#160; &#160;裁剪是画布的一个函数，区域可以是矩形和圆形，也可以通过设置 path 或Region来显示自定义区域，通过不同组合，Android几乎可以支持任意现状的裁剪区域。</p>
+<h4>1、不要做不必要做的事情。</h4>
 
-<p>&#160; &#160; &#160; &#160;android.graphics包中定义了Point, Rect, Path, Region 这几种几何形状，Path可以为有圆弧，椭圆，二次曲线，三次曲线，线段，矩形等基本几何图形或是由这些基本几何图形组合而成，Path可以为开放或是闭合曲线。Rect提供了定义矩形的简洁方法。</p>
+<h4>2、尽可能的节省内存的使用。</h4>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/28/android_study_10/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/05/15/efficient_android_code/">Read on &rarr;</a>
     </footer>
   
 
@@ -117,7 +118,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a></h1>
     
     
       <p class="meta">
@@ -126,22 +127,26 @@
 
 
 
-<time class='entry-date' datetime='2014-02-25T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-30T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>Bitmap</h2>
+  <div class="entry-content"><h4>1、ANR(Application Not Responding)定义</h4>
 
-<p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
+<p>　　在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，
+这个对话框称作应用程序无响应（ANR：Application Not Responding）对话框。用户可以选择“等待”而让程序继续运行，
+也可以选择“强制关闭”。所以一个流畅的合理的应用程序中不能出现anr，而让用户每次都要处理这个对话框。
+因此，在程序里对响应性能的设计很重要，这样系统不会显示ANR给用户。默认情况下，在android中Activity的最长执行时间是5秒，
+BroadcastReceiver的最长执行时间则是10秒。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/25/android_study_09/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/30/android_study_25/">Read on &rarr;</a>
     </footer>
   
 
@@ -153,7 +158,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a></h1>
     
     
       <p class="meta">
@@ -162,26 +167,22 @@
 
 
 
-<time class='entry-date' datetime='2014-02-24T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-30T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>Paint</h2>
-
-<p>&#160; &#160; &#160; &#160;要绘图，首先得调整画笔，待画笔调整好之后，再将图像绘制到画布Canvas上，
-这样才可以显示在手机屏幕上。Android 中的画笔是 Paint类，Paint 中包含了很多方法对其属性进行设置，</p>
-
-<p>Paint方法一般可分两类，图形的绘制和文本的绘制
-主要方法如下：（没有全部列出，大家可以查看<a href="http://android.toolib.net/reference/android/graphics/Paint.html">官方文档</a> ）</p>
+  <div class="entry-content"><p>　　菜单是任何应用程序必不可少的一项。按下Menu键或者长按某个View就会弹出相应菜单，当然前提是应用程序有实现菜单功能。
+Android平台下的菜单有：Options Menu(选项菜单)、Submenu(子菜单)、Context Menu(上下文菜单)。
+这次的案例用以前的索尼真机测试，就不贴代码和运行截图，主要贴些理论知识。菜单这块比较简单，代码实例看<a href="http://www.cnblogs.com/giuz/archive/2010/10/19/1855235.html">这里</a></p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/24/android_study_08/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/30/android_study_24/">Read on &rarr;</a>
     </footer>
   
 
@@ -193,7 +194,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a></h1>
     
     
       <p class="meta">
@@ -202,23 +203,38 @@
 
 
 
-<time class='entry-date' datetime='2014-02-22T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-29T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h4>1、Canvas</h4>
+  <div class="entry-content"><h2>一、简述</h2>
 
-<p>&#160; &#160; &#160; &#160;Canvas类主要实现了屏幕的绘制过程，其中包含了很多实用的方法，比如绘制一条路径、区域、贴图、画点、画线、渲染文本，
-当然Android官网提示大家很多方法有不同的重载版本，参数更灵活。</p>
+<p>　　XML语言是跨平台，JAVA对XML语言支持得比较好，android系统的应用层平台是JAVA做的，所以用XML。
+XML解析比较简单。XML解析就是将获取到的数据分离出来，基本的网络数据传输，需要使用XML
+比如天气预报，从网上获取的是XML文件，通过XML解析可以把天气状态读出来
+例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;forecast_date</span> <span class="na">data=</span><span class="s">&quot;2009-07-31&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;condition</span> <span class="na">data=</span><span class="s">&quot;晴&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;humidity</span> <span class="na">data=</span><span class="s">&quot;湿度： 65%&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可得到 2009-07-31 晴 湿度：65%</p>
+
+<p>还有一作用是保存你的数据，比如做个旅游网站，你需要把全国各个省、城市名称写到XML文件进行保存，在程序中通过解析读取调用。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/22/android_study_07/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/29/android_study_23/">Read on &rarr;</a>
     </footer>
   
 
@@ -230,7 +246,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a></h1>
     
     
       <p class="meta">
@@ -239,22 +255,27 @@
 
 
 
-<time class='entry-date' datetime='2014-02-20T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-26T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>一、API关SurfaceView的介绍</h2>
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;Animation动画主要有两种：帧动画(Frame Animation)和补间动画(Tween Animation)。
+补间动画主要包括对位置、角度、尺寸等属性的变化，而帧动画则是通过若干帧图片轮流切换显示的。</p>
 
-<p>&#160; &#160; &#160; &#160;SurfaceView是视图(View)的继承类，这个视图里内嵌了一个专门用于绘制的Surface。你可以控制这个Surface的格式和尺寸。Surfaceview控制这个Surface的绘制位置。</p>
+<h4>1、帧动画</h4>
+
+<p>&#160; &#160; &#160; &#160;按顺序显示事先准备好的图片，跟动漫类似。主要用到的类AnimationDrawable，每个帧都是AnimationDrawable对象。
+定义帧动画可以在代码直接进行。也可以通过XML文件定义，定义帧动画的文件存放在res/anim目录下。XML指定帧出现的顺序
+及每个帧的持续时间。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/20/android_study_06/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/26/android_study_22/">Read on &rarr;</a>
     </footer>
   
 
@@ -266,7 +287,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/19/android_study_05/">android学习日记5--View视图</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/25/android_study_21/">android学习日记21--消息提示之Toast和Notification</a></h1>
     
     
       <p class="meta">
@@ -275,31 +296,24 @@
 
 
 
-<time class='entry-date' datetime='2014-02-19T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-25T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>一、android 界面开发</h2>
+  <div class="entry-content"><h4>1、Toast</h4>
 
-<h4>1、三个重要的类：View视图、Canvas画布、Paint画笔</h4>
-
-<h4>2、android 界面开发常用三种视图</h4>
-
-<ul>
-<li>View            &ndash;只能在主线程中更新，没有缓存机制，适合画面更新较少的界面，比如有按键按下才变化的界面。</li>
-<li>SurfaceView &ndash;可以设置独立的线程，有缓存机制，主要用于2D游戏</li>
-<li>GLSurfaceView &ndash;主要用于3D游戏，暂时不学习</li>
-</ul>
-
+<p>&#160; &#160; &#160; &#160;Toast译为土司，类似切片面包，用于弹出比较快速的及时提示信息。当Toast被显示时，
+虽然它悬浮应用程序最上方，但是并未获得焦点。它的设计就是为了提示有用的信息，而不打扰用户其他操作。
+最使用简单：</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/19/android_study_05/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/25/android_study_21/">Read on &rarr;</a>
     </footer>
   
 
@@ -311,7 +325,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/19/android_study_04/">Android学习日记4--开发中的通用细节</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/24/android_study_20/">android学习日记20--连接组件之Intent和IntentFilter</a></h1>
     
     
       <p class="meta">
@@ -320,28 +334,27 @@
 
 
 
-<time class='entry-date' datetime='2014-02-19T21:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+<time class='entry-date' datetime='2013-03-24T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h4>1、android中的计量单位</h4>
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;上次刚了解完Android的四大组件，现在学习组件间通信的Intent和IntentFilter</p>
 
-<ul>
-<li>px （pixels）（像素）：是屏幕的物理像素点，与密度相关，密度大了，单位面积上的px会比较多。通常不推荐使用这个</li>
-<li>pt(磅):1/72英寸,也较少用</li>
-<li>in(英寸):标准长度单位</li>
-<li>mm(毫米):标准长度单位</li>
-</ul>
+<h2>一、Intent</h2>
 
+<h4>1、简述</h4>
+
+<p>&#160; &#160; &#160; &#160;Intent(意图)在应用程序运行时连接两个不同组件，是一种运行时的绑定机制。一般应用是通过Intent向Android系统
+发出某种请求，根据查询各个组件声明的IntentFilter，找到组件并运行它。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/19/android_study_04/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/24/android_study_20/">Read on &rarr;</a>
     </footer>
   
 
@@ -353,7 +366,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/17/android_study_03_7/">Android学习日记3--常用控件总结</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/22/android_study_19_2/">android学习日记19--四大组件之BroadcastReciver(广播接收者)</a></h1>
     
     
       <p class="meta">
@@ -362,26 +375,26 @@
 
 
 
-<time class='entry-date' datetime='2014-02-17T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-22T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>二、BroadcastReciver(广播接收者)</h2>
 
-<h3>10、常用控件总结</h3>
+<h4>1、简述</h4>
 
-<p>&#160; &#160; &#160; &#160;Android控件种类繁多，但常用的无非这几种，当然有些高级控件可能特殊点，至此，常用控件就讲这些。如果开发时遇到陌生控件再去查API文档。</p>
-
-<p>附件是转载的控件常用属性讲解，不求记忆，但得知道有这么些属性。</p>
+<p>&#160; &#160; &#160; &#160;BroadcastReciver位于android.content包下，主要用于对广播消息(Intent)的过滤并响应的控件。可以理解为全局的监听器。
+BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某个广播消息后，BroadcastReceiver可以启动Activity作为响应，
+或者启动Service服务等等。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/17/android_study_03_7/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/22/android_study_19_2/">Read on &rarr;</a>
     </footer>
   
 
@@ -393,7 +406,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/16/android_study_03_6/">android学习日记3--常用控件Dialog</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/22/android_study_19_1/">android学习日记19--四大组件之Services(服务)</a></h1>
     
     
       <p class="meta">
@@ -402,26 +415,22 @@
 
 
 
-<time class='entry-date' datetime='2014-02-16T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-22T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;一个Android应用主要由四个基本组件组成，Android四大基本组件分别是Activity，Content Provider内容提供者，Service服务，BroadcastReceiver广播接收器。其中Activity和Content Provider在前面都有介绍过。这里主要讲讲Service服务和BroadcastReceiver广播接收器。</p>
 
-<h4>9、Dialog</h4>
-
-<p>&#160; &#160; &#160; &#160;我们经常会需要在Android界面上弹出一些对话框，比如询问用户或者让用户选择。这些功能我们叫它Android Dialog对话框</p>
-
-<p>对话框，要创建对话框之前首先要创建Builder类创建者，Builder是AlertDialog的子类，而且还是它的内部类。</p>
+<h2>一、Services(服务)</h2>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/16/android_study_03_6/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/22/android_study_19_1/">Read on &rarr;</a>
     </footer>
   
 
@@ -433,7 +442,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/02/15/android_study_03_5/">android学习日记3--常用控件ListView</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/19/android_study_18/">android学习日记18--Adapter简介</a></h1>
     
     
       <p class="meta">
@@ -442,33 +451,25 @@
 
 
 
-<time class='entry-date' datetime='2014-02-15T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+<time class='entry-date' datetime='2013-03-19T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>常用控件</h2>
+  <div class="entry-content"><h2>一、Adapter</h2>
 
-<h4>8、ListView</h4>
+<h4>1、简述</h4>
 
-<p>&#160; &#160; &#160; &#160;列表视图，比如游戏的排行榜。列表数据可以根据屏幕大小自适应</p>
-
-<p>列表的显示需要三个元素：</p>
-
-<ul>
-<li><p>ListVeiw:用来展示列表的View。</p></li>
-<li><p>适配器:用来把数据映射到ListView上的中介。</p></li>
-<li><p>数据:具体的将被映射的字符串，图片，或者基本组件。</p></li>
-</ul>
-
+<p>&#160; &#160; &#160; &#160;最近学的GridView和Gallery 都有用到Adapter适配器，发现它貌似蛮重要的。专门上网搜了下有关Adapter的资料。android绝大多数应用是JAVA语言编写的，Adapter在JAVA里是专门的一种设计模式，目的是使两个原本没有关联的类结合一起使用。
+比如水管A是25mm的，水管B是40mm的，假设水管厚度不计，怎样连接两种水管一起使用？这时就需要适配器C，适配器C类似水管，一头25mm，另一头40mm，这样就可以连接A、B水管一起使用了。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/02/15/android_study_03_5/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2013/03/19/android_study_18/">Read on &rarr;</a>
     </footer>
   
 
@@ -490,23 +491,23 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a>
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a>
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a>
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a>
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a>
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
       </li>
     
   </ul>
@@ -518,33 +519,20 @@
 <section>
   <h1>Tags</h1>
   <ul class="tag-cloud">
-<li><a style="font-size: 60%" href="/tags/bitmap/">BitMap</a></li>
-<li><a style="font-size: 60%" href="/tags/canvas/">Canvas</a></li>
-<li><a style="font-size: 60%" href="/tags/dialog/">Dialog</a></li>
-<li><a style="font-size: 60%" href="/tags/listview/">ListView</a></li>
-<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
-<li><a style="font-size: 86%" href="/tags/octopress/">Octopress</a></li>
-<li><a style="font-size: 60%" href="/tags/paint/">Paint</a></li>
-<li><a style="font-size: 60%" href="/tags/surfaceview/">SurfaceView</a></li>
-<li><a style="font-size: 60%" href="/tags/view/">View</a></li>
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
 <li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
 <li><a style="font-size: 165%" href="/tags/android/">android</a></li>
 <li><a style="font-size: 60%" href="/tags/button/">button</a></li>
 <li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
 <li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
-<li><a style="font-size: 60%" href="/tags/progressbar/">progressbar</a></li>
 <li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
-<li><a style="font-size: 60%" href="/tags/seekbar/">seekbar</a></li>
-<li><a style="font-size: 60%" href="/tags/tabhost/">tabHost</a></li>
-<li><a style="font-size: 60%" href="/tags/tabspec/">tabSpec</a></li>
-<li><a style="font-size: 60%" href="/tags/xi-jie/">细节</a></li>
-<li><a style="font-size: 60%" href="/tags/cai-jian/">裁剪</a></li>
 
   </ul>
 </section><section>
   <h1>Categories</h1>
   <ul id="categories">
-    <li class='category'><a href='/blog/categories/android-study/'>android_study (17)</a></li>
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 
   </ul>

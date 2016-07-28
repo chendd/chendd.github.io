@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记10--裁剪区域 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="裁剪区域 &#160; &#160; &#160; &#160;裁剪是画布的一个函数，区域可以是矩形和圆形，也可以通过设置 path 或Region来显示自定义区域，通过不同组合，Android几乎可以支持任意现状的裁剪区域。 &#160; &#160; &#160; &#160;android. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/02/28/android_study_10/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记10--裁剪区域</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-28T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>裁剪区域</h2>
+
+<p>&#160; &#160; &#160; &#160;裁剪是画布的一个函数，区域可以是矩形和圆形，也可以通过设置 path 或Region来显示自定义区域，通过不同组合，Android几乎可以支持任意现状的裁剪区域。</p>
+
+<p>&#160; &#160; &#160; &#160;android.graphics包中定义了Point, Rect, Path, Region 这几种几何形状，Path可以为有圆弧，椭圆，二次曲线，三次曲线，线段，矩形等基本几何图形或是由这些基本几何图形组合而成，Path可以为开放或是闭合曲线。Rect提供了定义矩形的简洁方法。</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//绘制一张背景图片，充满整个屏幕</span>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bitmap1</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">background</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">save</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// 四个参数 表示左上角的坐标和宽高</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">clipRect</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">30</span><span class="o">,</span> <span class="mi">30</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">restore</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">save</span><span class="o">();</span>
+</span><span class='line'><span class="n">Path</span> <span class="n">path</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Path</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// 添加一个圆形区域 </span>
+</span><span class='line'><span class="n">path</span><span class="o">.</span><span class="na">addCircle</span><span class="o">(</span><span class="mi">130</span><span class="o">,</span> <span class="mi">130</span><span class="o">,</span> <span class="mi">30</span><span class="o">,</span> <span class="n">Direction</span><span class="o">.</span><span class="na">CCW</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 也可以通过设置 path 来显示自定义区域</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">clipPath</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">restore</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/252027498664351.jpg" alt="image" /></p>
+
+<p>需注意的是 裁剪区域的函数是对 整个画布的操作
+为了避免对其他绘制受到影响，需对画布save保存，裁剪完之后 restore复原</p>
+
+<p>此外也可以通过Region来进行裁剪区域的划分 第三个参数比较复杂(在最后说明)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">save</span><span class="o">();</span>
+</span><span class='line'><span class="n">Region</span> <span class="n">region</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Region</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// op是添加区域的函数，最后一个参数表示显示的参数，有交并补差等等</span>
+</span><span class='line'><span class="n">region</span><span class="o">.</span><span class="na">op</span><span class="o">(</span><span class="k">new</span> <span class="nf">Rect</span><span class="o">(</span><span class="mi">20</span><span class="o">,</span><span class="mi">20</span><span class="o">,</span><span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="o">),</span> <span class="n">Region</span><span class="o">.</span><span class="na">Op</span><span class="o">.</span><span class="na">UNION</span><span class="o">);</span>
+</span><span class='line'><span class="n">region</span><span class="o">.</span><span class="na">op</span><span class="o">(</span><span class="k">new</span> <span class="nf">Rect</span><span class="o">(</span><span class="mi">40</span><span class="o">,</span><span class="mi">20</span><span class="o">,</span><span class="mi">80</span><span class="o">,</span><span class="mi">150</span><span class="o">),</span> <span class="n">Region</span><span class="o">.</span><span class="na">Op</span><span class="o">.</span><span class="na">XOR</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">clipRegion</span><span class="o">(</span><span class="n">region</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">restore</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/252028493998838.jpg" alt="image" /></p>
+
+<p>为了方便说明，把第一次clipRect的绘制范围设为A，第二次clipRect设定的范围设为B</p>
+
+<ul>
+<li>Op.DIFFERENCE，实际上就是求得的A和B的差集范围，即A－B，只有在此范围内的绘制内容才会被显示；</li>
+<li>Op.REVERSE_DIFFERENCE，实际上就是求得的B和A的差集范围，即B－A，只有在此范围内的绘制内容才会被显示；；</li>
+<li>Op.INTERSECT，即A和B的交集范围，只有在此范围内的绘制内容才会被显示；</li>
+<li>Op.REPLACE，不论A和B的集合状况，B的范围将全部进行显示，如果和A有交集，则将覆盖A的交集范围；</li>
+<li>Op.UNION，即A和B的并集范围，即两者所包括的范围的绘制内容都会被显示；</li>
+<li>Op.XOR，A和B的补集范围，此例中即A除去B以外的范围，只有在此范围内的绘制内容才会被显示</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-02-28T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/25/android_study_09/" title="Previous Post: android学习日记9--BitMap操作">&laquo; android学习日记9--BitMap操作</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/02/android_study_11/" title="Next Post: android学习日记11--音频播放类">android学习日记11--音频播放类 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/02/28/android_study_10" data-title="android学习日记10--裁剪区域" data-url="http://chendd.github.io/blog/2013/02/28/android_study_10/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

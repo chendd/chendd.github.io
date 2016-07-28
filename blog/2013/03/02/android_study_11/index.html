@@ -1,0 +1,688 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记11--音频播放类 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、android 音频播放类 &#160; &#160; &#160; &#160;MediaPlayer和SoundPool都可以用来播放音频。
+区别是MediaPlayer占用资源高，延迟时间高，播放长音乐的，并且不能同时播放多个音乐，
+而SoundPool占用资源较少，没什么延迟， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/02/android_study_11/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记11--音频播放类</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-02T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、android 音频播放类</h2>
+
+<p>&#160; &#160; &#160; &#160;MediaPlayer和SoundPool都可以用来播放音频。
+区别是MediaPlayer占用资源高，延迟时间高，播放长音乐的，并且不能同时播放多个音乐，
+而SoundPool占用资源较少，没什么延迟，但要提前加载，只能播放1M以下的音频文件，能同时播放多个音乐
+因此MediaPlayer一般用来播放背景音乐，而SoundPool主要用来播放游戏音效。</p>
+
+<!--more-->
+
+
+<h4>1、MediaPlayer</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//获取实例：</span>
+</span><span class='line'><span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="kt">int</span> <span class="n">resId</span><span class="o">);</span>  <span class="c1">//参数一：上下文对象，参数二：音乐资源ID，一般放在raw文件夹下。如果没有raw就自己创建一个  </span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//常用方法：</span>
+</span><span class='line'><span class="n">prepare</span><span class="o">();</span><span class="c1">//为播放音乐文件做准备工作    </span>
+</span><span class='line'><span class="n">start</span><span class="o">();</span><span class="c1">//播放音乐   </span>
+</span><span class='line'><span class="n">pause</span><span class="o">();</span><span class="c1">//暂停音乐播放   </span>
+</span><span class='line'><span class="n">stop</span><span class="o">();</span><span class="c1">//停止音乐播放 </span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//MediaPlayer其它常用函数</span>
+</span><span class='line'><span class="n">setLooping</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">looping</span><span class="o">);</span><span class="c1">//设置音乐是否循环播放，true为循环播放  </span>
+</span><span class='line'><span class="n">seekTo</span><span class="o">(</span><span class="kt">int</span> <span class="n">msec</span><span class="o">);</span><span class="c1">//将音乐播放跳转到某一时间点,以毫秒为单位    </span>
+</span><span class='line'><span class="n">getDuration</span><span class="o">();</span><span class="c1">//获取播放的音乐文件总时间长度   </span>
+</span><span class='line'><span class="n">getCurrentPosition</span><span class="o">();</span><span class="c1">//获取当前播放音乐时间点</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注：pause()和stop(),主要的区别在于：暂停播放后可以调用start()继续播放，停止音乐播放后，需要调用prepare()再调用start()进行播放音乐。</p>
+
+<p>当然不得不提AudioManager（音乐管理类，可以获取当前音乐大小以及最大音量）</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 获取实例</span>
+</span><span class='line'><span class="n">AudioManager</span> <span class="n">am</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">AudioManager</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//常用方法：</span>
+</span><span class='line'><span class="n">setStreamVolume</span><span class="o">(</span><span class="n">imt</span> <span class="n">streamType</span><span class="o">,</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span><span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="o">;</span><span class="c1">//设置音量大小，参数一：音乐类型（AudioManager.STREAM_MUSIC）,参数二：音量大小，参数三：设置一个或者多个标志  </span>
+</span><span class='line'><span class="n">getStreamVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">);</span><span class="c1">//获取当前音量大小，参数 获取音量大小类型    </span>
+</span><span class='line'><span class="n">getStreamMaxVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">);</span><span class="c1">// 获取当前音量最大值，参数获取音量大小的类型</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2、SoundPool</h4>
+
+<p>获取实例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//参数一：允许同时播放的声音最大值，参数二：声音类型，参数三：声音品质</span>
+</span><span class='line'><span class="mi">2</span> <span class="k">new</span>  <span class="nf">SoundPool</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxStreams</span><span class="o">,</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">,</span><span class="kt">int</span> <span class="n">srcQuality</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>常用方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//加载音乐文件，返回音乐ID（音乐流文件数据） 参数一：Context实例，参数二：音乐文件ID,</span>
+</span><span class='line'><span class="c1">//参数三：标志优先考虑的声音。目前使用没有任何效果，只是具备兼容性价值。一般写个1就可以。   </span>
+</span><span class='line'><span class="kt">int</span> <span class="n">load</span><span class="err">（</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="kt">int</span> <span class="n">resId</span><span class="o">,</span><span class="kt">int</span> <span class="n">priority</span><span class="err">）</span><span class="o">;</span>
+</span><span class='line'><span class="c1">//音乐播放，播放失败返回0，正常则返回非0值，参数一：加载后得到的音乐文件，参数二：音量的左声道 范围0.0~1.0  参数三：音量的右声道，范围 0.0~1.0  </span>
+</span><span class='line'><span class="c1">//参数四：音乐流的优先级，0为最低优先级，参数五：音乐播放次数，-1表示无限循环，0表示正常一次，大于0则表示循环次数，</span>
+</span><span class='line'><span class="c1">//参数六：播放速率，取值范围：0.5~2.0，1.0表示正常播放。    </span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">play</span><span class="o">(</span><span class="kt">int</span> <span class="n">soundId</span><span class="o">,</span><span class="kt">float</span> <span class="n">leftVolume</span><span class="o">,</span><span class="kt">float</span> <span class="n">rightVolume</span><span class="o">,</span><span class="kt">int</span> <span class="n">proority</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">,</span><span class="kt">float</span> <span class="n">rate</span><span class="o">);</span>
+</span><span class='line'><span class="n">pause</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">);</span>  <span class="c1">//暂停音乐播放  ，参数：音乐文件加载后的流ID    </span>
+</span><span class='line'><span class="n">stop</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">)</span> <span class="o">;</span> <span class="c1">//结束音乐播放 参数：音乐文件加载后的流ID    </span>
+</span><span class='line'><span class="n">release</span><span class="o">();</span>  <span class="c1">//释放SoundPool的资源   </span>
+</span><span class='line'><span class="n">setLoop</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">);</span>  <span class="c1">//设置循环次数 参数一：音乐文件加载后的流ID，参数二：循环次数    </span>
+</span><span class='line'><span class="n">setReat</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">);</span>  <span class="c1">//设置播放速率    </span>
+</span><span class='line'><span class="n">setVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">float</span> <span class="n">leftVolume</span><span class="o">,</span><span class="kt">float</span> <span class="n">rightVolume</span><span class="o">);</span>   <span class="c1">//设置音量大小，参数二：左声道音量，参数三：右声道音量    </span>
+</span><span class='line'><span class="n">setPriority</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">int</span> <span class="n">priority</span><span class="o">);</span>   <span class="c1">//设置流的优先级，参数二：优先级值。</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3、基于MediaPlayer的简单播放器</h4>
+
+<p>&#160; &#160; &#160; &#160;导入drawable-mdpi(我一般是传入这个drawable文件夹的) 三张播放、暂停、停止的图片，res下新建raw文件夹并导入ten_year.mp3文件，注意Android的资源文件都不能中文和大写字母命名。</p>
+
+<p>Activity主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="n">ImageButton</span> <span class="n">btn_start</span><span class="o">,</span> <span class="n">btn_stop</span><span class="o">,</span> <span class="n">btn_pause</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">TextView</span> <span class="n">tv</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">MediaPlayer</span> <span class="n">mp</span><span class="o">;</span>
+</span><span class='line'>    <span class="c1">// 声明一个变量判断是否为暂停,默认为false</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 通过findViewById找到资源</span>
+</span><span class='line'>        <span class="n">btn_start</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_start</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">btn_stop</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_stop</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">btn_pause</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_pause</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">tv</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">myTextView1</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 创建MediaPlayer对象,将raw文件夹下的ten_year.mp3</span>
+</span><span class='line'>        <span class="n">mp</span> <span class="o">=</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">ten_year</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// 增加播放音乐按钮的事件</span>
+</span><span class='line'>        <span class="n">btn_start</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mp</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐播放中...&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;播放发生异常...&quot;</span><span class="o">);</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">btn_stop</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mp</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐停止播放...&quot;</span><span class="o">);</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐停止发生异常...&quot;</span><span class="o">);</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">btn_pause</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="o">(</span><span class="n">isPaused</span> <span class="o">==</span> <span class="kc">false</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">mp</span><span class="o">.</span><span class="na">pause</span><span class="o">();</span>
+</span><span class='line'>                            <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>                            <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;暂停播放!&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="o">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">isPaused</span> <span class="o">==</span> <span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">mp</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>                            <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>                            <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;继续播放!&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="o">}</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;发生异常...&quot;</span><span class="o">);</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/* 当MediaPlayer.OnCompletionLister会运行的Listener */</span>
+</span><span class='line'>        <span class="n">mp</span><span class="o">.</span><span class="na">setOnCompletionListener</span><span class="o">(</span><span class="k">new</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">OnCompletionListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// @Override</span>
+</span><span class='line'>            <span class="cm">/* 覆盖文件播出完毕事件 */</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">MediaPlayer</span> <span class="n">arg0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">                     * 解除资源与MediaPlayer的赋值关系 让资源可以为其它程序利用</span>
+</span><span class='line'><span class="cm">                     */</span>
+</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">release</span><span class="o">();</span>
+</span><span class='line'>                    <span class="cm">/* 改变TextView为播放结束 */</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐播发结束!&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/* 当MediaPlayer.OnErrorListener会运行的Listener */</span>
+</span><span class='line'>        <span class="n">mp</span><span class="o">.</span><span class="na">setOnErrorListener</span><span class="o">(</span><span class="k">new</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">OnErrorListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="cm">/* 覆盖错误处理事件 */</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onError</span><span class="o">(</span><span class="n">MediaPlayer</span> <span class="n">arg0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg2</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="cm">/* 发生错误时也解除资源与MediaPlayer的赋值 */</span>
+</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">release</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;播放发生异常!&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行项目，聆听音乐！</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/152336191213395.png" alt="image" /></p>
+
+<h4>4、GameSoundPool音效播放的工具类</h4>
+
+<p>&#160; &#160; &#160; &#160;由于音效的音频文件太多了，建个map来管理，当要播放那个音效时，传入相应的id即可。</p>
+
+<p> 主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GameSoundPool</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">MainActivity</span> <span class="n">mainActivity</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">SoundPool</span> <span class="n">soundPool</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">GameSoundPool</span><span class="o">(</span><span class="n">MainActivity</span> <span class="n">mainActivity</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mainActivity</span> <span class="o">=</span> <span class="n">mainActivity</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;();</span>
+</span><span class='line'>        <span class="n">soundPool</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoundPool</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initGameSound</span><span class="o">(){</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">shoot</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion2</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion3</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">bigexplosion</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">6</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">get_goods</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">7</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">button</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="c1">//播放音效</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">playSound</span><span class="o">(</span><span class="kt">int</span> <span class="n">sound</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">,</span><span class="kt">boolean</span> <span class="n">flag</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">AudioManager</span> <span class="n">am</span> <span class="o">=</span> <span class="o">(</span><span class="n">AudioManager</span><span class="o">)</span><span class="n">mainActivity</span><span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">Context</span><span class="o">.</span><span class="na">AUDIO_SERVICE</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">stramVolumeCurrent</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="na">getStreamVolume</span><span class="o">(</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">stramMaxVolumeCurrent</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="na">getStreamVolume</span><span class="o">(</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">volume</span> <span class="o">=</span> <span class="n">stramVolumeCurrent</span><span class="o">/</span><span class="n">stramMaxVolumeCurrent</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">flag</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">soundPool</span><span class="o">.</span><span class="na">play</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">sound</span><span class="o">),</span> <span class="n">volume</span><span class="o">,</span> <span class="n">volume</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">loop</span><span class="o">,</span> <span class="mf">1.0f</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;由于游戏画面经常会有按钮点击关闭音效，这里的flag 参数主要用于控制是否播放。播放时调用</p>
+
+<p>GameSoundPool.playSound(key, 0,soundFlag); 即可，key是定义具体的音效id，当然我们也可以为了代码可读行写成静态全局变量传进来。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-02T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/02/28/android_study_10/" title="Previous Post: android学习日记10--裁剪区域">&laquo; android学习日记10--裁剪区域</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/03/android_study_12/" title="Next Post: android学习日记12--布局管理器">android学习日记12--布局管理器 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/02/android_study_11" data-title="android学习日记11--音频播放类" data-url="http://chendd.github.io/blog/2013/03/02/android_study_11/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

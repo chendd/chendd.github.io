@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: XML | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/xml/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记23--XML解析]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/29/android_study_23/"/>
+    <updated>2013-03-29T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/29/android_study_23</id>
+    <content type="html"><![CDATA[<h2>一、简述</h2>
+
+<p>　　XML语言是跨平台，JAVA对XML语言支持得比较好，android系统的应用层平台是JAVA做的，所以用XML。
+XML解析比较简单。XML解析就是将获取到的数据分离出来，基本的网络数据传输，需要使用XML
+比如天气预报，从网上获取的是XML文件，通过XML解析可以把天气状态读出来
+例：</p>
+
+<pre><code class="xml">&lt;forecast_date data="2009-07-31" /&gt;
+&lt;condition data="晴" /&gt;
+&lt;humidity data="湿度： 65%" /&gt;
+</code></pre>
+
+<p>可得到 2009-07-31 晴 湿度：65%</p>
+
+<p>还有一作用是保存你的数据，比如做个旅游网站，你需要把全国各个省、城市名称写到XML文件进行保存，在程序中通过解析读取调用。</p>
+
+<!--more-->
+
+
+<p>Android 平台上可用的XML解析有三种</p>
+
+<ul>
+<li>1、Simple API for XML(SAX)</li>
+<li>2、Document Object Model(DOM)</li>
+<li>3、Android附带的pull解析器</li>
+</ul>
+
+
+<h2>二、实例</h2>
+
+<p>分别用三种方法解析如下persons.xml文件（文件放在assert目录下）</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;persons&gt;
+    &lt;person id="23"&gt;
+        &lt;name&gt;liming&lt;/name&gt;
+        &lt;age&gt;30&lt;/age&gt;
+    &lt;/person&gt;
+    &lt;person id="20"&gt;
+        &lt;name&gt;dehua&lt;/name&gt;
+        &lt;age&gt;25&lt;/age&gt;
+    &lt;/person&gt;
+&lt;/persons&gt;
+</code></pre>
+
+<p>还需定义个javabean 用于存放解析出来的内容</p>
+
+<pre><code class="java">package com.example.xml;
+
+public class Person {
+    private Integer id;
+    private String name;
+    private Short age;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Short getAge() {
+        return age;
+    }
+
+    public void setAge(Short age) {
+        this.age = age;
+    }
+
+//    @Override
+//    public String toString() {
+//        return "id:" + id + ", name:" + name + ", age:" + age;
+//    }
+}
+</code></pre>
+
+<h4>1、Simple API for XML(SAX)</h4>
+
+<p>　　SAX是一个解析速度快并且占用内存少的XML解析器，很适合用于Android等移动设备。
+SAX解析XML文件采用的是事件驱动，也就是说，它并不需要解析完整个文档，在按内容顺序解析文档的过程中，
+SAX会判断当前读到的字符是否合法XML语法中的某部分，如果符合就会触发事件。所谓事件，其实就是一些回调（callback）方法，
+这些方法(事件)定义在ContentHandler接口。</p>
+
+<p>　　直接看代码:</p>
+
+<pre><code class="java">public class XMLContentHandler extends DefaultHandler {
+    private List&lt;Person&gt; persons = null;
+    private Person currentPerson;
+    private String tagName = null;// 当前解析的元素标签    
+    private static final String TAG = "XMLContentHandler"; 
+
+    public List&lt;Person&gt; getPersons() {
+        return persons;
+    }
+
+    /* 
+     * 接收文档的开始的通知。
+     */
+
+    @Override
+    public void startDocument() throws SAXException {
+        persons = new ArrayList&lt;Person&gt;();
+         Log.i(TAG, "startDocument");  
+    }
+
+    /* 
+     * 结束文档的开始的通知。
+     */
+
+    @Override
+    public void endDocument() throws SAXException {
+        super.endDocument();
+         Log.i(TAG, "endDocument");  
+    }
+
+    /* 
+     * 接收字符数据的通知。
+     */
+
+    @Override
+    public void characters(char[] ch, int start, int length)
+            throws SAXException {
+        if (tagName != null) {
+            String data = new String(ch, start, length);
+            if (tagName.equals("name")) {
+                this.currentPerson.setName(data);
+            } else if (tagName.equals("age")) {
+                this.currentPerson.setAge(Short.parseShort(data));
+            }
+        }
+        Log.i(TAG, "characters("+ch.toString()+","+start+","+length+")"); 
+
+    }
+
+    /*
+     * 
+     * 接收元素开始的通知。
+     * 参数意义如下： 
+     * namespaceURI：元素的命名空间 
+     * localName ：元素的本地名称（不带前缀） 
+     * qName ：元素的限定名（带前缀）
+     * atts ：元素的属性集合
+     */
+
+    @Override
+    public void startElement(String namespaceURI, String localName,
+            String qName, Attributes atts) throws SAXException {
+
+        if (localName.equals("person")) {
+            currentPerson = new Person();
+            currentPerson.setId(Integer.parseInt(atts.getValue("id")));
+        }
+
+        this.tagName = localName;
+        Log.i(TAG, "startElement("+namespaceURI+","+localName+","+qName+atts+")"); 
+
+    }
+
+    /* 
+     * 接收文档的结尾的通知。
+     * 参数意义如下：
+     * uri ：元素的命名空间
+     * localName ：元素的本地名称（不带前缀）
+     * name ：元素的限定名（带前缀）
+     */
+    @Override
+    public void endElement(String uri, String localName, String name)
+            throws SAXException {
+
+        if (localName.equals("person")) {
+            persons.add(currentPerson);
+            currentPerson = null;
+        }
+
+        this.tagName = null;
+        Log.i(TAG, "endElement("+uri+","+localName+","+name+")"); 
+
+    }
+}
+</code></pre>
+
+<h4>2、Document Object Model(DOM)</h4>
+
+<p>　　DOM解析XML文件时，会将XML文件的所有内容读取到内存中，然后允许您使用DOM API遍历XML树、检索所需的数据。
+使用DOM操作XML的代码看起来比较直观，并且，在某些方面比基于SAX的实现更加简单。但是，因为DOM需要将XML文件的所有内容读取到内存中，
+所以内存的消耗比较大，特别对于运行Android的移动设备来说，因为设备的资源比较宝贵，所以建议还是采用SAX来解析XML文件，
+当然，如果XML文件的内容比较小采用DOM是可行的。</p>
+
+<pre><code class="java">public class DomParseXML {
+
+    public List&lt;Person&gt; readXML(InputStream inStream) {
+
+        List&lt;Person&gt; persons = new ArrayList&lt;Person&gt;();
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();// 获取实例
+
+        try {
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document dom = builder.parse(inStream);
+            Element root = dom.getDocumentElement();
+            NodeList items = root.getElementsByTagName("person");// 查找所有person节点
+
+            for (int i = 0; i &lt; items.getLength(); i++) {
+
+                Person person = new Person();
+
+                // 得到第一个person节点
+                Element personNode = (Element) items.item(i);
+
+                // 获取person节点的id属性值
+                person.setId(new Integer(personNode.getAttribute("id")));
+
+                // 获取person节点下的所有子节点(标签之间的空白节点和name/age元素)
+                NodeList childsNodes = personNode.getChildNodes();
+
+                for (int j = 0; j &lt; childsNodes.getLength(); j++) {
+
+                    Node node = (Node) childsNodes.item(j); // 判断是否为元素类型
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        Element childNode = (Element) node;
+
+                        // 判断是否name元素
+                        if ("name".equals(childNode.getNodeName())) {
+
+                            // 获取name元素下Text节点,然后从Text节点获取数据
+                            person.setName(childNode.getFirstChild()
+                                    .getNodeValue());
+
+                        } else if ("age".equals(childNode.getNodeName())) {
+                            person.setAge(new Short(childNode.getFirstChild()
+                                    .getNodeValue()));
+
+                        }
+                    }
+                }
+                persons.add(person);
+            }
+            inStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return persons;
+
+    }
+}
+</code></pre>
+
+<h4>3、Android附带的pull解析器</h4>
+
+<p>　　Pull解析和Sax解析很相似，都是轻量级的解析，在Android的内核中已经嵌入了Pull，所以我们不需要再添加第三方jar包来支持Pull。
+Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应的事件调用方法返回的是数字(2)pull可以在程序中控制想解析到哪里就可以停止解析。</p>
+
+<pre><code class="java">public class PullParseXML {
+
+    public List&lt;Person&gt; readXML(InputStream inStream) throws XmlPullParserException, IOException{
+
+        List&lt;Person&gt; persons = null;  
+        Person person = null;  
+        XmlPullParser parser = Xml.newPullParser();  
+        parser.setInput(inStream, "UTF-8");  
+
+        int event = parser.getEventType();//产生第一个事件  
+        while(event!=XmlPullParser.END_DOCUMENT){  
+            switch(event){  
+            case XmlPullParser.START_DOCUMENT://判断当前事件是否是文档开始事件  
+                persons = new ArrayList&lt;Person&gt;();//初始化Persons集合  
+                break;  
+            case XmlPullParser.START_TAG://判断当前事件是否是标签元素开始事件  
+                if("person".equals(parser.getName())){//判断开始标签元素是否是person  
+                    person = new Person();  
+                    person.setId(Integer.parseInt(parser.getAttributeValue(0)));//得到Person标签的属性值，并设置Person的id  
+                }  
+                if(person!=null){  
+                    if("name".equals(parser.getName())){//判断开始标签元素是否是name  
+                        person.setName(parser.nextText());  
+                    }else if("age".equals(parser.getName())){//判断开始标签元素是否是price  
+                        person.setAge(Short.parseShort(parser.nextText()));  
+                    }  
+                }  
+                break;  
+            case XmlPullParser.END_TAG://判断当前事件是否是标签元素结束事件  
+                if("person".equals(parser.getName())){//判断结束标签元素是否是Person  
+                    persons.add(person);//将person添加到persons集合  
+                    person = null;  
+                }  
+                break;  
+            }  
+            event = parser.next();//进入下一个元素并触发相应事件  
+        }//end while  
+        return persons;  
+
+    }
+}
+</code></pre>
+
+<p>运行界面：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291207400008256.png" alt="image" /></p>
+
+<p>绑定按钮触发的事件代码:</p>
+
+<pre><code class="java">@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        textView = (TextView)findViewById(R.id.textView);  
+        sax_prase = (Button)findViewById(R.id.sax_prase);  
+        dom_parse = (Button)findViewById(R.id.dom_parse);  
+        pull_parse = (Button)findViewById(R.id.pull_parse);
+
+
+        try {
+            inStream = getAssets().open("persons.xml");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //绑定按钮监听器  
+        sax_prase.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                persons = SaxParseXML(inStream); 
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+            }  
+        });  
+        //绑定按钮监听器  
+        dom_parse.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+
+                DomParseXML domParseXML = new DomParseXML();            
+                persons = domParseXML.readXML(inStream);
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+            }  
+        });  
+        pull_parse.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+
+                PullParseXML pullParseXML = new PullParseXML();                             
+                try {
+                    persons = pullParseXML.readXML(inStream);
+                } catch (XmlPullParserException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                for (Person person : persons) {  
+                    Log.i(TAG, person.getId()+":"+person.getName()+":"+person.getAge()); 
+                } 
+
+            }  
+        });
+    }
+
+    private static List&lt;Person&gt; SaxParseXML(InputStream inStream) {
+        // TODO Auto-generated method stub
+        try {
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            SAXParser saxParser = spf.newSAXParser(); // 创建解析器
+
+            // 设置解析器的相关特性，http://xml.org/sax/features/namespaces = true
+            // 表示开启命名空间特性,缺省情况设为true，设置使代码更具可读性,但我加进去报错，索性注释掉
+            //saxParser.setProperty("http://xml.org/sax/features/namespaces",true);
+            XMLContentHandler handler = new XMLContentHandler();
+
+            saxParser.parse(inStream, handler);
+            inStream.close();
+
+            return handler.getPersons();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+</code></pre>
+
+<p>分别点击三个按钮用不同方法解析出来的结果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291210425004835.png" alt="image" /></p>
+
+<h2>三、总结</h2>
+
+<p>　　对于三种解析XML方法，各有千秋，倾向于PULL解析器，因为SAX解析器操作起来太笨重，DOM不适合文档较大，内存较小的场景，
+唯有Pull轻巧灵活，速度快，占用内存小，使用非常顺手，Pull解析可以用于很多场合，例如接受google天气，rss新闻等。</p>
+]]></content>
+  </entry>
+  
+</feed>

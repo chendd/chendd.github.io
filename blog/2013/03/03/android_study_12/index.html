@@ -1,0 +1,881 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android学习日记12--布局管理器 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="1、概述 &#160; &#160; &#160; &#160;布局管理器的用途： a、可以更好的管理组件;
+b、通过使用布局管理器，Android应用程序可以做到平台无关性 &#160; &#160; &#160; &#160;布局管理器都是ViewGroup的子类， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2013/03/03/android_study_12/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android学习日记12--布局管理器</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-03T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>1、概述</h4>
+
+<p>&#160; &#160; &#160; &#160;布局管理器的用途：</p>
+
+<ul>
+<li>a、可以更好的管理组件;</li>
+<li>b、通过使用布局管理器，Android应用程序可以做到平台无关性</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;布局管理器都是ViewGroup的子类，所有可充当容器的父类都是ViewGroup，而ViewGroup也是View的子类</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/032030374569965.jpg" alt="image" />　　</p>
+
+<p>&#160; &#160; &#160; &#160;下面分别介绍常用的布局管理器</p>
+
+<h4>2、线性布局管理器</h4>
+
+<p>&#160; &#160; &#160; &#160;LinearLayout,最常用的布局之一。它提供控件水平或垂直排列的模型</p>
+
+<p>&#160; &#160; &#160; &#160;常用属性及其对应方法：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/022144094936518.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;gravity 可取属性说明：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/172209512095155.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;当需要为gravity设多个值时，可用|分隔开</p>
+
+<p>&#160; &#160; &#160; &#160;布局XML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'><span class="na">android:orientation=</span><span class="s">&quot;horizontal&quot;</span>
+</span><span class='line'><span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'><span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'><span class="na">android:id=</span><span class="s">&quot;@+id/lla&quot;</span>
+</span><span class='line'><span class="na">android:gravity=</span><span class="s">&quot;right&quot;</span>
+</span><span class='line'><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;Button</span>
+</span><span class='line'><span class="na">android:text=</span><span class="s">&quot;添加&quot;</span>
+</span><span class='line'><span class="na">android:id=</span><span class="s">&quot;@+id/Button01&quot;</span>
+</span><span class='line'><span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'><span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;/Button&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>JAVA代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 计数器，记录按钮个数</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// 重写 onCreate 方法</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">horizontal_layout</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// 获取屏幕中的按钮控件对象</span>
+</span><span class='line'>        <span class="n">Button</span> <span class="n">button</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">Button01</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 为按钮添加 OnClickListener 接口实现</span>
+</span><span class='line'>        <span class="n">button</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// 获取线性布局对象</span>
+</span><span class='line'>                <span class="n">LinearLayout</span> <span class="n">ll</span> <span class="o">=</span> <span class="o">(</span><span class="n">LinearLayout</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">lla</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span>
+</span><span class='line'>                        <span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">button</span><span class="o">);</span>
+</span><span class='line'>                <span class="c1">// 创建一个 Button 对象</span>
+</span><span class='line'>                <span class="n">Button</span> <span class="n">tempbutton</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Button</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">tempbutton</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span> <span class="o">+</span> <span class="o">(++</span><span class="n">count</span><span class="o">));</span> <span class="c1">// 设置 Button 控件显示的内容</span>
+</span><span class='line'>                <span class="c1">// 设置 Button 的宽度</span>
+</span><span class='line'>                <span class="n">tempbutton</span><span class="o">.</span><span class="na">setWidth</span><span class="o">(</span><span class="mi">80</span><span class="o">);</span>
+</span><span class='line'>                <span class="c1">// 向线性布局中添加 View</span>
+</span><span class='line'>                <span class="n">ll</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">tempbutton</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;运行效果：每点击添加按钮一次会在下方垂直生成一个按钮</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/022150299382543.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;将布局文件中</p>
+
+<p>android:orientation=&ldquo;vertical&rdquo;</p>
+
+<p>vertical改为horizontal</p>
+
+<p>&#160; &#160; &#160; &#160;每点击一次会在右方水平方向生成一个按钮</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/022152106602619.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;当水平方向该行容不下一个宽度为80的按钮时，按钮就会被压缩，如下图</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/022153319459350.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;此时再点击添加按钮时，画面没有任何变化，不会另起一行添加按钮，超出屏幕的将不会被显示。</p>
+
+<h4>3、表格布局</h4>
+
+<p>&#160; &#160; &#160; &#160;TableLayout 类似HTML里的Table分为行和列来管理。
+每一行为一个TableRow，也可以为View对象。当为View对象时就跨越该行所有列
+TableRow中可以添加子控件，每个子控件为一列。并不会为每个单元格绘制边框
+每个单元格为一个View，可以有空的单元格，也可以跨越多列
+一个列的宽度由该列最宽的单元格决定的</p>
+
+<p>TableLayout 可以设置三种属性</p>
+
+<ul>
+<li>Shrinkable ：它可以被压缩以适应其父容器的大小</li>
+<li>Stretchable ：它可以被拉伸以填满空闲区域</li>
+<li>Collapsed ：该列被隐藏</li>
+</ul>
+
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/032017117258508.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;如果要对多列进行设置，用逗号隔开</p>
+
+<p>&#160; &#160; &#160; &#160;这三个属性在JAVA代码也有对应的方法，值得一提的是它是继承Linearlayout的</p>
+
+<p>布局XML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>    <span class="na">android:id=</span><span class="s">&quot;@+id/LinearLayout01&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:background=</span><span class="s">&quot;@drawable/water&quot;</span>
+</span><span class='line'>    <span class="na">android:gravity=</span><span class="s">&quot;bottom&quot;</span>
+</span><span class='line'>    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout01&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;TextView</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TextView01&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/tv1&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout02&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:stretchColumns=</span><span class="s">&quot;0&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;TableRow</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TableRow01&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;TextView</span>
+</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView02&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
+</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvStrech&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;TextView</span>
+</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView03&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShort&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/TableRow&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout03&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:collapseColumns=</span><span class="s">&quot;1&quot;</span>
+</span><span class='line'>        <span class="na">android:shrinkColumns=</span><span class="s">&quot;0&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;TableRow</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TableRow02&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;TextView</span>
+</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView04&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
+</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShrink&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;TextView</span>
+</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView05&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/lightred&quot;</span>
+</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShort&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;TextView</span>
+</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView06&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
+</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
+</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvLong&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/TableRow&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/032020546195104.png" alt="image" /></p>
+
+<h4>4、相对布局</h4>
+
+<p>&#160; &#160; &#160; &#160;RelativeLayout子控件 的位置由兄弟控件或父容器来决定的
+如果A控件由B控件来决定位置，则布局文件B控件要在A控件声明之前</p>
+
+<p>常用属性</p>
+
+<ul>
+<li><p>第一类:属性值为true或false</p>
+
+<ul>
+<li>android:layout_centerHrizontal 水平居中</li>
+<li>android:layout_centerVertical 垂直居中</li>
+<li>android:layout_centerInparent 相对于父元素完全居中</li>
+<li>android:layout_alignParentBottom 贴紧父元素的下边缘</li>
+<li>android:layout_alignParentLeft 贴紧父元素的左边缘</li>
+<li>android:layout_alignParentRight 贴紧父元素的右边缘</li>
+<li>android:layout_alignParentTop 贴紧父元素的上边缘</li>
+<li>android:layout_alignWithParentIfMissing 如果对应的兄弟元素找不到的话就以父元素做参照物</li>
+</ul>
+</li>
+<li><p>第二类：属性值必须为id的引用名“@id/id-name”</p>
+
+<ul>
+<li>android:layout_below 在某元素的下方</li>
+<li>android:layout_above 在某元素的的上方</li>
+<li>android:layout_toLeftOf 在某元素的左边</li>
+<li>android:layout_toRightOf 在某元素的右边</li>
+<li>android:layout_alignTop 本元素的上边缘和某元素的的上边缘对齐</li>
+<li>android:layout_alignLeft 本元素的左边缘和某元素的的左边缘对齐</li>
+<li>android:layout_alignBottom 本元素的下边缘和某元素的的下边缘对齐</li>
+<li>android:layout_alignRight 本元素的右边缘和某元素的的右边缘对齐</li>
+</ul>
+</li>
+<li><p>第三类：属性值为具体的像素值，如30dip，40px</p>
+
+<ul>
+<li>android:layout_marginBottom 离某元素底边缘的距离</li>
+<li>android:layout_marginLeft 离某元素左边缘的距离</li>
+<li>android:layout_marginRight 离某元素右边缘的距离</li>
+<li>android:layout_marginTop 离某元素上边缘的距离</li>
+</ul>
+</li>
+</ul>
+
+
+<p>布局XML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:tools=</span><span class="s">&quot;http://schemas.android.com/tools&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingBottom=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingLeft=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingRight=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
+</span><span class='line'>    <span class="na">android:paddingTop=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
+</span><span class='line'>    <span class="na">tools:context=</span><span class="s">&quot;.MainActivity&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;@string/hello_world&quot;</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv1&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;big&quot;</span>
+</span><span class='line'>        <span class="na">android:textSize=</span><span class="s">&quot;30sp&quot;</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv2&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_toRightOf=</span><span class="s">&quot;@id/tv1&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_alignBottom=</span><span class="s">&quot;@id/tv1&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;middle&quot;</span>
+</span><span class='line'>        <span class="na">android:textSize=</span><span class="s">&quot;20sp&quot;</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv3&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_above=</span><span class="s">&quot;@id/tv1&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_alignLeft=</span><span class="s">&quot;@id/tv1&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/RelativeLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/032022358875807.png" alt="image" /></p>
+
+<h4>5、帧布局</h4>
+
+<p>&#160; &#160; &#160; &#160;FrameLayout在屏幕上开辟一块区域，在这块区域可以添加多个控件
+但都会被对其到屏幕左上角，并且大小取决于最大的控件，如果控件一样大，只能看到最上面的控件</p>
+
+<p>布局XML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;FrameLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/lightgray&quot;</span>
+</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;big&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;150dp&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;150dp&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
+</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;middle&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;50dp&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;50dp&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
+</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
+</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;small&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/FrameLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/032024006754913.png" alt="image" /></p>
+
+<h4>6、绝对布局</h4>
+
+<p>&#160; &#160; &#160; &#160;AbsoluteLayout是绝对位置布局。在此布局中的子元素的android:layout_x和android:layout_y属性将生效，用于描述该子元素的坐标位置。屏幕左上角为坐标原点（0,0），第一个0代表横坐标，向右移动此值增大，第二个0代表纵坐标，向下移动，此值增大。在此布局中的子元素可以相互重叠。在实际开发中，通常不采用此布局格式，因为它的界面代码过于刚性，以至于有可能不能很好的适配各种终端。由于不采用，在此就不演示代码了。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-03-03T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/02/android_study_11/" title="Previous Post: android学习日记11--音频播放类">&laquo; android学习日记11--音频播放类</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/03/04/android_study_13_1/" title="Next Post: android学习日记13--数据存储之SharedPreference">android学习日记13--数据存储之SharedPreference &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2013/03/03/android_study_12" data-title="android学习日记12--布局管理器" data-url="http://chendd.github.io/blog/2013/03/03/android_study_12/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">android学习日记23--XML解析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/26/android_study_22/">android学习日记22--Animation动画简介</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: ContentProvide | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/contentprovide/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记13--数据存储之ContentProvide]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/08/android_study_13_3/"/>
+    <updated>2013-03-08T19:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/08/android_study_13_3</id>
+    <content type="html"><![CDATA[<h4>3、ContentProvider</h4>
+
+<p>&#160; &#160; &#160; &#160;数据在Android当中是私有的，当然这些数据包括文件数据和数据库数据以及一些其他类型的数据。ContentProvider实现多应用程序间的数据共享类
+一般利用ContentProvider为需要共享的数据定义一个URI(统一资源定位符)
+然后其他程序通过Context获得ContentResolver并将数据的URI传入即可</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;Android已为一些常用的数据创建ContentProvider,这些ContentProvider位于
+android.provider包下，常用的就是手机上联系人信息，但是要取得相应的权限自己的应用程序才能访问
+具体设置是在AndroidManifest.xml</p>
+
+<pre><code class="xml">&lt;uses-permission android:name="android.permission.READ_CONTACTS" /&gt;
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;对于ContentProvide重要的是数据模型和URI
+数据模型:ContentProvide为所需要的数据创建表，每行代表一条记录，每条记录有唯一的'_ID'标识
+URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
+
+<p>URI特点：</p>
+
+<ul>
+<li>1、无法改变的标准前缀，包括；"content://&ldquo;、"tel://"等。当前缀是"content://"时，说明通过一个Content Provider控制这些数据</li>
+<li>2、URI的标识，它通过authorities属性声明，用于定义了是哪个ContentProvider提供这些数据。对于第三方应用程序，为了保证URI标识的唯一性，它必须是一个完整的类名(数据路径)。例如;&ldquo;content://com.example.contentprovide.myprovider&rdquo;
+3、如果URI中包含表示需要获取的记录的<em>ID；则就返回该id对应的数据，如果没有</em>ID，就表示返回全部</li>
+</ul>
+
+
+<p>举个例子，如：</p>
+
+<p>所有联系人的URI： content://contacts/people</p>
+
+<p>某个联系人的URI: content://contacts/people/5</p>
+
+<p>具体使用步骤：</p>
+
+<h4>1、在当前应用程序中定义一个ContentProvider</h4>
+
+<pre><code class="java">public class MyProvider extends ContentProvider {
+
+    @Override
+    public int delete(Uri arg0, String arg1, String[] arg2) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public String getType(Uri arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Uri insert(Uri arg0, ContentValues arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    // 创建数据库，建表和插入数据
+    @Override
+    public boolean onCreate() {
+        // TODO Auto-generated method stub
+        SQLiteDatabase db =this.getContext().openOrCreateDatabase("mydb.db", Context.MODE_PRIVATE, null);
+        db.execSQL("create table tab(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)");
+        ContentValues values =new ContentValues();
+        values.put("name", "Hello ContentProvider!");
+        db.insert("tab", "_id", values);
+        db.close();
+        return true;
+    }
+
+    // 查询
+    @Override
+    public Cursor query(Uri arg0, String[] arg1, String arg2, String[] arg3,
+            String arg4) {
+        // TODO Auto-generated method stub
+         SQLiteDatabase db =this.getContext().openOrCreateDatabase("mydb.db", Context.MODE_PRIVATE, null);
+         Cursor c = db.query("tab", null, null, null, null, null,null);
+         return c;
+    }
+
+    @Override
+    public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+</code></pre>
+
+<p> 这里为了演示方便只实现创建和查询两个简单的方法</p>
+
+<h4>2、在当前应用程序的AndroidManifest.xml中注册此ContentProvider</h4>
+
+<p>1 <provider android:name=".MyProvider" android:authorities="com.example.contentprovider.MyProvider"/></p>
+
+<h4>3、其他应用程序通过ContentResolver和Uri来获取此ContentProvider的数据</h4>
+
+<pre><code class="java">protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // 获取当前context
+        Context context = MainActivity.this;
+
+        // 得到ContentResolver对象
+        ContentResolver resolver = context.getContentResolver();
+
+        // uri格式 "content://"、数据的路径、标示ID(可选)
+        Uri uri = Uri.parse("content://com.example.contentprovider.MyProvider");
+        Cursor c = resolver.query(uri, null, null, null, null);
+
+        // 打印获取数据
+        c.moveToFirst();
+        for(int i=0; i&lt;c.getCount(); i++){
+        int index = c.getColumnIndexOrThrow("name");
+                     String src = c.getString(index);
+                     Log.d("", src);
+                     c.moveToNext();
+                 }
+        }
+</code></pre>
+
+<p>日志打印：</p>
+
+<p>　　上面MyProvider代码和应用程序MainActivity代码不放在同一个包下是想说明ContentProvider不同程序间的数据共享，</p>
+
+<p>但是注册获取权限那段代码要放在调用的程序包里。</p>
+
+<p>　　其实通过代码可以看出为了共享数据库．可以让数据库披上ContentProvider外衣，主要还是通过SQLiteDatabase去操作数据库。</p>
+
+<p>当然对于已封装的共享数据。我们只要设置获取权限，通过ContentResolver就可以直接调用。</p>
+
+<h4>4、获取系统的联系人、媒体库信息</h4>
+
+<p>　　对于系统程序的联系人、多媒体等信息可通过指定的Uri来获取。</p>
+
+<p>　　数据附录是获取本地联系人信息代码：</p>
+
+<pre><code class="java">public String getContactInfo(){
+        String result="";
+        ContentResolver resolver=getContentResolver();
+        //查询联系人
+        Cursor cursor=resolver.query(Contacts.CONTENT_URI, null, null, null, null);
+        int idIndex=cursor.getColumnIndex(Contacts._ID);
+        // 取得联系人名字 (显示出来的名字)，实际内容在 ContactsContract.Contacts中
+        int nameIndex=cursor.getColumnIndex(Contacts.DISPLAY_NAME);
+        for (cursor.moveToFirst();(!cursor.isAfterLast());cursor.moveToNext()) {
+            //获取联系人ID
+            String contactId =cursor.getString(idIndex);
+            result=result+contactId+"\t\t\t";
+            result=result+cursor.getString(nameIndex)+"\t\t\t";
+             // 根据联系人ID查询对应的电话号码  
+            Cursor phoneNumbers = resolver.query(CommonDataKinds.Phone.CONTENT_URI, null,
+                    CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);   
+            // 取得电话号码(可能存在多个号码)    
+            while (phoneNumbers.moveToNext())     
+            {  
+                String strPhoneNumber = phoneNumbers.getString(phoneNumbers.getColumnIndex(CommonDataKinds.Phone.NUMBER));     
+                result=result+strPhoneNumber+"\t\t\t";
+            }
+            phoneNumbers.close();
+
+            // 根据联系人ID查询对应的email  
+            Cursor emails = resolver.query(CommonDataKinds.Email.CONTENT_URI, null, 
+                    CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null);               
+            // 取得email(可能存在多个email)    
+            while (emails.moveToNext())     
+            {  
+                String strEmail = emails.getString(emails.getColumnIndex(CommonDataKinds.Email.DATA));     
+                result=result+strEmail+"\t\t\t";
+            }     
+            emails.close(); 
+            result=result+"\n";
+        }
+        cursor.close();
+        return result;
+    }
+</code></pre>
+
+<h4>5、监听ContentProvider的数据改变</h4>
+
+<p>　　随着ContentProvider的共享数据可能发生改变，要提供给有使用该共享数据的相应，具体步骤如下：</p>
+
+<ul>
+<li><p>在ContentProvider类的insert\update\delete方法加入this.getContext().getContentResolver().notifyChange(URI,null);
+其中URI表示监听的URI
+null表示发送消息给任何人；</p></li>
+<li><p>在访问者的类中调用如下方法：
+context.getContentResolver().registerContentObserver(uri,true,new ContentObserver(new Handler()));</p></li>
+<li>创建内部类继承ContentObserver并重写下面两个方法：
+
+<ul>
+<li>带有Handler的构造函数；</li>
+<li>public void onChange(boolean selfChange); 此函数在内容提供者发出改变信号时就会被调用
+参数selfChange为如果是自己改变的原因，则为true；如果不是自己改变的，则为false；</li>
+</ul>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

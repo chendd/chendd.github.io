@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Toast | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/toast/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T16:49:00+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记21--消息提示之Toast和Notification]]></title>
+    <link href="http://chendd.github.io/blog/2013/03/25/android_study_21/"/>
+    <updated>2013-03-25T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/03/25/android_study_21</id>
+    <content type="html"><![CDATA[<h4>1、Toast</h4>
+
+<p>&#160; &#160; &#160; &#160;Toast译为土司，类似切片面包，用于弹出比较快速的及时提示信息。当Toast被显示时，
+虽然它悬浮应用程序最上方，但是并未获得焦点。它的设计就是为了提示有用的信息，而不打扰用户其他操作。
+最使用简单：</p>
+
+<!--more-->
+
+
+<pre><code class="java">// 第一个参数：当前的上下文环境。可用getApplicationContext()或this  
+// 第二个参数：要显示的字符串。也可是R.string中字符串ID  
+// 第三个参数：显示的时间长短。Toast默认的有两个LENGTH_LONG(长)和LENGTH_SHORT(短)，也可以使用毫秒,如2000ms
+Toast.makeText(getApplicationContext(), "简单的Toast",Toast.LENGTH_LONG).show();
+</code></pre>
+
+<p>当然你也可以设置图片和显示位置：</p>
+
+<pre><code class="java">toast = Toast.makeText(getApplicationContext(), "可选位置带图片的Toast",
+           Toast.LENGTH_LONG);
+//第一个参数：设置toast在屏幕中显示的位置。我现在的设置是居中靠顶  
+//第二个参数：相对于第一个参数设置toast位置的横向X轴的偏移量，正数向右偏移，负数向左偏移  
+//第三个参数：同的第二个参数道理一样  
+//如果你设置的偏移量超过了屏幕的范围，toast将在屏幕内靠近超出的那个边界显示
+toast.setGravity(Gravity.CENTER, -50, 100);
+//获得toast的布局 
+LinearLayout toastView = (LinearLayout) toast.getView();
+//设置图片 
+ImageView imageCodeProject = new ImageView(getApplicationContext());
+imageCodeProject.setImageResource(R.drawable.ic_launcher);
+//添加图片 
+toastView.addView(imageCodeProject, 0);
+toast.show();
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252000307171089.png" alt="image" /></p>
+
+<p>或者自定义Toast显示：</p>
+
+<pre><code class="java">//LayoutInflater这个类用来实例化XML文件到其相应的视图对象的布局
+LayoutInflater inflater = getLayoutInflater();
+View layout = inflater.inflate(R.layout.custom,
+           (ViewGroup) findViewById(R.id.llToast));
+ImageView image = (ImageView) layout
+           .findViewById(R.id.tvImageToast);
+image.setImageResource(R.drawable.ic_launcher);
+TextView title = (TextView) layout.findViewById(R.id.tvTitleToast);
+//设置标题
+title.setText("Attention");
+TextView text = (TextView) layout.findViewById(R.id.tvTextToast);
+//设置内容
+text.setText("完全自定义Toast");
+toast = new Toast(getApplicationContext());
+toast.setGravity(Gravity.RIGHT | Gravity.TOP, 12, 40);
+toast.setDuration(Toast.LENGTH_LONG);
+toast.setView(layout);
+toast.show();
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252000488732475.png" alt="image" /></p>
+
+<p>Toast提示消息也可以来自其他线程：</p>
+
+<pre><code class="java">Handler handler = new Handler();
+    public void showToast() {
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), "我来自其他线程！",
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252001046234263.png" alt="image" /></p>
+
+<h4>2、Notification</h4>
+
+<p>&#160; &#160; &#160; &#160;Notification位于手机状态栏。状态栏位于手机屏幕的最上层，通常显示电池电量、信号强度等信息。
+按住状态栏往下拉就可以打开查看系统提示信息。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252001363571067.png" alt="image" /></p>
+
+<p>如果要添加一个Notification,需要了解NotificationManager和Notification</p>
+
+<ul>
+<li><p>a、NotificationManager(通知管理器)
+NotificationManager负责通知用户事件的发生.
+NotificationManager有三个公共方法:</p>
+
+<ol>
+<li>cancel(int id) 取消以前显示的一个通知.假如是一个短暂的通知，试图将隐藏，假如是一个持久的通知，将从状态条中移走.</li>
+<li>cancelAll() 取消以前显示的所有通知.</li>
+<li>notify(int id, Notification notification) 把通知持久的发送到状态条上.</li>
+</ol>
+</li>
+<li><p>b、Notification代表着一个通知
+Notification的属性：</p>
+
+<p>  audioStreamType 当声音响起时，所用的音频流的类型
+  contentIntent 当通知条目被点击，就执行这个被设置的Intent.
+  contentView 当通知被显示在状态条上的时候，同时这个被设置的视图被显示.
+  defaults 指定哪个值要被设置成默认的.
+  deleteIntent 当用户点击"Clear All Notifications"按钮区删除所有的通知的时候，这个被设置的Intent被执行.
+  icon 状态条所用的图片.
+  iconLevel 假如状态条的图片有几个级别，就设置这里.
+  ledARGB LED灯的颜色.
+  ledOffMS LED关闭时的闪光时间（以毫秒计算）
+  ledOnMS LED开始时的闪光时间（以毫秒计算）
+  number 这个通知代表事件的号码
+  sound 通知的声音
+  tickerText 通知被显示在状态条时，所显示的信息
+  vibrate 振动模式.
+  when 通知的时间戳.</p></li>
+</ul>
+
+
+<p>完整设置Notification代码：</p>
+
+<pre><code class="java">Intent i = new Intent(MainActivity.this, NotifiedActivity.class);
+// pendingIntent是一种特殊的Intent。主要的区别在于Intent的执行立刻的，而pendingIntent的执行不是立刻的
+PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, i, 0);
+//创建一个Notification对象
+Notification myNotification = new Notification();    
+//Notification的图标
+myNotification.icon=R.drawable.header;                
+//Notification的显示内容
+myNotification.tickerText="点击查看";            
+//通知时发出的默认声音
+myNotification.defaults=Notification.DEFAULT_SOUND;
+//设置通知显示的参数
+myNotification.setLatestEventInfo(MainActivity.this, "示例", "点击查看", pi);
+//通知管理器
+NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//发送Notification
+notificationManager.notify(0, myNotification);
+</code></pre>
+
+<p>运行效果：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252003506393911.png" alt="image" /></p>
+
+<p>点击添加Notification，</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252005226543599.png" alt="image" /></p>
+
+<p>点击启动另一个Activity查看Notification</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/252005396233915.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

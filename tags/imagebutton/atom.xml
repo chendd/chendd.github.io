@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: imagebutton | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/imagebutton/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[android学习日记3--常用控件button/imagebutton]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/10/android_study_03_1/"/>
-    <updated>2014-02-10T08:22:14+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/10/android_study_03_1</id>
+    <link href="http://chendd.github.io/blog/2013/02/10/android_study_03_1/"/>
+    <updated>2013-02-10T08:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/02/10/android_study_03_1</id>
     <content type="html"><![CDATA[<h2>常用控件</h2>
 
 <p>&#160; &#160; &#160; &#160;控件是对数据和方法的封装。控件可以有自己的属性和方法。属性是控件数据的简单访问者。方法则是控件的一些简单而可见的功能。所有控件都是继承View类</p>
@@ -61,7 +61,7 @@ android:text="@string/hello_world"
 
 <p>&#160; &#160; &#160; &#160;有些人会问直接 android:text=&ldquo;Hello world!"不是更方便，为什么还要引用xml文件?其实android这样设计为了国际化和编写弹性的应用程序，</p>
 
-<p>&#160; &#160; &#160; &#160;xml解析时会讲到(了解更多XML:android学习日记23&ndash;Android XML解析)，不多做解释了。布局组件等一般设置格式：</p>
+<p>&#160; &#160; &#160; &#160;布局组件等一般设置格式：</p>
 
 <pre><code class="xml">&lt;布局/组件名称
     android:属性="属性类型"

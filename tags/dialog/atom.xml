@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: Dialog | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/dialog/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[android学习日记3--常用控件Dialog]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/16/android_study_03_6/"/>
-    <updated>2014-02-16T09:22:14+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/16/android_study_03_6</id>
+    <link href="http://chendd.github.io/blog/2013/02/16/android_study_03_6/"/>
+    <updated>2013-02-16T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/02/16/android_study_03_6</id>
     <content type="html"><![CDATA[<h2>常用控件</h2>
 
 <h4>9、Dialog</h4>
@@ -78,29 +78,29 @@ setNegativeButton //设置最右边的按钮
 
 <p>由于 Builder 设计模式特性，上面代码也可以这样简写</p>
 
-<pre><code class="java">//        new Builder(this)
-//        .setIcon(android.R.drawable.ic_dialog_info)
-//        .setTitle("dialg标题")
-//        .setMessage("dialog对话框内容")
-//        .setPositiveButton("yes", new OnClickListener() {
-//        
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                // TODO Auto-generated method stub
-//                
-//            }
-//        })
-//        .setNegativeButton("no", new OnClickListener() {
-//            
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                // TODO Auto-generated method stub
-//                
-//            }
-//        })
-//        .setView(new CheckBox(this))
-//        .create()
-//        .show();
+<pre><code class="java">new Builder(this)
+.setIcon(android.R.drawable.ic_dialog_info)
+.setTitle("dialg标题")
+.setMessage("dialog对话框内容")
+.setPositiveButton("yes", new OnClickListener() {
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // TODO Auto-generated method stub
+
+    }
+})
+.setNegativeButton("no", new OnClickListener() {
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // TODO Auto-generated method stub
+
+    }
+})
+.setView(new CheckBox(this))
+.create()
+.show();
 </code></pre>
 
 <p>builder.setView(new CheckBox(this));只能添加一个组件</p>
@@ -111,42 +111,42 @@ setNegativeButton //设置最右边的按钮
 
 <p>添加单选框</p>
 
-<pre><code class="java">//        builder.setSingleChoiceItems(new String[] {"单选","单选"}, 1, new OnClickListener() {
-//            
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                // TODO Auto-generated method stub
-//                
-//            }
-//        });
+<pre><code class="java">builder.setSingleChoiceItems(new String[] {"单选","单选"}, 1, new OnClickListener() {
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // TODO Auto-generated method stub
+
+    }
+});
 </code></pre>
 
 <p><img src="http://images.cnitblog.com/blog/602984/201402/151724331278207.png" alt="image" /></p>
 
 <p>添加复选框</p>
 
-<pre><code class="java">//        builder.setMultiChoiceItems(new String[] {"多选","多选"}, new boolean[] {false,true}, new OnMultiChoiceClickListener() {
-//            
-//            @Override
-//            public void onClick(DialogInterface arg0, int arg1, boolean arg2) {
-//                // TODO Auto-generated method stub
-//                
-//            }
-//        });
+<pre><code class="java">builder.setMultiChoiceItems(new String[] {"多选","多选"}, new boolean[] {false,true}, new OnMultiChoiceClickListener() {
+
+    @Override
+    public void onClick(DialogInterface arg0, int arg1, boolean arg2) {
+        // TODO Auto-generated method stub
+
+    }
+});
 </code></pre>
 
 <p><img src="http://images.cnitblog.com/blog/602984/201402/151724595038498.png" alt="image" /></p>
 
 <p>添加列表</p>
 
-<pre><code class="java">//        builder.setItems(new String[] {"item1","item2","item3"}, new OnClickListener() {
-//            
-//            @Override
-//            public void onClick(DialogInterface arg0, int arg1) {
-//                // TODO Auto-generated method stub
-//                
-//            }
-//        });
+<pre><code class="java">builder.setItems(new String[] {"item1","item2","item3"}, new OnClickListener() {
+
+    @Override
+    public void onClick(DialogInterface arg0, int arg1) {
+        // TODO Auto-generated method stub
+
+    }
+});
 </code></pre>
 
 <p><img src="http://images.cnitblog.com/blog/602984/201402/151725109813708.png" alt="image" /></p>

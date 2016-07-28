@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: BitMap | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/bitmap/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T12:00:22+08:00</updated>
+  <updated>2016-07-28T16:49:00+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[android学习日记9--BitMap操作]]></title>
-    <link href="http://chendd.github.io/blog/2014/02/25/android_study_09/"/>
-    <updated>2014-02-25T22:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2014/02/25/android_study_09</id>
+    <link href="http://chendd.github.io/blog/2013/02/25/android_study_09/"/>
+    <updated>2013-02-25T22:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2013/02/25/android_study_09</id>
     <content type="html"><![CDATA[<h2>Bitmap</h2>
 
 <p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
