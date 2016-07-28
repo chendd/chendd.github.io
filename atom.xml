@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd's Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T16:49:00+08:00</updated>
+  <updated>2016-07-28T17:57:17+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -117,7 +117,7 @@ Shrubbery shrub = Shrubbery.GROUND;
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记25--ANR和Hander消息机制]]></title>
+    <title type="html"><![CDATA[Android学习日记25--ANR和Hander消息机制]]></title>
     <link href="http://chendd.github.io/blog/2013/03/30/android_study_25/"/>
     <updated>2013-03-30T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/30/android_study_25</id>
@@ -453,7 +453,7 @@ getMenuInflater().inflate(R.menu.main, menu);
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记23--XML解析]]></title>
+    <title type="html"><![CDATA[Android学习日记23--XML解析]]></title>
     <link href="http://chendd.github.io/blog/2013/03/29/android_study_23/"/>
     <updated>2013-03-29T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/29/android_study_23</id>
@@ -1204,7 +1204,7 @@ Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记22--Animation动画简介]]></title>
+    <title type="html"><![CDATA[Android学习日记22--Animation动画简介]]></title>
     <link href="http://chendd.github.io/blog/2013/03/26/android_study_22/"/>
     <updated>2013-03-26T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/26/android_study_22</id>
@@ -1403,7 +1403,7 @@ XML文件存放在res/anim下。</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记21--消息提示之Toast和Notification]]></title>
+    <title type="html"><![CDATA[Android学习日记21--消息提示之Toast和Notification]]></title>
     <link href="http://chendd.github.io/blog/2013/03/25/android_study_21/"/>
     <updated>2013-03-25T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/25/android_study_21</id>
@@ -1635,7 +1635,7 @@ Notification的属性：</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记20--连接组件之Intent和IntentFilter]]></title>
+    <title type="html"><![CDATA[Android学习日记20--连接组件之Intent和IntentFilter]]></title>
     <link href="http://chendd.github.io/blog/2013/03/24/android_study_20/"/>
     <updated>2013-03-24T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/24/android_study_20</id>
@@ -1732,7 +1732,7 @@ IntentFilter过滤Intent时，一般通过Action、Data及Category三个进行�
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记19--四大组件之BroadcastReciver(广播接收者)]]></title>
+    <title type="html"><![CDATA[Android学习日记19--四大组件之BroadcastReciver(广播接收者)]]></title>
     <link href="http://chendd.github.io/blog/2013/03/22/android_study_19_2/"/>
     <updated>2013-03-22T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/22/android_study_19_2</id>
@@ -1926,7 +1926,7 @@ Android会认为该程序无响应。所以在BroadcastReceiver里不能做一�
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记19--四大组件之Services(服务)]]></title>
+    <title type="html"><![CDATA[Android学习日记19--四大组件之Services(服务)]]></title>
     <link href="http://chendd.github.io/blog/2013/03/22/android_study_19_1/"/>
     <updated>2013-03-22T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/22/android_study_19_1</id>
@@ -2307,7 +2307,7 @@ TELEPHONY_SERVICE TeleponyManager 电话服务
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记18--Adapter简介]]></title>
+    <title type="html"><![CDATA[Android学习日记18--Adapter简介]]></title>
     <link href="http://chendd.github.io/blog/2013/03/19/android_study_18/"/>
     <updated>2013-03-19T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/19/android_study_18</id>
@@ -2416,7 +2416,7 @@ TELEPHONY_SERVICE TeleponyManager 电话服务
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记17--Gallery(画廊视图)]]></title>
+    <title type="html"><![CDATA[Android学习日记17--Gallery(画廊视图)]]></title>
     <link href="http://chendd.github.io/blog/2013/03/18/android_study_17/"/>
     <updated>2013-03-18T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/18/android_study_17</id>
@@ -2699,7 +2699,7 @@ getCount方法用于返回图像总数，这个总数不能大于图像的实际
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记16--GridView(网格视图)]]></title>
+    <title type="html"><![CDATA[Android学习日记16--GridView(网格视图)]]></title>
     <link href="http://chendd.github.io/blog/2013/03/17/android_study_16/"/>
     <updated>2013-03-17T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/17/android_study_16</id>
@@ -3061,7 +3061,7 @@ getCount方法用于返回图像总数，这个总数不能大于图像的实际
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记15--WebView(网络视图)]]></title>
+    <title type="html"><![CDATA[Android学习日记15--WebView(网络视图)]]></title>
     <link href="http://chendd.github.io/blog/2013/03/16/android_study_15/"/>
     <updated>2013-03-16T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/16/android_study_15</id>
@@ -3785,7 +3785,7 @@ data.jsp的代码：</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记13--数据存储之File存储]]></title>
+    <title type="html"><![CDATA[Android学习日记13--数据存储之File存储]]></title>
     <link href="http://chendd.github.io/blog/2013/03/13/android_study_13_4/"/>
     <updated>2013-03-13T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/13/android_study_13_4</id>
@@ -4067,7 +4067,7 @@ Activity还提供了getCacheDir()和getFilesDir()方法：</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记13--数据存储之ContentProvide]]></title>
+    <title type="html"><![CDATA[Android学习日记13--数据存储之ContentProvide]]></title>
     <link href="http://chendd.github.io/blog/2013/03/08/android_study_13_3/"/>
     <updated>2013-03-08T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/08/android_study_13_3</id>
@@ -4389,7 +4389,7 @@ context.getContentResolver().registerContentObserver(uri,true,new ContentObserve
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记13--数据存储之SQLite]]></title>
+    <title type="html"><![CDATA[Android学习日记13--数据存储之SQLite]]></title>
     <link href="http://chendd.github.io/blog/2013/03/07/android_study_13_2/"/>
     <updated>2013-03-07T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/07/android_study_13_2</id>
@@ -4624,7 +4624,7 @@ onUpgrade(SQLiteDatabse dv, int oldVersion,int new Version)：当打开数据库
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记13--数据存储之SharedPreference]]></title>
+    <title type="html"><![CDATA[Android学习日记13--数据存储之SharedPreference]]></title>
     <link href="http://chendd.github.io/blog/2013/03/04/android_study_13_1/"/>
     <updated>2013-03-04T19:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/04/android_study_13_1</id>

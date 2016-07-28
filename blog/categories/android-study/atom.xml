@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android_study | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/blog/categories/android-study/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T16:49:00+08:00</updated>
+  <updated>2016-07-28T17:57:17+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -98,7 +98,7 @@ Shrubbery shrub = Shrubbery.GROUND;
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记25--ANR和Hander消息机制]]></title>
+    <title type="html"><![CDATA[Android学习日记25--ANR和Hander消息机制]]></title>
     <link href="http://chendd.github.io/blog/2013/03/30/android_study_25/"/>
     <updated>2013-03-30T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/30/android_study_25</id>
@@ -349,7 +349,7 @@ getMenuInflater().inflate(R.menu.main, menu);
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记23--XML解析]]></title>
+    <title type="html"><![CDATA[Android学习日记23--XML解析]]></title>
     <link href="http://chendd.github.io/blog/2013/03/29/android_study_23/"/>
     <updated>2013-03-29T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/29/android_study_23</id>
@@ -764,7 +764,7 @@ Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[android学习日记22--Animation动画简介]]></title>
+    <title type="html"><![CDATA[Android学习日记22--Animation动画简介]]></title>
     <link href="http://chendd.github.io/blog/2013/03/26/android_study_22/"/>
     <updated>2013-03-26T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/03/26/android_study_22</id>
