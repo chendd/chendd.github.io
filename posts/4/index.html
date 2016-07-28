@@ -346,7 +346,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/07/26/build_octopress_in_window/">Octopress写博客步骤</a></h1>
+      <h1 class="entry-title"><a href="/blog/2012/11/30/java_static/">JAVA Static 作用</a></h1>
     
     
       <p class="meta">
@@ -355,27 +355,134 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2012-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2012-11-30T18:21:11+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>使用Octopress写博客大致有一下几个步骤：</p>
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;static表示“全局”或者“静态”的意思，用来修饰成员变量和成员方法，也可以形成静态static代码块，但是Java语言中没有全局变量的概念。被static修饰的成员变量和成员方法独立于该类的任何对象。也就是说，它不依赖类特定的实例，被类的所有实例共享。
+只要这个类被加载，Java虚拟机就能根据类名在运行时数据区的方法区内定找到他们。因此，static对象可以在它的任何对象创建之前访问，无需引用任何对象。</p>
 
-<ol>
-<li><p>执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；</p></li>
-<li><p>找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑；</p></li>
-</ol>
+<p>&#160; &#160; &#160; &#160;用public修饰的static成员变量和成员方法本质是全局变量和全局方法，当声明它类的对象市，不生成static变量的副本，而是类的所有实例共享同一个static变量。
+&#160; &#160; &#160; &#160;static变量前可以有private修饰，表示这个变量可以在类的静态代码块中，或者类的其他静态成员方法中使用（当然也可以在非静态成员方法中使用&ndash;废话），但是不能在其他类中通过类名来直接引用，这一点很重要。实际上你需要搞明白，private是访问权限限定，static表示不要实例化就可以使用，这样就容易理解多了。static前面加上其它访问权限关键字的效果也以此类推。</p>
+
+<p>&#160; &#160; &#160; &#160;static修饰的成员变量和成员方法习惯上称为静态变量和静态方法，可以直接通过类名来访问，访问语法为：
+类名.静态方法名(参数列表&hellip;)
+类名.静态变量名</p>
+
+<p>&#160; &#160; &#160; &#160;用static修饰的代码块表示静态代码块，当Java虚拟机（JVM）加载类时，就会执行该代码块（用处非常大，呵呵）。</p>
+
+<h4>1、static变量</h4>
+
+<p>&#160; &#160; &#160; &#160;按照是否静态的对类成员变量进行分类可分两种：一种是被static修饰的变量，叫静态变量或类变量；另一种是没有被static修饰的变量，叫实例变量。</p>
+
+<p>&#160; &#160; &#160; &#160;两者的区别是： 对于静态变量在内存中只有一个拷贝（节省内存），JVM只为静态分配一次内存，在加载类的过程中完成静态变量的内存分配，可用类名直接访问（方便），当然也可以通过对象来访问（但是这是不推荐的）。对于实例变量，没创建一个实例，就会为实例变量分配一次内存，实例变量可以在内存中有多个拷贝，互不影响（灵活）。</p>
+
+<p>所以一般在需要实现以下两个功能时使用静态变量：</p>
+
+<ul>
+<li>在对象之间共享值时</li>
+<li>方便访问变量时</li>
+</ul>
 
 
+<h4>2、静态方法</h4>
+
+<p>&#160; &#160; &#160; &#160;静态方法可以直接通过类名调用，任何的实例也都可以调用，
+因此静态方法中不能用this和super关键字，不能直接访问所属类的实例变量和实例方法(就是不带static的成员变量和成员成员方法)，只能访问所属类的静态成员变量和成员方法。
+因为实例成员与特定的对象关联！这个需要去理解，想明白其中的道理，不是记忆！！！
+因为static方法独立于任何实例，因此static方法必须被实现，而不能是抽象的abstract。</p>
+
+<p>&#160; &#160; &#160; &#160;例如为了方便方法的调用，Java API中的Math类中所有的方法都是静态的，而一般类内部的static方法也是方便其它类对该方法的调用。</p>
+
+<p>&#160; &#160; &#160; &#160;静态方法是类内部的一类特殊方法，只有在需要时才将对应的方法声明成静态的，一个类内部的方法一般都是非静态的</p>
+
+<h4>3、static代码块</h4>
+
+<p>&#160; &#160; &#160; &#160;static代码块也叫静态代码块，是在类中独立于类成员的static语句块，可以有多个，位置可以随便放，它不在任何的方法体内，JVM加载类时会执行这些静态的代码块，如果static代码块有多个，JVM将按照它们在类中出现的先后顺序依次执行它们，每个代码块只会被执行一次。例如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test5</span> <span class="o">{</span>
+</span><span class='line'>　　<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">a</span><span class="o">;</span>
+</span><span class='line'>　　<span class="kd">private</span> <span class="kt">int</span> <span class="n">b</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">static</span><span class="o">{</span>
+</span><span class='line'>　　<span class="n">Test5</span><span class="o">.</span><span class="na">a</span><span class="o">=</span><span class="mi">3</span><span class="o">;</span>
+</span><span class='line'>　　<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">a</span><span class="o">);</span>
+</span><span class='line'>　　<span class="n">Test5</span> <span class="n">t</span><span class="o">=</span><span class="k">new</span> <span class="nf">Test5</span><span class="o">();</span>
+</span><span class='line'>　　<span class="n">t</span><span class="o">.</span><span class="na">f</span><span class="o">();</span>
+</span><span class='line'>　　<span class="n">t</span><span class="o">.</span><span class="na">b</span><span class="o">=</span><span class="mi">1000</span><span class="o">;</span>
+</span><span class='line'>　　<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">b</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">static</span><span class="o">{</span>
+</span><span class='line'>　　<span class="n">Test5</span><span class="o">.</span><span class="na">a</span><span class="o">=</span><span class="mi">4</span><span class="o">;</span>
+</span><span class='line'>　　<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">a</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>　　<span class="c1">// TODO 自动生成方法存根 </span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">static</span><span class="o">{</span>
+</span><span class='line'>　　<span class="n">Test5</span><span class="o">.</span><span class="na">a</span><span class="o">=</span><span class="mi">5</span><span class="o">;</span>
+</span><span class='line'>　　<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">a</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">f</span><span class="o">(){</span>
+</span><span class='line'>　　<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;hhahhahah&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行结果：
+    3
+    hhahhahah
+    1000
+    4
+    5</p>
+
+<p>&#160; &#160; &#160; &#160;利用静态代码块可以对一些static变量进行赋值，最后再看一眼这些例子，都一个static的main方法，这样JVM在运行main方法的时候可以直接调用而不用创建实例。</p>
+
+<h4>4、static和final一块用表示什么</h4>
+
+<p>&#160; &#160; &#160; &#160;static final用来修饰成员变量和成员方法，可简单理解为“全局常量”！对于变量，表示一旦给值就不可修改，并且通过类名可以访问。
+对于方法，表示不可覆盖，并且可以通过类名直接访问。</p>
+
+<p>&#160; &#160; &#160; &#160;有时你希望定义一个类成员，使它的使用完全独立于该类的任何对象。通常情况下，类成员必须通过它的类的对象访问，但是可以创建这样一个成员，它能够被它自己使用，而不必引用特定的实例。在成员的声明前面加上关键字static(静态的)就能创建这样的成员。如果一个成员被声明为static，它就能够在它的类的任何对象创建之前被访问，而不必引用任何对象。你可以将方法和变量都声明为static。static 成员的最常见的例子是main( ) 。因为在程序开始执行时必须调用main() ，所以它被声明为static。</p>
+
+<p>&#160; &#160; &#160; &#160;static成员是不能被其所在class创建的实例访问的。如果不加static修饰的成员是对象成员，也就是归每个对象所有的。 加static修饰的成员是类成员，就是可以由一个类直接调用，为所有对象共有的</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/07/26/build_octopress_in_window/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -386,7 +493,7 @@ Activity extends TabActivity
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a></h1>
+      <h1 class="entry-title"><a href="/blog/2012/11/02/java_thred_pool/">JAVA线程池简介</a></h1>
     
     
       <p class="meta">
@@ -395,27 +502,446 @@ Activity extends TabActivity
 
 
 
-<time class='entry-date' datetime='2012-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2012-11-02T18:21:11+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
+  <div class="entry-content"><h2>一 简介</h2>
 
+<p>　　线程的使用在java中占有极其重要的地位，在jdk1.4极其之前的jdk版本中，关于线程池的使用是极其简陋的。在jdk1.5之后这一情况有了很大的改观。Jdk1.5之后加入了java.util.concurrent包，这个包中主要介绍java中线程以及线程池的使用。为我们在开发中处理线程的问题提供了非常大的帮助。</p>
+
+<h2>二 线程池</h2>
+
+<p>线程池的作用：
+　　线程池作用就是限制系统中执行线程的数量。
+根据系统的环境情况，可以自动或手动设置线程数量，达到运行的最佳效果；少了浪费了系统资源，多了造成系统拥挤效率不高。用线程池控制线程数量，其他线程排队等候。一个任务执行完毕，再从队列的中取最前面的任务开始执行。若队列中没有等待进程，线程池的这一资源处于等待。当一个新任务需要运行时，如果线程池中有等待的工作线程，就可以开始运行了；否则进入等待队列。</p>
+
+<p>为什么要用线程池:
+　　1.减少了创建和销毁线程的次数，每个工作线程都可以被重复利用，可执行多个任务。
+　　2.可以根据系统的承受能力，调整线程池中工作线线程的数目，防止因为消耗过多的内存，而把服务器累趴下(每个线程需要大约1MB内　　　　存，线程开的越多，消耗的内存也就越大，最后死机)。
+　　</p>
+
+<p>　　Java里面线程池的顶级接口是Executor，但是严格意义上讲Executor并不是一个线程池，而只是一个执行线程的工具。真正的线程池接口是ExecutorService。</p>
+
+<p>比较重要的几个类：
+1 ExecutorService
+真正的线程池接口。
+2 ScheduledExecutorService
+能和Timer/TimerTask类似，解决那些需要任务重复执行的问题。
+3 ThreadPoolExecutor
+ExecutorService的默认实现。
+4 ScheduledThreadPoolExecutor
+继承ThreadPoolExecutor的ScheduledExecutorService接口实现，周期性任务调度的类实现。</p>
+
+<p>　　要配置一个线程池是比较复杂的，尤其是对于线程池的原理不是很清楚的情况下，很有可能配置的线程池不是较优的，因此在Executors类里面提供了一些静态工厂，生成一些常用的线程池。</p>
+
+<ul>
+<li><ol>
+<li>newSingleThreadExecutor
+　　创建一个单线程的线程池。这个线程池只有一个线程在工作，也就是相当于单线程串行执行所有任务。如果这个唯一的线程因为异常结束，那么会有一个新的线程来替代它。此线程池保证所有任务的执行顺序按照任务的提交顺序执行。</li>
+</ol>
+</li>
+<li><ol>
+<li>newFixedThreadPool
+　　创建固定大小的线程池。每次提交一个任务就创建一个线程，直到线程达到线程池的最大大小。线程池的大小一旦达到最大值就会保持不变，如果某个线程因为执行异常而结束，那么线程池会补充一个新线程。</li>
+</ol>
+</li>
+<li><ol>
+<li>newCachedThreadPool
+　　创建一个可缓存的线程池。如果线程池的大小超过了处理任务所需要的线程，
+那么就会回收部分空闲（60秒不执行任务）的线程，当任务数增加时，此线程池又可以智能的添加新线程来处理任务。此线程池不会对线程池大小做限制，线程池大小完全依赖于操作系统（或者说JVM）能够创建的最大线程大小。</li>
+</ol>
+</li>
+<li><ol>
+<li>newScheduledThreadPool
+　　创建一个大小无限的线程池。此线程池支持定时以及周期性执行任务的需求。</li>
+</ol>
+</li>
+</ul>
+
+
+<h2>三 实例</h2>
+
+<p>MyThread类 打印当前执行的线程信息</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyThread</span> <span class="kd">extends</span> <span class="n">Thread</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;正在执行。。。&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>测试线程池的代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestThread</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">testSngleThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">testFixedThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">testCacheThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">testScheduledThread</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testSngleThread</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// 创建一个单列的线程池</span>
+</span><span class='line'>        <span class="n">ExecutorService</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 创建几个测试的线程</span>
+</span><span class='line'>        <span class="n">Thread</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Thread</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Thread</span> <span class="n">t3</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Thread</span> <span class="n">t4</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Thread</span> <span class="n">t5</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 将线程放进线程池中执行</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t1</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t2</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t3</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t4</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t5</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 关闭线程池</span>
+</span><span class='line'>        <span class="n">pool</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;-------华丽丽的分割线-------&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testFixedThread</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// 创建一个单列的线程池</span>
+</span><span class='line'>                <span class="n">ExecutorService</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 创建几个测试的线程</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t3</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t4</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t5</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 将线程放进线程池中执行</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t1</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t2</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t3</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t4</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t5</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 关闭线程池</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;-------华丽丽的分割线-------&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testCacheThread</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// 创建一个单列的线程池</span>
+</span><span class='line'>                <span class="n">ExecutorService</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 创建几个测试的线程</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t3</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t4</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">Thread</span> <span class="n">t5</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">MyThread</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 将线程放进线程池中执行</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t1</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t2</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t3</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t4</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">t5</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// 关闭线程池</span>
+</span><span class='line'>                <span class="n">pool</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;-------华丽丽的分割线-------&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testScheduledThread</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">ScheduledThreadPoolExecutor</span> <span class="n">exec</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ScheduledThreadPoolExecutor</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">exec</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(</span><span class="k">new</span> <span class="nf">Runnable</span><span class="o">()</span> <span class="o">{</span><span class="c1">//每隔一段时间就触发异常</span>
+</span><span class='line'>                      <span class="nd">@Override</span>
+</span><span class='line'>                      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                           <span class="c1">//throw new RuntimeException();</span>
+</span><span class='line'>                           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;================&quot;</span><span class="o">);</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">},</span> <span class="mi">1000</span><span class="o">,</span> <span class="mi">5000</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">exec</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(</span><span class="k">new</span> <span class="nf">Runnable</span><span class="o">()</span> <span class="o">{</span><span class="c1">//每隔一段时间打印系统时间，证明两者是互不影响的</span>
+</span><span class='line'>                      <span class="nd">@Override</span>
+</span><span class='line'>                      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                           <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">());</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">},</span> <span class="mi">1000</span><span class="o">,</span> <span class="mi">2000</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>输出结果</p>
+
+<pre><code>pool-1-thread-1正在执行。。。
+
+pool-1-thread-1正在执行。。。
+
+pool-1-thread-1正在执行。。。
+
+pool-1-thread-1正在执行。。。
+
+pool-1-thread-1正在执行。。。
+
+-------华丽丽的分割线-------
+
+pool-2-thread-1正在执行。。。
+
+pool-2-thread-2正在执行。。。
+
+pool-2-thread-1正在执行。。。
+
+pool-2-thread-2正在执行。。。
+
+pool-2-thread-2正在执行。。。
+
+-------华丽丽的分割线-------
+
+pool-3-thread-1正在执行。。。
+
+pool-3-thread-2正在执行。。。
+
+pool-3-thread-1正在执行。。。
+
+pool-3-thread-1正在执行。。。
+
+pool-3-thread-3正在执行。。。
+
+-------华丽丽的分割线-------
+
+================
+
+1404287033922354000
+
+1404287035922005000
+
+1404287037922962000
+
+================
+
+1404287039923315000
+
+1404287041922195000
+
+================
+
+1404287043922106000
+
+1404287045923164000
+</code></pre>
 </div>
   
   
-    <footer>
-      <a rel="full-article" href="/blog/2012/07/25/use_markdown_in_octopress/">Read on &rarr;</a>
-    </footer>
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/11/02/java_reference/">JAVA引用类型及作用</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-11-02T18:21:11+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>0. 引言</h4>
+
+<p>　　Java 中一共有 4 种类型的引用 : StrongReference、 SoftReference、 WeakReference 以及 PhantomReference ,
+这 4 种类型的引用与 GC 有着密切的关系.</p>
+
+<h4>1. 强引用 (StrongReference)</h4>
+
+<p>　　普通的引用做法,如:
+String str = &ldquo;hello&rdquo;;
+只要引用存在就不会被回收,除非手动置为null,或者超出范围,gc才会回收</p>
+
+<h4>2. 软引用 (SoftReference)</h4>
+
+<p>　　当JVM虚拟机内存不足时,会回收软引用对象.这样做的好处是,保证java抛出OutOfMemory异常前,把弱引用对象置为null,
+用于一些资源的缓存,实现Cache功能.如:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">A</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">A</span><span class="o">();</span>
+</span><span class='line'><span class="n">SoftReference</span> <span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoftReference</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//引用时</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">sr</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>　　<span class="n">obj</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span><span class='line'>　　<span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">A</span><span class="o">();</span>
+</span><span class='line'>　　<span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoftReference</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　　垃圾收集器在运行时可能会（也可能不会）释放软可及对象.对象是否被释放取决
+于垃圾收集器的算法以及垃圾收集器运行时可用的内存数量.</p>
+
+<h4>3. 弱引用 (WeakReference)</h4>
+
+<p>　　和软引用 大同小异, SoftReference和WeakReference的区别是：一旦gc发现对象是WeakReference可达就会把它放到ReferenceQueue中，然后等下次gc时回收它；当对象是SoftReference可达时，gc可能会向操作系统申请更多内存，而不是直接回收它，当实在没辙了才回收它。像cache系统，最适合用SoftReference。让gc来替我们决定什么时候回收对象以及回收哪些对象。</p>
+
+<h4>4. 虚引用 (PhantomRefrence)</h4>
+
+<p>　　用得较少,建立虚引用之后通过get方法返回结果始终为null,对ReferenceQueue软引用和弱引用可以有可无，但是虚引用必须有
+虚引用的唯一用处是跟踪 referent 何时被 enqueue 到 ReferenceQueue 中</p>
+
+<h4>5. 比较</h4>
+
+<p>　　四种引用的强弱关系按上面顺序排下来:强 > 软 > 弱 > 虚.对于对象是属于哪种可及的对象，由他的最强的引用决定</p>
+
+<h4>6. 小结</h4>
+
+<p>　　一般的应用程序不会涉及到 Reference 编程， 但是了解这些知识会对理解 GC 的工作原理以及性能调优有一定帮助, 在实现一些基础性设施比如缓存时也可能会用到</p>
+</div>
+  
   
 
 
     </article>
   
   <div class="pagination">
+    
+      <a class="prev" href="/posts/5">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -458,14 +984,14 @@ Activity extends TabActivity
 <section>
   <h1>Tags</h1>
   <ul class="tag-cloud">
+<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
 <li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
-<li><a style="font-size: 60%" href="/tags/sharedpreference/">SharedPreference</a></li>
 <li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
 <li><a style="font-size: 165%" href="/tags/android/">android</a></li>
 <li><a style="font-size: 60%" href="/tags/button/">button</a></li>
-<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
 <li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
-<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+<li><a style="font-size: 92%" href="/tags/java/">java</a></li>
+<li><a style="font-size: 60%" href="/tags/layout/">layout</a></li>
 
   </ul>
 </section><section>
@@ -473,6 +999,7 @@ Activity extends TabActivity
   <ul id="categories">
     <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
 
   </ul>
 </section>
