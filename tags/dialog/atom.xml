@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Dialog | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/dialog/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记3--常用控件Dialog]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/16/android_study_03_6/"/>
+    <updated>2014-02-16T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/16/android_study_03_6</id>
+    <content type="html"><![CDATA[<h2>常用控件</h2>
+
+<h4>9、Dialog</h4>
+
+<p>&#160; &#160; &#160; &#160;我们经常会需要在Android界面上弹出一些对话框，比如询问用户或者让用户选择。这些功能我们叫它Android Dialog对话框</p>
+
+<p>对话框，要创建对话框之前首先要创建Builder类创建者，Builder是AlertDialog的子类，而且还是它的内部类。</p>
+
+<!--more-->
+
+
+<pre><code class="java">setPositiveButton //设置最左边的按钮
+setNeutralButton //设置中间的按钮
+setNegativeButton //设置最右边的按钮
+</code></pre>
+
+<pre><code class="java">builder = new Builder(MainActivity.this);
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setTitle("dialg标题");
+        //builder.setMessage("dialog对话框内容");
+
+        builder.setPositiveButton("Yes", new OnClickListener() {
+
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+//        builder.setNeutralButton("back", new OnClickListener() {
+//            
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        });
+
+        builder.setNegativeButton("No", new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+        builder.setView(new CheckBox(this));
+
+
+
+        builder.show();
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151718088076765.png" alt="image" /></p>
+
+<p>由于 Builder 设计模式特性，上面代码也可以这样简写</p>
+
+<pre><code class="java">//        new Builder(this)
+//        .setIcon(android.R.drawable.ic_dialog_info)
+//        .setTitle("dialg标题")
+//        .setMessage("dialog对话框内容")
+//        .setPositiveButton("yes", new OnClickListener() {
+//        
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        })
+//        .setNegativeButton("no", new OnClickListener() {
+//            
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        })
+//        .setView(new CheckBox(this))
+//        .create()
+//        .show();
+</code></pre>
+
+<p>builder.setView(new CheckBox(this));只能添加一个组件</p>
+
+<p>如果添加多个组件，会被后面的覆盖掉</p>
+
+<p>添加某些一组组件，还有对应函数</p>
+
+<p>添加单选框</p>
+
+<pre><code class="java">//        builder.setSingleChoiceItems(new String[] {"单选","单选"}, 1, new OnClickListener() {
+//            
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        });
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151724331278207.png" alt="image" /></p>
+
+<p>添加复选框</p>
+
+<pre><code class="java">//        builder.setMultiChoiceItems(new String[] {"多选","多选"}, new boolean[] {false,true}, new OnMultiChoiceClickListener() {
+//            
+//            @Override
+//            public void onClick(DialogInterface arg0, int arg1, boolean arg2) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        });
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151724595038498.png" alt="image" /></p>
+
+<p>添加列表</p>
+
+<pre><code class="java">//        builder.setItems(new String[] {"item1","item2","item3"}, new OnClickListener() {
+//            
+//            @Override
+//            public void onClick(DialogInterface arg0, int arg1) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        });
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151725109813708.png" alt="image" /></p>
+
+<p>此外，还可以自定义布局文件，当作一个组件用setView()添加</p>
+
+<pre><code class="java">LayoutInflater inflater = getLayoutInflater();
+View layoutView = inflater.inflate(R.layout.dialogmain, (ViewGroup)findViewById(R.id.myLayout));
+builder.setView(layoutView);
+</code></pre>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_height="wrap_content" android:layout_width="wrap_content"
+ android:background="#ffffffff" android:orientation="horizontal"
+ android:id="@+id/myLayout"&gt;
+ &lt;TextView 
+     android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:text="TextView" /&gt;
+ &lt;EditText 
+     android:layout_height="wrap_content"
+     android:layout_width="wrap_content" 
+    /&gt;
+ &lt;Button 
+     android:layout_height="wrap_content"
+     android:layout_width="wrap_content" 
+     android:text="btn1" 
+    /&gt;
+ &lt;Button 
+     android:layout_height="wrap_content"
+     android:layout_width="wrap_content" 
+     android:text=" btn2" 
+    /&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151725258108004.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;Android API 支持下列类型的对话框对象:</p>
+
+<ul>
+<li>警告对话框 AlertDialog:  一个可以有0到3个按钮, 一个单选框或复选框的列表的对话框. 警告对话框可以创建大多数的交互界面, 是推荐的类型.</li>
+<li>进度对话框 ProgressDialog:  显示一个进度环或者一个进度条. 由于它是AlertDialog的扩展, 所以它也支持按钮.</li>
+<li>日期选择对话框 DatePickerDialog:  让用户选择一个日期.</li>
+<li>时间选择对话框 TimePickerDialog:  让用户选择一个时间.</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;如果你希望自定义你的对话框, 可以扩展Dialog类</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: ListView | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/listview/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记3--常用控件ListView]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/15/android_study_03_5/"/>
+    <updated>2014-02-15T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/15/android_study_03_5</id>
+    <content type="html"><![CDATA[<h2>常用控件</h2>
+
+<h4>8、ListView</h4>
+
+<p>&#160; &#160; &#160; &#160;列表视图，比如游戏的排行榜。列表数据可以根据屏幕大小自适应</p>
+
+<p>列表的显示需要三个元素：</p>
+
+<ul>
+<li><p>ListVeiw:用来展示列表的View。</p></li>
+<li><p>适配器:用来把数据映射到ListView上的中介。</p></li>
+<li><p>数据:具体的将被映射的字符串，图片，或者基本组件。</p></li>
+</ul>
+
+
+<!--more-->
+
+
+<p>ListView用到两种适配器：
+- ArrayAdapter&ndash;简单适配器，只显示文字</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151216210793383.png" alt="image" /></p>
+
+<ul>
+<li>SimpleAdapter&ndash;自定义适配器，可以显示自定义内容</li>
+</ul>
+
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/151216336356022.png" alt="image" /></p>
+
+<ul>
+<li>SimpleCursorAdapter可以认为是SimpleAdapter对数据库的简单结合，可以方面的把数据库的内容以列表的形式展示出来，暂时不讲。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;使用简单适配器可直接</p>
+
+<pre><code class="java">new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_list_item_1, list);
+</code></pre>
+
+<p>this：当前context
+android.R.layout.simple_list_item_1是系统的布局文件
+list：ListView的各项数据</p>
+
+<p>SimpleAdapter各项参数</p>
+
+<pre><code class="java">new SimpleAdapter(context, data, resource, from, to)
+</code></pre>
+
+<p>context：当前context内容
+data：ListView的各项数据
+resource：ListView的每项布局
+from：ListView的组件索引
+to：ListView的组件ID
+如：</p>
+
+<pre><code class="java">new SimpleAdapter(MainActivity.this, list, R.layout.activity_main, new String[] {"item1","item2","item3","item4","item5"}
+, new int[] {R.id.iv,R.id.bigtv,R.id.smalltv,R.id.btn,R.id.cb});
+</code></pre>
+
+<p>但是SimpleAdapter 不能触发组件的事件，还需
+自己写适配器继承BaseAdapter</p>
+
+<p>BaseAdapter主要有四个方法
+getCount &ndash;列表每一项的长度
+getItem
+getItemId
+getView &ndash;绘制每一项的具体组件</p>
+
+<p>例子演示自定义MyAdapter</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;  
+&lt;LinearLayout   
+    android:orientation="horizontal" 
+    android:layout_width="fill_parent"   
+    android:layout_height="fill_parent"   
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    &gt;  
+    &lt;ImageView 
+        android:id="@+id/iv"   
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content"   
+        /&gt;
+    &lt;LinearLayout   
+        android:orientation="vertical" 
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content"   
+    &gt;  
+    &lt;TextView 
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content"  
+        android:textSize="20sp"
+        android:id="@+id/bigtv"
+        /&gt;
+
+    &lt;TextView 
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content"  
+        android:textSize="10sp"
+        android:id="@+id/smalltv"
+        /&gt;
+
+    &lt;/LinearLayout&gt;
+
+    &lt;Button 
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content" 
+        android:text="button"
+        android:id="@+id/btn"
+        android:focusable="false"
+        /&gt;
+
+    &lt;CheckBox 
+        android:layout_width="wrap_content"   
+        android:layout_height="wrap_content" 
+        android:id="@+id/cb"
+        android:focusable="false"
+        /&gt;
+
+
+&lt;/LinearLayout&gt;
+</code></pre>
+
+<p>布局文件要特别说明两个属性</p>
+
+<pre><code class="xml">android:textSize="10sp" --设置text的大小
+android:focusable="false" --设置焦点属性不可见
+</code></pre>
+
+<pre><code class="java">package com.example.listview2;
+
+import java.util.List;
+import java.util.Map;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class MyAdapter extends BaseAdapter {
+
+
+    private LayoutInflater mInflater;
+    private List&lt;Map&lt;String, Object&gt;&gt; list;
+    private int layId;
+    private String flag[];
+    private int itemId[];
+
+
+
+    public MyAdapter(Context context, List&lt;Map&lt;String, Object&gt;&gt; list,
+            int layId, String[] flag, int itemId[]) {
+        this.mInflater = LayoutInflater.from(context);
+        this.list = list;
+        this.layId = layId;
+        this.flag = flag;
+        this.itemId = itemId;
+    }
+
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long getItemId(int arg0) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public View getView(int arg0, View arg1, ViewGroup arg2) {
+        // TODO Auto-generated method stub
+        arg1 = mInflater.inflate(layId, null);
+        for (int i = 0; i &lt; flag.length; i++) {
+            if (arg1.findViewById(itemId[i]) instanceof ImageView) {
+                ImageView iv = (ImageView)arg1.findViewById(itemId[i]);
+                iv.setBackgroundResource((Integer) list.get(arg0).get(flag[i]));
+            }else if (arg1.findViewById(itemId[i]) instanceof TextView) {
+                TextView tv = (TextView)arg1.findViewById(itemId[i]);
+                tv.setText((String)list.get(arg0).get(flag[i]));
+            }
+        }
+
+        ((Button) arg1.findViewById(R.id.btn))
+            .setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                new AlertDialog.Builder(MainActivity.ma)
+                .setTitle("自定义SimpleAdapter")
+                .setMessage("按钮成功触发监听事件！")
+                .show();
+            }
+        });
+        CheckBox cb = (CheckBox) arg1.findViewById(R.id.cb);
+
+        cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // TODO Auto-generated method stub
+                new AlertDialog.Builder(MainActivity.ma)
+                .setTitle("自定义 adapter")
+                .setMessage("触发选择框")
+                .show();
+            }
+        });
+
+        return arg1;
+    }
+
+}
+</code></pre>
+
+<p>MyAdapter代码里</p>
+
+<pre><code class="java">new AlertDialog.Builder(MainActivity.ma)
+.setTitle("自定义 adapter")
+.setMessage("触发选择框")
+.show();
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;表示弹出对话框，与Toast不同的是 该对话框要按返回才会退出，而Toast是一闪而过的，对话框在下一讲详细阐述
+MainActivity.ma是定义在MainActivity的静态变量指向this自己</p>
+
+<p>MainActivity代码</p>
+
+<pre><code class="java">package com.example.listview2;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
+public class MainActivity extends Activity {
+    private ListView lv;
+    private List&lt;Map&lt;String, Object&gt;&gt; list;
+    //private SimpleAdapter sp;
+    public static MainActivity ma;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ma = this;
+
+        lv = new ListView(this);
+
+        list = new ArrayList&lt;Map&lt;String,Object&gt;&gt;();
+
+        Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
+        map.put("item1", R.drawable.ic_launcher);
+        map.put("item2", "bigtv");
+        map.put("item3", "smalltv");
+
+        list.add(map);
+
+
+        //sp = new SimpleAdapter(MainActivity.this, list, R.layout.activity_main, new String[] {"item1","item2","item3","item4","item5"}, new int[] {R.id.iv,R.id.bigtv,R.id.smalltv,R.id.btn,R.id.cb});
+        //lv.setAdapter(sp);
+
+           // --使用自定义适配器，可监听其ListView中每一项的事件监听
+        MyAdapter adapter = new MyAdapter(this, list, R.layout.activity_main, new String[] {"item1","item2","item3"}, new int[] {R.id.iv,R.id.bigtv,R.id.smalltv});
+             // 为列表视图设置适配器（将数据映射到列表视图中）
+            lv.setAdapter(adapter);
+             // //显示列表视图
+
+        this.setContentView(lv);
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+}
+</code></pre>
+
+<p>运行效果
+<img src="http://images.cnitblog.com/blog/602984/201402/151210441191376.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

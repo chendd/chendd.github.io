@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Paint | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/paint/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记8--Paint画笔]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/24/android_study_08/"/>
+    <updated>2014-02-24T22:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/24/android_study_08</id>
+    <content type="html"><![CDATA[<h2>Paint</h2>
+
+<p>&#160; &#160; &#160; &#160;要绘图，首先得调整画笔，待画笔调整好之后，再将图像绘制到画布Canvas上，
+这样才可以显示在手机屏幕上。Android 中的画笔是 Paint类，Paint 中包含了很多方法对其属性进行设置，</p>
+
+<p>Paint方法一般可分两类，图形的绘制和文本的绘制
+主要方法如下：（没有全部列出，大家可以查看<a href="http://android.toolib.net/reference/android/graphics/Paint.html">官方文档</a> ）</p>
+
+<!--more-->
+
+
+<pre><code class="java">canvas.drawColor(Color.GREEN);
+
+Paint paint1 = new Paint();
+canvas.drawCircle(40, 30, 20, paint1);
+
+//设置画笔无锯齿，默认有锯齿
+paint1.setAntiAlias(true);
+canvas.drawCircle(100, 30, 20, paint1);
+
+//设置画笔的透明度
+canvas.drawText("无透明度", 100, 70, new Paint());
+Paint paint2 = new Paint();
+paint2.setAlpha(0x77);
+canvas.drawText("半透明度", 20, 70, paint2);
+
+//设置绘制文本的锚点
+canvas.drawText("锚点", 20, 90, new Paint());
+Paint paint3 = new Paint();
+
+//设置以文本的中心点绘制
+paint3.setTextAlign(Paint.Align.CENTER);
+canvas.drawText("锚点", 20, 105, paint3);
+
+//获取文本的长度
+Paint paint4 = new Paint();
+float len =paint4.measureText("文本宽度:");
+canvas.drawText("文本长度:"+len, 20, 130, new Paint());
+
+//设置画笔样式
+canvas.drawRect(new Rect(20,140,40,160), new Paint());
+Paint paint5 = new Paint();
+
+//设置画笔不填充
+paint5.setStyle(Style.STROKE);
+canvas.drawRect(new Rect(60,140,80,160), paint5);
+
+//设置画笔颜色
+Paint paint6 = new Paint();
+paint6.setColor(Color.GRAY);
+canvas.drawText("灰色", 30, 180, paint6);
+
+//设置画笔的粗细程度
+canvas.drawLine(20, 200,70, 200, new Paint());
+Paint paint7 = new Paint();
+paint7.setStrokeWidth(7);
+canvas.drawLine(20, 220,70, 220,paint7);
+
+//设置画笔绘制文本的字体粗细
+Paint paint8 = new Paint();
+paint8.setTextSize(20);
+canvas.drawText("文字尺寸", 20, 260, paint8);
+
+//设置画笔的ARGB分量 ，a值 (透明度)
+Paint paint9 = new Paint();
+paint9.setARGB(0x77, 0xff, 0x00, 0x00);
+canvas.drawText("红色半透明", 20, 290, paint9);
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/182002322713875.png" alt="image" /></p>
+]]></content>
+  </entry>
+  
+</feed>

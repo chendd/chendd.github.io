@@ -79,7 +79,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2016/07/26/build_octopress_in_window/">Octopress写博客步骤</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a></h1>
     
     
       <p class="meta">
@@ -88,26 +88,24 @@
 
 
 
-<time class='entry-date' datetime='2016-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2014-02-28T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>使用Octopress写博客大致有一下几个步骤：</p>
+  <div class="entry-content"><h2>裁剪区域</h2>
 
-<ol>
-<li><p>执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；</p></li>
-<li><p>找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑；</p></li>
-</ol>
+<p>&#160; &#160; &#160; &#160;裁剪是画布的一个函数，区域可以是矩形和圆形，也可以通过设置 path 或Region来显示自定义区域，通过不同组合，Android几乎可以支持任意现状的裁剪区域。</p>
 
+<p>&#160; &#160; &#160; &#160;android.graphics包中定义了Point, Rect, Path, Region 这几种几何形状，Path可以为有圆弧，椭圆，二次曲线，三次曲线，线段，矩形等基本几何图形或是由这些基本几何图形组合而成，Path可以为开放或是闭合曲线。Rect提供了定义矩形的简洁方法。</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2016/07/26/build_octopress_in_window/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2014/02/28/android_study_10/">Read on &rarr;</a>
     </footer>
   
 
@@ -119,7 +117,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2016/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a></h1>
     
     
       <p class="meta">
@@ -128,20 +126,349 @@
 
 
 
-<time class='entry-date' datetime='2016-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+<time class='entry-date' datetime='2014-02-25T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
+  <div class="entry-content"><h2>Bitmap</h2>
+
+<p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2016/07/25/use_markdown_in_octopress/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2014/02/25/android_study_09/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-24T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Paint</h2>
+
+<p>&#160; &#160; &#160; &#160;要绘图，首先得调整画笔，待画笔调整好之后，再将图像绘制到画布Canvas上，
+这样才可以显示在手机屏幕上。Android 中的画笔是 Paint类，Paint 中包含了很多方法对其属性进行设置，</p>
+
+<p>Paint方法一般可分两类，图形的绘制和文本的绘制
+主要方法如下：（没有全部列出，大家可以查看<a href="http://android.toolib.net/reference/android/graphics/Paint.html">官方文档</a> ）</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/24/android_study_08/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-22T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>1、Canvas</h4>
+
+<p>&#160; &#160; &#160; &#160;Canvas类主要实现了屏幕的绘制过程，其中包含了很多实用的方法，比如绘制一条路径、区域、贴图、画点、画线、渲染文本，
+当然Android官网提示大家很多方法有不同的重载版本，参数更灵活。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/22/android_study_07/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-20T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、API关SurfaceView的介绍</h2>
+
+<p>&#160; &#160; &#160; &#160;SurfaceView是视图(View)的继承类，这个视图里内嵌了一个专门用于绘制的Surface。你可以控制这个Surface的格式和尺寸。Surfaceview控制这个Surface的绘制位置。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/20/android_study_06/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/19/android_study_05/">android学习日记5--View视图</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-19T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、android 界面开发</h2>
+
+<h4>1、三个重要的类：View视图、Canvas画布、Paint画笔</h4>
+
+<h4>2、android 界面开发常用三种视图</h4>
+
+<ul>
+<li>View            &ndash;只能在主线程中更新，没有缓存机制，适合画面更新较少的界面，比如有按键按下才变化的界面。</li>
+<li>SurfaceView &ndash;可以设置独立的线程，有缓存机制，主要用于2D游戏</li>
+<li>GLSurfaceView &ndash;主要用于3D游戏，暂时不学习</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/19/android_study_05/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/19/android_study_04/">Android学习日记4--开发中的通用细节</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-19T21:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>1、android中的计量单位</h4>
+
+<ul>
+<li>px （pixels）（像素）：是屏幕的物理像素点，与密度相关，密度大了，单位面积上的px会比较多。通常不推荐使用这个</li>
+<li>pt(磅):1/72英寸,也较少用</li>
+<li>in(英寸):标准长度单位</li>
+<li>mm(毫米):标准长度单位</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/19/android_study_04/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/17/android_study_03_7/">Android学习日记3--常用控件总结</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-17T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h3>10、常用控件总结</h3>
+
+<p>&#160; &#160; &#160; &#160;Android控件种类繁多，但常用的无非这几种，当然有些高级控件可能特殊点，至此，常用控件就讲这些。如果开发时遇到陌生控件再去查API文档。</p>
+
+<p>附件是转载的控件常用属性讲解，不求记忆，但得知道有这么些属性。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/17/android_study_03_7/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/16/android_study_03_6/">android学习日记3--常用控件Dialog</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-16T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h4>9、Dialog</h4>
+
+<p>&#160; &#160; &#160; &#160;我们经常会需要在Android界面上弹出一些对话框，比如询问用户或者让用户选择。这些功能我们叫它Android Dialog对话框</p>
+
+<p>对话框，要创建对话框之前首先要创建Builder类创建者，Builder是AlertDialog的子类，而且还是它的内部类。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/16/android_study_03_6/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/15/android_study_03_5/">android学习日记3--常用控件ListView</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-15T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h4>8、ListView</h4>
+
+<p>&#160; &#160; &#160; &#160;列表视图，比如游戏的排行榜。列表数据可以根据屏幕大小自适应</p>
+
+<p>列表的显示需要三个元素：</p>
+
+<ul>
+<li><p>ListVeiw:用来展示列表的View。</p></li>
+<li><p>适配器:用来把数据映射到ListView上的中介。</p></li>
+<li><p>数据:具体的将被映射的字符串，图片，或者基本组件。</p></li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/15/android_study_03_5/">Read on &rarr;</a>
     </footer>
   
 
@@ -149,6 +476,8 @@
     </article>
   
   <div class="pagination">
+    
+      <a class="prev" href="/posts/2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -161,11 +490,23 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/07/26/build_octopress_in_window/">Octopress写博客步骤</a>
+        <a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2016/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a>
+        <a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a>
       </li>
     
   </ul>
@@ -177,14 +518,34 @@
 <section>
   <h1>Tags</h1>
   <ul class="tag-cloud">
+<li><a style="font-size: 60%" href="/tags/bitmap/">BitMap</a></li>
+<li><a style="font-size: 60%" href="/tags/canvas/">Canvas</a></li>
+<li><a style="font-size: 60%" href="/tags/dialog/">Dialog</a></li>
+<li><a style="font-size: 60%" href="/tags/listview/">ListView</a></li>
 <li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
-<li><a style="font-size: 165%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 86%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/paint/">Paint</a></li>
+<li><a style="font-size: 60%" href="/tags/surfaceview/">SurfaceView</a></li>
+<li><a style="font-size: 60%" href="/tags/view/">View</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/progressbar/">progressbar</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+<li><a style="font-size: 60%" href="/tags/seekbar/">seekbar</a></li>
+<li><a style="font-size: 60%" href="/tags/tabhost/">tabHost</a></li>
+<li><a style="font-size: 60%" href="/tags/tabspec/">tabSpec</a></li>
+<li><a style="font-size: 60%" href="/tags/xi-jie/">细节</a></li>
+<li><a style="font-size: 60%" href="/tags/cai-jian/">裁剪</a></li>
 
   </ul>
 </section><section>
   <h1>Categories</h1>
   <ul id="categories">
-    <li class='category'><a href='/blog/categories/博客使用/'>博客使用 (2)</a></li>
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (17)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 
   </ul>
 </section>

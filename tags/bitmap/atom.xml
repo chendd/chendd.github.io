@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: BitMap | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/bitmap/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记9--BitMap操作]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/25/android_study_09/"/>
+    <updated>2014-02-25T22:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/25/android_study_09</id>
+    <content type="html"><![CDATA[<h2>Bitmap</h2>
+
+<p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;android支持一些方法对图像的平移、剪切、旋转、缩放等操作这样子可以用一张图片经过变化得到自己想要的，节省很多系统资源。</p>
+
+<p>&#160; &#160; &#160; &#160;由于手机系统资源有限，没用的图像要及时回收，否则会产生OOM，isRecycled()判读该Bitmap是否可回收，recycle()强制Bitmap自我回收。</p>
+
+<h4>1、android 系统图像的简单变化例子：</h4>
+
+<pre><code class="java">// 获取图标图像的实例
+Bitmap bitmap = BitmapFactory.decodeResource(this.getResources()
+　　　　　　　　　　　　　　, R.drawable.ic_launcher);
+// 绘制图像
+canvas.drawBitmap(bitmap, 0, 0, paint);
+// 保存当前状态
+canvas.save();
+
+// 绕图像中点旋转90度
+canvas.rotate(30, bitmap.getWidth()/2, bitmap.getHeight()/2);
+// 为了不重叠，画在(50,0)这点,x,y轴相对旋转也发生变化
+canvas.drawBitmap(bitmap, 50, 0, paint);
+
+//恢复上次保存的状态与save()对应
+canvas.restore();
+canvas.drawBitmap(bitmap, 100, 100, paint);
+
+//平移
+canvas.translate(0, 50);
+canvas.drawBitmap(bitmap, 100, 100, paint);
+
+// 缩放，参数分别表示：x轴缩放2倍，y轴缩放2倍，3，4参数表示缩放的起始点
+canvas.scale(2, 2, 50+bitmap.getWidth()/2, 50+bitmap.getHeight()/2);
+canvas.drawBitmap(bitmap, 100, 100, paint);
+
+// 相对y轴镜像
+canvas.scale(1, -1, 50+bitmap.getWidth()/2, 50+bitmap.getHeight()/2);
+canvas.drawBitmap(bitmap, 100, 100, paint);
+</code></pre>
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/202006478416495.jpg" alt="image" /></p>
+
+<h4>2、png格式和其他图像格式的区别是，png图像支持背景是透明的，</h4>
+
+<p>可以多个图像叠加在一起，而其他格式的图片就会被旁白覆盖</p>
+
+<pre><code class="java">//绘制一张背景图片，充满整个屏幕
+Bitmap bitmap1 = BitmapFactory.decodeResource(this.getResources()
+　　　　　　　　　　　　　　　　　　　　, R.drawable.background);
+canvas.drawBitmap(bitmap1, 0, 0, paint);
+
+// png的图片，左边螃蟹边缘是透明的，因此不会有问题
+Bitmap bitmap2 = BitmapFactory.decodeResource(this.getResources()
+　　　　　　　　　　　　　　, R.drawable.crab);
+canvas.drawBitmap(bitmap2, 20, 200, paint);
+
+// jpg的图片，右边螃蟹边缘把背景遮挡了
+Bitmap bitmap3 = BitmapFactory.decodeResource(this.getResources()
+　　　　　　　　　　　　　　, R.drawable.carb2);
+canvas.drawBitmap(bitmap3, 200, 230, paint);
+</code></pre>
+
+<p>效果图如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/202009215387750.jpg" alt="image" /></p>
+
+<p>左边的螃蟹图片是png格式的，右边则是jpg格式的，明显右边螃蟹还留有矩形的空白。</p>
+
+<p>3、Bitmap通过均匀改变draw的横纵坐标或者切换图片就会呈现动画的效果,</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161125238409409.png" alt="image" /></p>
+
+<p>上图是一张波浪的图片</p>
+
+<p>canvas.drawBitmap(bmp, x, y, new Paint());</p>
+
+<p>新建个线程：x+=1，就可以看到海水在动。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161127479021832.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161127569961254.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128073712718.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128152938597.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128248241719.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128354964625.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128440747904.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128538556482.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129022463520.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129090278613.png" alt="image" /></p>
+
+<p>上面则是9张卡通鱼的图片，分别命名fish0~fish9，通过来回不断切换图片，就会看到鱼儿在游动</p>
+
+<p>运行效果（由于博主不会录制gif图片，囧！就截2张图，读者自己脑补吧）：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161133207937998.png" alt="image" /> <img src="http://images.cnitblog.com/i/602984/201403/161215537618984.png" alt="image" /></p>
+
+<p>SurfaceView主要代码：</p>
+
+<pre><code class="java">public MySurfaceView(Context context) {
+        super(context);
+        // TODO Auto-generated constructor stub
+        sfh = this.getHolder();
+        sfh.addCallback(this);
+        paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setAntiAlias(true);
+        setFocusable(true);
+        for (int i = 0; i &lt; fishBmp.length; i++) {
+            fishBmp[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.fish0 + i);
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width,
+            int height) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        // TODO Auto-generated method stub
+        bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.water);
+        x = -bmp.getWidth() + this.getWidth();
+        //Log.v("chendd", "bmp:"+bmp.getWidth() );
+        //Log.v("chendd", "this:"+this.getWidth() );
+        y = this.getHeight() - bmp.getHeight();
+        flag = true;
+        //实例线程
+        th = new Thread(this);
+        //启动线程
+        th.start();
+        //Mydraw();
+    }
+
+    private void Mydraw() {
+        // TODO Auto-generated method stub
+        try {
+            canvas = sfh.lockCanvas();
+            if (canvas != null) {
+                canvas.drawColor(Color.WHITE);
+                canvas.drawBitmap(bmp, x, y, new Paint());
+                canvas.drawBitmap(fishBmp[currentFrame], this.getWidth()/2, this.getHeight()-60, paint);
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        } finally {
+            if (canvas != null)
+                sfh.unlockCanvasAndPost(canvas);
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // TODO Auto-generated method stub
+        Mydraw();
+        return true;
+    }
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        while (flag) {
+            long start = System.currentTimeMillis();
+            Mydraw();
+            logic();
+            long end = System.currentTimeMillis();
+            try {
+                if (end - start &lt; 10) {
+                    Thread.sleep(10 - (end - start));
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void logic() {
+        // TODO Auto-generated method stub
+        //Log.v("chendd", "x:"+x );
+        if(x == (-bmp.getWidth()/2 + this.getWidth())){
+            x = -bmp.getWidth() + this.getWidth();
+        }else {
+            x+=1;
+        }
+        currentFrame++;
+        if (currentFrame &gt;= fishBmp.length) {
+            currentFrame = 0;
+        }
+
+    }
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

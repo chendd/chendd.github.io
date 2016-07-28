@@ -1,0 +1,615 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>android学习日记9--BitMap操作 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="Bitmap &#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2014/02/25/android_study_09/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">android学习日记9--BitMap操作</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-25T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Bitmap</h2>
+
+<p>&#160; &#160; &#160; &#160;android里的图像处理重要的类，支持jpg、png、bmp等格式的图像，BitmapDrawable是封装Bitmap的一个对象，Bitmap实现在android.graphics包中。但是Bitmap类的构造函数是私有的，外面并不能实例化，只能是通过JNI(Java Native Interface JAVA本地调用)实例化。这必然是 某个辅助类提供了创建Bitmap的接口，而这个类的实现通过JNI接口来实例化Bitmap的，这个类就是BitmapFactory。利用BitmapFactory可以从一个指定文件中，利用decodeFile()解出Bitmap；也可以定义的图片资源中，利用decodeResource()解出Bitmap　　</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;android支持一些方法对图像的平移、剪切、旋转、缩放等操作这样子可以用一张图片经过变化得到自己想要的，节省很多系统资源。</p>
+
+<p>&#160; &#160; &#160; &#160;由于手机系统资源有限，没用的图像要及时回收，否则会产生OOM，isRecycled()判读该Bitmap是否可回收，recycle()强制Bitmap自我回收。</p>
+
+<h4>1、android 系统图像的简单变化例子：</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 获取图标图像的实例</span>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bitmap</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">()</span>
+</span><span class='line'>　　　　　　　　　　　　　　<span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_launcher</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 绘制图像</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 保存当前状态</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">save</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 绕图像中点旋转90度</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">rotate</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">bitmap</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()/</span><span class="mi">2</span><span class="o">,</span> <span class="n">bitmap</span><span class="o">.</span><span class="na">getHeight</span><span class="o">()/</span><span class="mi">2</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 为了不重叠，画在(50,0)这点,x,y轴相对旋转也发生变化</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">50</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//恢复上次保存的状态与save()对应</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">restore</span><span class="o">();</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//平移</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">translate</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">50</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 缩放，参数分别表示：x轴缩放2倍，y轴缩放2倍，3，4参数表示缩放的起始点</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">scale</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">bitmap</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()/</span><span class="mi">2</span><span class="o">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">bitmap</span><span class="o">.</span><span class="na">getHeight</span><span class="o">()/</span><span class="mi">2</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 相对y轴镜像</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">scale</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">bitmap</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()/</span><span class="mi">2</span><span class="o">,</span> <span class="mi">50</span><span class="o">+</span><span class="n">bitmap</span><span class="o">.</span><span class="na">getHeight</span><span class="o">()/</span><span class="mi">2</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/202006478416495.jpg" alt="image" /></p>
+
+<h4>2、png格式和其他图像格式的区别是，png图像支持背景是透明的，</h4>
+
+<p>可以多个图像叠加在一起，而其他格式的图片就会被旁白覆盖</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//绘制一张背景图片，充满整个屏幕</span>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bitmap1</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">()</span>
+</span><span class='line'>　　　　　　　　　　　　　　　　　　　　<span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">background</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// png的图片，左边螃蟹边缘是透明的，因此不会有问题</span>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bitmap2</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">()</span>
+</span><span class='line'>　　　　　　　　　　　　　　<span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">crab</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap2</span><span class="o">,</span> <span class="mi">20</span><span class="o">,</span> <span class="mi">200</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// jpg的图片，右边螃蟹边缘把背景遮挡了</span>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bitmap3</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">()</span>
+</span><span class='line'>　　　　　　　　　　　　　　<span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">carb2</span><span class="o">);</span>
+</span><span class='line'><span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bitmap3</span><span class="o">,</span> <span class="mi">200</span><span class="o">,</span> <span class="mi">230</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>效果图如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/202009215387750.jpg" alt="image" /></p>
+
+<p>左边的螃蟹图片是png格式的，右边则是jpg格式的，明显右边螃蟹还留有矩形的空白。</p>
+
+<p>3、Bitmap通过均匀改变draw的横纵坐标或者切换图片就会呈现动画的效果,</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161125238409409.png" alt="image" /></p>
+
+<p>上图是一张波浪的图片</p>
+
+<p>canvas.drawBitmap(bmp, x, y, new Paint());</p>
+
+<p>新建个线程：x+=1，就可以看到海水在动。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161127479021832.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161127569961254.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128073712718.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128152938597.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128248241719.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128354964625.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128440747904.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161128538556482.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129022463520.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/161129090278613.png" alt="image" /></p>
+
+<p>上面则是9张卡通鱼的图片，分别命名fish0~fish9，通过来回不断切换图片，就会看到鱼儿在游动</p>
+
+<p>运行效果（由于博主不会录制gif图片，囧！就截2张图，读者自己脑补吧）：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/161133207937998.png" alt="image" /> <img src="http://images.cnitblog.com/i/602984/201403/161215537618984.png" alt="image" /></p>
+
+<p>SurfaceView主要代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">MySurfaceView</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated constructor stub</span>
+</span><span class='line'>        <span class="n">sfh</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getHolder</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sfh</span><span class="o">.</span><span class="na">addCallback</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">paint</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Paint</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">paint</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">WHITE</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">paint</span><span class="o">.</span><span class="na">setAntiAlias</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setFocusable</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fishBmp</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">fishBmp</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">fish0</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">surfaceChanged</span><span class="o">(</span><span class="n">SurfaceHolder</span> <span class="n">holder</span><span class="o">,</span> <span class="kt">int</span> <span class="n">format</span><span class="o">,</span> <span class="kt">int</span> <span class="n">width</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">height</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">surfaceCreated</span><span class="o">(</span><span class="n">SurfaceHolder</span> <span class="n">holder</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="n">bmp</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">water</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">bmp</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">getWidth</span><span class="o">();</span>
+</span><span class='line'>        <span class="c1">//Log.v(&quot;chendd&quot;, &quot;bmp:&quot;+bmp.getWidth() );</span>
+</span><span class='line'>        <span class="c1">//Log.v(&quot;chendd&quot;, &quot;this:&quot;+this.getWidth() );</span>
+</span><span class='line'>        <span class="n">y</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getHeight</span><span class="o">()</span> <span class="o">-</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getHeight</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">flag</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>        <span class="c1">//实例线程</span>
+</span><span class='line'>        <span class="n">th</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Thread</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">//启动线程</span>
+</span><span class='line'>        <span class="n">th</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>        <span class="c1">//Mydraw();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">Mydraw</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">canvas</span> <span class="o">=</span> <span class="n">sfh</span><span class="o">.</span><span class="na">lockCanvas</span><span class="o">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">canvas</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">canvas</span><span class="o">.</span><span class="na">drawColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">WHITE</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="k">new</span> <span class="nf">Paint</span><span class="o">());</span>
+</span><span class='line'>                <span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">fishBmp</span><span class="o">[</span><span class="n">currentFrame</span><span class="o">],</span> <span class="k">this</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()/</span><span class="mi">2</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">getHeight</span><span class="o">()-</span><span class="mi">60</span><span class="o">,</span> <span class="n">paint</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// TODO: handle exception</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">canvas</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>                <span class="n">sfh</span><span class="o">.</span><span class="na">unlockCanvasAndPost</span><span class="o">(</span><span class="n">canvas</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">surfaceDestroyed</span><span class="o">(</span><span class="n">SurfaceHolder</span> <span class="n">holder</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="n">Mydraw</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="k">while</span> <span class="o">(</span><span class="n">flag</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">Mydraw</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">logic</span><span class="o">();</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">end</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">10</span> <span class="o">-</span> <span class="o">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="o">));</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">logic</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
+</span><span class='line'>        <span class="c1">//Log.v(&quot;chendd&quot;, &quot;x:&quot;+x );</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">x</span> <span class="o">==</span> <span class="o">(-</span><span class="n">bmp</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()/</span><span class="mi">2</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">getWidth</span><span class="o">())){</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">bmp</span><span class="o">.</span><span class="na">getWidth</span><span class="o">()</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">getWidth</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">x</span><span class="o">+=</span><span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">currentFrame</span><span class="o">++;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">currentFrame</span> <span class="o">&gt;=</span> <span class="n">fishBmp</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">currentFrame</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-02-25T22:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android-study/'>android_study</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/24/android_study_08/" title="Previous Post: android学习日记8--Paint画笔">&laquo; android学习日记8--Paint画笔</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/28/android_study_10/" title="Next Post: android学习日记10--裁剪区域">android学习日记10--裁剪区域 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2014/02/25/android_study_09" data-title="android学习日记9--BitMap操作" data-url="http://chendd.github.io/blog/2014/02/25/android_study_09/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 60%" href="/tags/bitmap/">BitMap</a></li>
+<li><a style="font-size: 60%" href="/tags/canvas/">Canvas</a></li>
+<li><a style="font-size: 60%" href="/tags/dialog/">Dialog</a></li>
+<li><a style="font-size: 60%" href="/tags/listview/">ListView</a></li>
+<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
+<li><a style="font-size: 86%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/paint/">Paint</a></li>
+<li><a style="font-size: 60%" href="/tags/surfaceview/">SurfaceView</a></li>
+<li><a style="font-size: 60%" href="/tags/view/">View</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/progressbar/">progressbar</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+<li><a style="font-size: 60%" href="/tags/seekbar/">seekbar</a></li>
+<li><a style="font-size: 60%" href="/tags/tabhost/">tabHost</a></li>
+<li><a style="font-size: 60%" href="/tags/tabspec/">tabSpec</a></li>
+<li><a style="font-size: 60%" href="/tags/xi-jie/">细节</a></li>
+<li><a style="font-size: 60%" href="/tags/cai-jian/">裁剪</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (17)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

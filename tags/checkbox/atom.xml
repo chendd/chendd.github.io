@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: checkbox | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/checkbox/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记3--常用控件checkbox/radiobutton]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/10/android_study_03_2/"/>
+    <updated>2014-02-10T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/10/android_study_03_2</id>
+    <content type="html"><![CDATA[<h2>常用控件</h2>
+
+<h3>3、checkbox</h3>
+
+<p>&#160; &#160; &#160; &#160;复选框，确定是否勾选,点击一下勾选，点击第二下取消，当有一系列备选项时适合用checkbox控件，方便用户提交数据。</p>
+
+<!--more-->
+
+
+<p>贴上例子Activity的java代码</p>
+
+<pre><code class="java">package com.example.checkbox;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.TextView;
+
+public class MainActivity extends Activity implements OnCheckedChangeListener{
+
+    private CheckBox cb1,cb2,cb3;
+    private TextView tv;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        cb1 = (CheckBox)findViewById(R.id.cb1);
+        cb2 = (CheckBox)findViewById(R.id.cb2);
+        cb3 = (CheckBox)findViewById(R.id.cb3);
+
+        cb1.setOnCheckedChangeListener(this);
+        cb2.setOnCheckedChangeListener(this);
+        cb3.setOnCheckedChangeListener(this);
+
+        tv = (TextView)findViewById(R.id.tv);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        // TODO Auto-generated method stub
+        if(cb1 == buttonView||cb2 == buttonView||cb3 == buttonView) {
+            if(isChecked) {
+                showToast(buttonView.getText()+"选中");
+            } else {
+                showToast(buttonView.getText()+"取消");
+            }
+        }
+
+    }
+
+    public void showToast(String str) {
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
+
+}
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;用法同前面的button，不再赘述，代码新增
+Toast.makeText(this, st, Toast.LENGTH_SHORT);</p>
+
+<p>Toast译为土司，类似切片面包，用于弹出提示信息,Toast是Android中用来显示显示信息的一种机制，和Dialog不一样的是，Toast是没有焦点的，而且Toast显示的时间有限，过一定的时间就会自动消失，后面有机会再详细介绍Toast(这里有介绍：android学习日记21&ndash;消息提示之Toast和Notification)</p>
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/102136522347792.png" alt="image" /></p>
+
+<p>&ldquo;网球选中"就是Toast的弹出消息，爱好有很多种，可以同时选足球和网球。</p>
+
+<h3>4、radiobutton</h3>
+
+<p>&#160; &#160; &#160; &#160;radiobutton 与checkbox对应区别是rb是一组选择框，只能选择其中一个，而且radiobutton一般与RadioGroup一起用</p>
+
+<p>而且rb一般是圆形的，checkbox是方形的；不同RadioGroup互不相干，一般有两个或两个以上的选项，并且有默认值。</p>
+
+<pre><code class="java">package com.example.radiobutton;
+
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.RadioGroup.OnCheckedChangeListener;
+
+public class MainActivity extends Activity implements OnCheckedChangeListener{
+
+    private RadioGroup rg;
+    private RadioButton rb1,rb2;
+    private TextView tv;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        rg = (RadioGroup)findViewById(R.id.rg);
+        rb1 = (RadioButton)findViewById(R.id.rb1);
+        rb2 = (RadioButton)findViewById(R.id.rb2);
+        tv = (TextView)findViewById(R.id.tv);
+
+        rg.setOnCheckedChangeListener(this);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        // TODO Auto-generated method stub
+        if (group == rg) {
+            String rbstr = null;
+            if (checkedId == rb1.getId()) {
+                rbstr = rb1.getText()+"选中";
+                //tv.setText(rbstr);
+            }else if(checkedId == rb2.getId()) {
+                rbstr = rb2.getText()+"选中";
+                //tv.setText(rbstr);
+            }
+            showToast(rbstr);
+        }
+    }
+
+    public void showToast(String str) {
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
+
+}
+</code></pre>
+
+<p>效果如下：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/102137179913726.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;性别只能选男女中的一个(不考虑人妖哈！)。最好用单选框，选radiobutton。</p>
+]]></content>
+  </entry>
+  
+</feed>

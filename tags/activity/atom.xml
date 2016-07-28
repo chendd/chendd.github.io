@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: activity | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/activity/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android学习日记2--Activity简介]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/09/android_study_02/"/>
+    <updated>2014-02-09T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/09/android_study_02</id>
+    <content type="html"><![CDATA[<h2>一、Activity活动</h2>
+
+<p>&#160; &#160; &#160; &#160;学习Android，第一个都会接触Activity滴，Activity表示一个用户界面，是Android应用程序的入口，可以同时有多个界面，但只会显示栈顶的界面。</p>
+
+<p>&#160; &#160; &#160; &#160;Activity是Android的重要组成部分，一个程序包括多个Activity，新建项目都会有个程序启动时就调用的MainActivity。新定义Activity需在AndroidManifest配置。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;如下是最简单的配置方式：
+<code>xml
+&lt;activity
+    android:name=".OtherActivity"
+    android:label="other" &gt;
+&lt;/activity&gt;
+</code></p>
+
+<h2>二、Activity的生命周期</h2>
+
+<p>&#160; &#160; &#160; &#160;Activity的生命周期交由系统管理，每个Activity都是平等的，Activity拥有四种基本状态</p>
+
+<ul>
+<li><p>Active/Running:一个新的Activity启动入栈后，它在屏幕的最前端，处于栈顶。此时它处于可见和可交互状态；</p></li>
+<li><p>Pause:当Activity被一个透明的或Dialog样式的Activity覆盖时，它虽然仍与窗口管理器联系，仍然可见，但是此时它是失去焦点，不可交互的；</p></li>
+<li><p>Stop:当Activity被另一个Activity覆盖时，完全不可见，并且不可交互，此时处于stop状态；</p></li>
+<li><p>Kill:被系统进程杀死或者回收的状态，由于系统资源有限，越是处于栈的底层，越容易被回收；</p></li>
+</ul>
+
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/092143142323989.jpg" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;上面是google官方的Activity生命周期示意图，看图比较好理解和记忆Activity生命周期。结合生命周期状态来讲讲生命周期相关方法</p>
+
+<ul>
+<li><p>onCreate:Activity被启动的调用的第一个方法，作为应用程序的入口点，一般做些 数据初始化和加载用户界面的工作；</p></li>
+<li><p>onStart:在onCreate之后被调用，或者一个Activity从Stop变为Active状态；</p></li>
+<li><p>onResume:从Pause状态被切换为Active状态时被调用；</p></li>
+<li><p>onStop:从Active状态被切换为Stop状态时被调用，一般在这里保存Activity的状态信息；</p></li>
+<li><p>onDestroy:在Active被结束时调用，一般做些释放资源，清除内存等工作。</p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;此外还有一些不常用的方法如"重新启动 onRestart",&ldquo;暂停 onPause&rdquo;</p>
+
+<p>&#160; &#160; &#160; &#160;我们可以新建个Activity，Android.util的 Log类可以实现Android输出Log这一操作，</p>
+
+<p>&#160; &#160; &#160; &#160;该类提供了若干静态方法</p>
+
+<pre><code class="java">Log.v(String tag, String msg); 
+Log.d(String tag, String msg); 
+Log.i(String tag, String msg); 
+Log.w(String tag, String msg); 
+Log.e(String tag, String msg);
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;分别对应 Verbose, Debug, Info, Warning,Error.</p>
+
+<p>tag是一个标识,可以是任意字符串,通常可以使用类名+方法名, 主要是用来在查看日志时提供一个筛选条件。
+如Log.v(tag, msg)用来打印日志查看不同状态间的切换或不同方法的执行情况。</p>
+
+<pre><code class="java">    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Log.v("MainActivity", "onCreate");
+    }
+
+    @Override
+    protected void onStart() {
+        // TODO Auto-generated method stub
+        super.onStart();
+        Log.v("MainActivity", "onStart");
+    }
+
+    @Override
+    protected void onStop() {
+        // TODO Auto-generated method stub
+        super.onStop();
+        Log.v("MainActivity", "onStop");
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        Log.v("MainActivity", "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        Log.v("MainActivity", "onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        Log.v("MainActivity", "onDestroy");
+    }
+</code></pre>
+
+<h2>三、Activity栈</h2>
+
+<p>&#160; &#160; &#160; &#160;Android 是通过一种 Activity 栈的方式来管理 Activity 的，一个 Activity 的实例的状态决定它在栈中的位置。处于前台的 Activity 总是在栈的顶端，当前台的 Activity 因为异常或其它原因被销毁时，处于栈第二层的 Activity 将被激活，上浮到栈顶。当新的 Activity 启动入栈时，原 Activity 会被压入到栈的第二层。一个 Activity 在栈中的位置变化反映了它在不同状态间的转换。</p>
+
+<p>&#160; &#160; &#160; &#160;除了最顶层即处在 Active 状态的 Activity 外，其它的 Activity 都有可能在系统内存不足时被回收，一个 Activity 的实例越是处在栈的底层，它被系统回收的可能性越大。系统负责管理栈中 Activity 的实例，它根据 Activity 所处的状态来改变其在栈中的位置。</p>
+
+<h2>四、Activity的加载模式</h2>
+
+<p>&#160; &#160; &#160; &#160;Activity有四种加载模式(一直忽略这个细节)，使用适合的加载模式可以避免产生大量的重复的Activity，从而优化性能，减少系统资源消耗。具体为：</p>
+
+<ul>
+<li><p>standard: 标准模式(默认的)，一调用startActivity()方法就会产生一个新的实例。</p></li>
+<li><p>singleTop: 检查是否已经存在了一个实例位于Activity栈的顶部，如果存在就不产生新的实例，反之则调用Activity的newInstance()方法产生一个新实例。</p></li>
+<li><p>singleTask: 在一个新的Task(栈)中产生这个实例，以后每次调用都会使用此实例，而避免产生新的实例。</p></li>
+<li><p>singleInstance: 这个基本上跟singleTask一样，只是有一点不同，那就是在这个模式下的Activity实例所处(新建的)Task中，只能有这一个Activity实例，而不能有其他的实例。</p></li>
+</ul>
+
+
+<p>　　启动模式可以Android清单文件AndroidManifest.xml中，通过<activity>中的launchMode属性进行设置</p>
+
+<pre><code class="xml">&lt;activity android:name="MainActivity" android:launchMode="singleTop"&gt;
+    &lt;intent-filter&gt;
+        &lt;category android:name="android.intent.category.DEFAULT"/&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;
+</code></pre>
+
+<p>　　也可以在代码中通过一些标志进行设置</p>
+
+<pre><code class="java">Intent intent = new Intent(this,xxx.class);
+//如果activity在task存在，拿到最顶端,不会启动新的Activity
+intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+//如果activity在task存在，将Activity之上的所有Activity结束掉
+intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//默认的跳转类型,将Activity放到一个新的Task中
+intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//如果Activity已经运行到了Task，再次跳转不会在运行这个Activity
+intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+</code></pre>
+
+<h2>五、Activity间的通信</h2>
+
+<p>&#160; &#160; &#160; &#160;Activity.startActivity()方法可以根据传入的参数启动另外一个 Activity：</p>
+
+<pre><code class="java">//Intent可以在不同的应用程序的Activity发送数据
+intent.putExtra("testIntent", "Robin");
+intent.setClass(MainActivity.this, OtherActivity.class);
+//从哪里跳到哪里
+MainActivity.this.startActivity(intent);
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;另一Activity里再接收信息(新的Activity如第一点说的要在AndroidManifest配置)</p>
+
+<pre><code class="java">Intent intent=getIntent();
+String value=intent.getStringExtra("testIntent");  
+</code></pre>
+
+<h2>六、其他细节</h2>
+
+<h5>&#160; &#160; &#160; &#160;back和home 按键对Activity作用的区别？</h5>
+
+<p>&#160; &#160; &#160; &#160;当你一按下手机的back键的时候，系统会默认调用程序栈中最上层Activity的Destroy()方法来销毁当前Activity,当此Activity又被其它Activity启动起来的时候,会重新调用OnCreate()方法进行创建,当栈中所有Activity都弹出结束后,应用也就随之结束了。按下手机的Home键的时候,系统会默认调用程序栈中最上层Activity的stop()方法,然后整个应用程序都会被隐藏起来,当你再次点击手机桌面上应用程序图标时,系统会调用最上层Activity的OnResume()方法,此时不会重新打开程序,而是直接进入,会直接显示程序栈中最上层的Activity。</p>
+]]></content>
+  </entry>
+  
+</feed>

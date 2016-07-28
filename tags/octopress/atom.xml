@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: Octopress | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/octopress/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-27T17:52:12+08:00</updated>
+  <updated>2016-07-28T12:00:22+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Octopress写博客步骤]]></title>
-    <link href="http://chendd.github.io/blog/2016/07/26/build_octopress_in_window/"/>
-    <updated>2016-07-26T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/blog/2016/07/26/build_octopress_in_window</id>
+    <link href="http://chendd.github.io/blog/2012/07/26/build_octopress_in_window/"/>
+    <updated>2012-07-26T18:21:11+08:00</updated>
+    <id>http://chendd.github.io/blog/2012/07/26/build_octopress_in_window</id>
     <content type="html"><![CDATA[<p>使用Octopress写博客大致有一下几个步骤：</p>
 
 <ol>
@@ -42,9 +42,9 @@
   
   <entry>
     <title type="html"><![CDATA[Markdown在Octopress的常见使用]]></title>
-    <link href="http://chendd.github.io/blog/2016/07/25/use_markdown_in_octopress/"/>
-    <updated>2016-07-25T18:21:11+08:00</updated>
-    <id>http://chendd.github.io/blog/2016/07/25/use_markdown_in_octopress</id>
+    <link href="http://chendd.github.io/blog/2012/07/25/use_markdown_in_octopress/"/>
+    <updated>2012-07-25T18:21:11+08:00</updated>
+    <id>http://chendd.github.io/blog/2012/07/25/use_markdown_in_octopress</id>
     <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
 
 <!--more-->

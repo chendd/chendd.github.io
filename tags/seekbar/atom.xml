@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: seekbar | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/seekbar/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记3--常用控件progressbar/seekbar]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/11/android_study_03_3/"/>
+    <updated>2014-02-11T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/11/android_study_03_3</id>
+    <content type="html"><![CDATA[<h2>常用控件</h2>
+
+<h3>5、progressbar</h3>
+
+<p>&#160; &#160; &#160; &#160;进度条，比较常用的组件，在某些操作的进度中的可视指示器，为用户呈现操作的进度，还它有一个次要的进度条，用来显示中间进度，如在流媒体播放的缓冲区的进度。一个进度条也可不确定其进度。在不确定模式下，进度条显示循环动画。一般有圆形和条形两种；</p>
+
+<!--more-->
+
+
+<p>默认进度条是圆形的
+小圆型进度条：
+<code>
+style="?android:attr/progressBarStyleSmall"
+</code>
+大圆形进度条：
+<code>
+style="?android:attr/progressBarStyleLarge"
+</code>
+条形进度条：
+<code>
+style="?android:attr/progressBarStyleHorizontal"
+</code>
+<code>
+android:max="100" --最大值
+android:progress="50" --初始值
+android:secondaryProgress="60" --次进度条值
+</code></p>
+
+<p>常用方法：</p>
+
+<ul>
+<li>getMax()：返回这个进度条的范围的上限</li>
+<li>getProgress()：返回进度</li>
+<li>getSecondaryProgress()：返回次要进度</li>
+<li>incrementProgressBy(int diff)：指定增加的进度</li>
+<li>isIndeterminate()：指示进度条是否在不确定模式下</li>
+<li>setVisibility(int v)：设置该进度条是否可视</li>
+<li>onSizeChanged(int w, int h, int oldw, int oldh)：当进度值改变时引发此事件</li>
+</ul>
+
+
+<p>简单小例子：</p>
+
+<p>新开个线程，让条形进度条从最小增到最大，再减到最小</p>
+
+<pre><code class="java">public class MainActivity extends Activity implements Runnable{
+
+    private Thread td;
+    private ProgressBar pb;
+    private boolean stateChange;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        pb = (ProgressBar)findViewById(R.id.pd);
+        td = new Thread(this);
+
+        td.start();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        while(true) {
+            int current = pb.getProgress();
+            int max = pb.getMax();
+            int securrent = pb.getSecondaryProgress();
+
+            if (stateChange == false) {
+                if(current &gt;= max) {
+                    stateChange = true;
+                }else {
+                    pb.setProgress(current+1);
+                    pb.setSecondaryProgress(current+1);
+                }
+            }else {
+                if(current &lt;= 0) {
+                    stateChange = false;
+                }else {
+                    pb.setProgress(current-1);
+                    pb.setSecondaryProgress(current-1);
+                }
+            }
+
+            try {
+                td.sleep(50);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/112122419579345.png" alt="image" /></p>
+
+<h3>6、seekBar</h3>
+
+<p>　　拖动条，见到的较多，如地图上，放大缩小，音乐播放时声音的放大缩小等</p>
+
+<p>监听事件：</p>
+
+<pre><code class="java">@Override
+public void onStopTrackingTouch(SeekBar seekBar) {
+// TODO Auto-generated method stub
+tv.setText("拖动完成...");
+}
+
+@Override
+public void onStartTrackingTouch(SeekBar seekBar) {
+// TODO Auto-generated method stub
+tv.setText("拖动中...");
+}
+
+@Override
+public void onProgressChanged(SeekBar seekBar, int progress,
+boolean fromUser) {
+// TODO Auto-generated method stub
+tv.setText("当前拖动条值为:"+progress);
+}
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/112123019308018.png" alt="image" /></p>
+
+<p>类似长型的进度条，只是可以手动拖到，也有</p>
+
+<pre><code>android:max="100" --最大值
+android:progress="50" --初始值
+android:secondaryProgress="60" --次进度条值
+</code></pre>
+
+<p>关于滑块还有一种较常用的是RatingBar,星级滑块，一般用于评定等级。</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/291420428758076.png" alt="image" /></p>
+
+<p>用法和上面大同小异，不再多说。</p>
+]]></content>
+  </entry>
+  
+</feed>

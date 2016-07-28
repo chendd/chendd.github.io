@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: tabHost | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/tabhost/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记3--常用控件tabSpec/tabHost]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/12/android_study_03_4/"/>
+    <updated>2014-02-12T09:22:14+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/12/android_study_03_4</id>
+    <content type="html"><![CDATA[<h2>常用控件</h2>
+
+<h4>7、TabSpec和TabHost</h4>
+
+<p>&#160; &#160; &#160; &#160;比较常用的控件，感觉手机QQ的整体布局就是这个，只不过tab放在底部而已。TabSpec相当于浏览器的分页，而TabHost就相当于分页的集合。TabSpec分页可以相当于一个独立的组件，也可以是一个布局，将每个分页装进TabHost里
+Activity extends TabActivity
+以前都是 继承android.app.Activity
+这里为了获得Activity分页菜单，继承它，显然TabActivity和Activity有同个父类。</p>
+
+<!--more-->
+
+
+<p>创建分页菜单对象，将activity_main装进去</p>
+
+<pre><code class="java">tableHost = this.getTabHost(); 
+LayoutInflater.from(this).inflate(R.layout.activity_main,tableHost.getTabContentView());
+</code></pre>
+
+<p>通过newTabSpec 来创建分页</p>
+
+<pre><code class="java">ts1 = tableHost.newTabSpec("tab1");
+</code></pre>
+
+<p>设置名称和背景图</p>
+
+<pre><code class="java">ts2.setIndicator("tab2", getResources().getDrawable(R.drawable.bg));
+</code></pre>
+
+<p>添加组件</p>
+
+<pre><code class="java">ts2.setContent(R.id.et); 
+</code></pre>
+
+<p>通过addtab加进去</p>
+
+<pre><code class="java">tableHost.addTab(ts1);
+tableHost.addTab(ts2);
+tableHost.addTab(ts3);
+</code></pre>
+
+<p>设置监听</p>
+
+<pre><code class="java">tableHost.setOnTabChangedListener(this);
+</code></pre>
+
+<p>arg0 表示传入的tab名称</p>
+
+<pre><code class="java">@Override
+public void onTabChanged(String arg0) {
+　　if (arg0.equals("tab1")) {
+　　　　Toast.makeText(this, "分页1", Toast.LENGTH_LONG).show();
+　　} else if(arg0.equals("tab2")){
+　　　　Toast.makeText(this, "分页2", Toast.LENGTH_LONG).show();
+　　}else if(arg0.equals("tab3")){
+　　　　Toast.makeText(this, "分页3", Toast.LENGTH_LONG).show();
+　　}
+}
+</code></pre>
+
+<p>完整代码和运行效果如下：</p>
+
+<pre><code class="java">package com.example.tabproject;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.app.TabActivity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.widget.TabHost;
+import android.widget.Toast;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TabHost.TabSpec;
+
+public class MainActivity extends TabActivity implements OnTabChangeListener{
+
+    private TabSpec ts1,ts2,ts3;
+    private TabHost tableHost;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        tableHost = this.getTabHost();
+
+        LayoutInflater.from(this).inflate(R.layout.activity_main,tableHost.getTabContentView());
+
+        ts1 = tableHost.newTabSpec("tab1");
+        ts1.setIndicator("tab1");
+        ts1.setContent(R.id.btn);
+
+        ts2 = tableHost.newTabSpec("tab2");
+        ts2.setIndicator("tab2", getResources().getDrawable(R.drawable.bg));
+        ts2.setContent(R.id.et);      
+
+        ts3 = tableHost.newTabSpec("tab3");
+        ts3.setContent(R.id.layout);
+        ts3.setIndicator("tab3", getResources().getDrawable(R.drawable.pg2));
+        ts3.setContent(R.id.et);             
+
+        tableHost.addTab(ts1);
+        tableHost.addTab(ts2);
+        tableHost.addTab(ts3);
+
+        tableHost.setOnTabChangedListener(this);
+
+
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+    @Override
+    public void onTabChanged(String arg0) {
+        // TODO Auto-generated method stub
+        if (arg0.equals("tab1")) {
+            Toast.makeText(this, "分页1", Toast.LENGTH_LONG).show();
+        } else if(arg0.equals("tab2")){
+            Toast.makeText(this, "分页2", Toast.LENGTH_LONG).show();
+        }else if(arg0.equals("tab3")){
+            Toast.makeText(this, "分页3", Toast.LENGTH_LONG).show();
+        }
+    }
+
+}
+</code></pre>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/122100189272562.png" alt="image" /></p>
+
+<p>关于不同Tab页面的View间如何通信后面再讲。</p>
+]]></content>
+  </entry>
+  
+</feed>

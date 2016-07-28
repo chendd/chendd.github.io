@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Canvas | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/canvas/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-07-28T12:00:22+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android学习日记7--Canvas画布]]></title>
+    <link href="http://chendd.github.io/blog/2014/02/22/android_study_07/"/>
+    <updated>2014-02-22T22:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/02/22/android_study_07</id>
+    <content type="html"><![CDATA[<h4>1、Canvas</h4>
+
+<p>&#160; &#160; &#160; &#160;Canvas类主要实现了屏幕的绘制过程，其中包含了很多实用的方法，比如绘制一条路径、区域、贴图、画点、画线、渲染文本，
+当然Android官网提示大家很多方法有不同的重载版本，参数更灵活。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;2D部分是android SDK内部自己提供，3D部分是用Open GL ES(3D部分先直接pass，除非你要做些3D游戏之类的)。大部分2D使用的api都在android.graphics和android.graphics.drawable包中。</p>
+
+<p><a href="http://android.toolib.net/reference/android/graphics/Canvas.html">API参考地址</a></p>
+
+<p>&#160; &#160; &#160; &#160;下面是Canvas类常用的简单方法</p>
+
+<pre><code class="java">// 设置画布颜色为蓝色
+canvas.drawColor(Color.BLUE);
+
+//canvas.drawPoint(x, y, paint); x、y表示绘制点的坐标
+//canvas.drawPoints(pts, paint);pts表示绘制点存储的数组，两两值表示一个坐标点
+//canvas.drawPoints(pts, offset, count, paint);offset表示跳过哪些点,count表示实际绘制的个数
+float[] pts= {10,10,120,120,230,230,40,40,90,90};
+canvas.drawPoints(pts, paint);
+</code></pre>
+
+<p>绘制散点图：</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/181939296215102.png" alt="image" /></p>
+
+<pre><code class="java">canvas.drawPoints(pts,3,4, paint);
+</code></pre>
+
+<p>跳过pts前3值后开始算4个值的数据(120,230,230,40)</p>
+
+<p>即绘制（120，230）、(230,40)两个点</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/181940540028379.png" alt="image" /></p>
+
+<p>绘制几何图形：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201404/261129023103474.png" alt="image" /></p>
+
+<pre><code class="java">public GeometryView(Context context) {
+super(context);
+mPaint = new Paint();
+// 设置抗锯齿
+mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+}
+
+@Override
+protected void onDraw(Canvas canvas) {
+super.onDraw(canvas);
+
+//设置画布颜色 也就是背景颜色
+canvas.drawColor(Color.WHITE);
+
+mPaint.setColor(Color.BLACK);
+canvas.drawText("绘制无规则几何图形", 150, 30, mPaint);
+
+//绘制一条线
+mPaint.setColor(Color.BLACK);
+mPaint.setStrokeWidth(4);
+canvas.drawLine(0, 0, 100, 100, mPaint);
+
+//绘制一个矩形
+mPaint.setColor(Color.YELLOW);
+canvas.drawRect(0, 120, 100, 200, mPaint);
+
+//绘制一个圆形
+mPaint.setColor(Color.BLUE);
+canvas.drawCircle(80, 300, 50, mPaint);
+
+//绘制一个椭圆
+mPaint.setColor(Color.CYAN);
+canvas.drawOval(new RectF(300,370,120,100), mPaint);
+
+//绘制多边形
+mPaint.setColor(Color.BLACK);
+Path path = new Path();
+path.moveTo(150+5 , 400 -50);
+path.lineTo(150+45, 400 - 50);
+path.lineTo(150+30, 460 - 50);
+path.lineTo(150+20, 460 - 50);
+path.close();
+canvas.drawPath(path, mPaint);
+
+}
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;此外还有好多绘制各种简单图形的方法，偷懒就不一一写了，需要的时候可以去查api文档，</p>
+
+<p>或者在eclipse 敲canvas.draw 按 ALT+/ 提示</p>
+
+<p><img src="http://images.cnitblog.com/blog/602984/201402/181944254378008.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;总的来说，Canvas可以绘制的对象有：弧线(arcs)、填充颜色(argb和color)、Bitmap、圆(circle和oval)、点(point)、线(line)、矩形(Rect)、图片(Picture)、圆角矩形(RoundRect)、文本(text)、顶点(Vertices)、路径(path)。通过组合这些对象我们可以画出一些简单有趣的界面出来，但是光有这些功能还是不够的，如果我要画一个仪表盘(数字围绕显示在一个圆圈中)就比较困难(不要告诉我直接贴一张仪表盘的图片上去，如果要让仪表盘指针会动呢？就没辙了吧！)。</p>
+
+<p>&#160; &#160; &#160; &#160;幸好Android还提供了一些对Canvas位置转换的方法：rorate、scale、translate、skew(扭曲)等，而且它允许你通过获得它的转换矩阵对象(getMatrix方法)直接操作它。这些操作就像是虽然你的笔还是原来的地方画，但是画纸旋转或者移动了，所以你画的东西的方位就产生变化。为了方便一些转换操作，Canvas还提供了保存和回滚属性的方法(save和restore类似数据库commit和rollback)，比如你可以先保存目前画纸的位置(save)，然后旋转90度，向下移动100像素后画一些图形，画完后调用restore方法返回到刚才保存的位置，这些内容将在BitMap的操作中讲到。</p>
+]]></content>
+  </entry>
+  
+</feed>

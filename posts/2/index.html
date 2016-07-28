@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="chendd的个人博客">
+  <meta name="keywords" content="Android,Java,Git,移动开发,安卓手机">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/posts/2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>夫夷以近，则游者众；险而远 ，则游者少。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/12/android_study_03_4/">android学习日记3--常用控件tabSpec/tabHost</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-12T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h4>7、TabSpec和TabHost</h4>
+
+<p>&#160; &#160; &#160; &#160;比较常用的控件，感觉手机QQ的整体布局就是这个，只不过tab放在底部而已。TabSpec相当于浏览器的分页，而TabHost就相当于分页的集合。TabSpec分页可以相当于一个独立的组件，也可以是一个布局，将每个分页装进TabHost里
+Activity extends TabActivity
+以前都是 继承android.app.Activity
+这里为了获得Activity分页菜单，继承它，显然TabActivity和Activity有同个父类。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/12/android_study_03_4/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/11/android_study_03_3/">Android学习日记3--常用控件progressbar/seekbar</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-11T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h3>5、progressbar</h3>
+
+<p>&#160; &#160; &#160; &#160;进度条，比较常用的组件，在某些操作的进度中的可视指示器，为用户呈现操作的进度，还它有一个次要的进度条，用来显示中间进度，如在流媒体播放的缓冲区的进度。一个进度条也可不确定其进度。在不确定模式下，进度条显示循环动画。一般有圆形和条形两种；</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/11/android_study_03_3/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/10/android_study_03_2/">Android学习日记3--常用控件checkbox/radiobutton</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-10T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<h3>3、checkbox</h3>
+
+<p>&#160; &#160; &#160; &#160;复选框，确定是否勾选,点击一下勾选，点击第二下取消，当有一系列备选项时适合用checkbox控件，方便用户提交数据。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/10/android_study_03_2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/10/android_study_03_1/">Android学习日记3--常用控件button/imagebutton</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-10T08:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>常用控件</h2>
+
+<p>&#160; &#160; &#160; &#160;控件是对数据和方法的封装。控件可以有自己的属性和方法。属性是控件数据的简单访问者。方法则是控件的一些简单而可见的功能。所有控件都是继承View类</p>
+
+<p>&#160; &#160; &#160; &#160;介绍android原生提供几种常用的控件button/imagebutton、checkbox/radiobutton、progressbar/seekbar、tabSpec/tabHost、ListView、Dialog，主要为了掌握控件使用的一般规律。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/10/android_study_03_1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/09/android_study_02/">Android学习日记2--Activity简介</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-09T21:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、Activity活动</h2>
+
+<p>&#160; &#160; &#160; &#160;学习Android，第一个都会接触Activity滴，Activity表示一个用户界面，是Android应用程序的入口，可以同时有多个界面，但只会显示栈顶的界面。</p>
+
+<p>&#160; &#160; &#160; &#160;Activity是Android的重要组成部分，一个程序包括多个Activity，新建项目都会有个程序启动时就调用的MainActivity。新定义Activity需在AndroidManifest配置。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/09/android_study_02/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/09/android_study_01/">Android学习日记1--综述</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-09T19:32:12+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;写点关于Android的知识，希望温故而知新吧！</p>
+
+<h2>一、总体框架</h2>
+
+<p>&#160; &#160; &#160; &#160;先上一张google提供官方的Android框架图：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/09/android_study_01/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/06/android_study_00/">Android学习日记0--开发需要掌握的技能</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-06T09:22:14+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、开发android，我们需要哪些技能基础</h2>
+
+<p>&#160; &#160; &#160; &#160;1、Java基础知识 2、Linux基础知识 3、数据库基础知识 4、网络协议 5、Android基础知识 6、服务器端开发知识</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/06/android_study_00/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/07/26/build_octopress_in_window/">Octopress写博客步骤</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-07-26T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>使用Octopress写博客大致有一下几个步骤：</p>
+
+<ol>
+<li><p>执行rake new_post[&lsquo;title&rsquo;]来生成一个博文；</p></li>
+<li><p>找对生成的markdown文件，编辑内容，当然是使用markdown语法来编辑；</p></li>
+</ol>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/07/26/build_octopress_in_window/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/07/25/use_markdown_in_octopress/">Markdown在Octopress的常见使用</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-07-25T18:21:11+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;Markdown语法由于其简单，易读和清晰的脉络结构的特点，被许多网站采用，比如Github，Google Code，StackOverflow，它是一个很好的文档语言。Octopress搭建的网站使用Markdown作为源文件语言，所以我们可以用Markdown语法来编写博客，抛弃传统博客网站的富文本编辑框。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/07/25/use_markdown_in_octopress/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/index.html">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/28/android_study_10/">Android学习日记10--裁剪区域</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/25/android_study_09/">android学习日记9--BitMap操作</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/24/android_study_08/">android学习日记8--Paint画笔</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/22/android_study_07/">android学习日记7--Canvas画布</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/20/android_study_06/">android学习日记6--SurfaceView视图</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<li><a style="font-size: 60%" href="/tags/bitmap/">BitMap</a></li>
+<li><a style="font-size: 60%" href="/tags/canvas/">Canvas</a></li>
+<li><a style="font-size: 60%" href="/tags/dialog/">Dialog</a></li>
+<li><a style="font-size: 60%" href="/tags/listview/">ListView</a></li>
+<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
+<li><a style="font-size: 86%" href="/tags/octopress/">Octopress</a></li>
+<li><a style="font-size: 60%" href="/tags/paint/">Paint</a></li>
+<li><a style="font-size: 60%" href="/tags/surfaceview/">SurfaceView</a></li>
+<li><a style="font-size: 60%" href="/tags/view/">View</a></li>
+<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
+<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
+<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
+<li><a style="font-size: 60%" href="/tags/checkbox/">checkbox</a></li>
+<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
+<li><a style="font-size: 60%" href="/tags/progressbar/">progressbar</a></li>
+<li><a style="font-size: 60%" href="/tags/radiobutton/">radiobutton</a></li>
+<li><a style="font-size: 60%" href="/tags/seekbar/">seekbar</a></li>
+<li><a style="font-size: 60%" href="/tags/tabhost/">tabHost</a></li>
+<li><a style="font-size: 60%" href="/tags/tabspec/">tabSpec</a></li>
+<li><a style="font-size: 60%" href="/tags/xi-jie/">细节</a></li>
+<li><a style="font-size: 60%" href="/tags/cai-jian/">裁剪</a></li>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (17)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
