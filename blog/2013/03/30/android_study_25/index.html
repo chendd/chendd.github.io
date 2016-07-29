@@ -108,7 +108,7 @@ BroadcastReceiver的最长执行时间则是10秒。</p>
 
 <h4>2、如何避免ANR</h4>
 
-<p>　　Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
+<p>&#160; &#160; &#160; &#160;Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
 特别是，Activity应该在它的关键生命周期方法（如onCreate()和onResume()）里尽可能少的去做创建操作。
 潜在的耗时操作，例如网络或数据库操作，或者高耗时的计算如改变位图尺寸，应该在子线程里
 （或者以数据库操作为例，通过异步请求的方式）来完成。然而，不是说你的主线程阻塞在那里等待子线程的完成——也不是调用
@@ -116,18 +116,22 @@ Thread.wait()或是Thread.sleep()。替代的方法是，主线程应该为子�
 
 <h4>3、Hander 定义</h4>
 
-<p>　　主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
-直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：
-android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
-翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
+<p>&#160; &#160; &#160; &#160;主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
+直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
 所有的UI线程要去负责View的创建并且维护它，例如更新冒个TextView的显示，都必须在主线程中去做，我们不能直接在UI线程中去创建子线程，
 要利用消息机制：handler，如下就是handler的简单工作原理图:</p>
 
 <p><img src="http://images.cnitblog.com/i/602984/201404/181859021979455.gif" alt="image" /></p>
 
-<p>　　Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
+<p>&#160; &#160; &#160; &#160;Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
 
-<p>就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
+<p>&#160; &#160; &#160; &#160;就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -162,16 +166,16 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
+<p>&#160; &#160; &#160; &#160;这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
 
 <p>Looper.prepare()和Looper.loop();</p>
 
 <h4>4、Hander 用法</h4>
 
-<p>　　继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
+<p>&#160; &#160; &#160; &#160;继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
 如下实例：</p>
 
-<p>启动后，更新后的值一直在增加</p>
+<p>&#160; &#160; &#160; &#160;启动后，更新后的值一直在增加</p>
 
 <p><img src="http://images.cnitblog.com/i/602984/201404/172206262912209.png" alt="image" /></p>
 
@@ -276,15 +280,15 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>　　关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
+<p>&#160; &#160; &#160; &#160;关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
 我们通过在线程中使用Handler对象的sendEmptyMessage或sendMessage方法来传递一个Bundle对象到Handler处理器。
 对于Handler类提供了重写方法handleMessage(Message msg) 来判断，通过msg.what来区分每条信息。
 将Bundle解包来实现Handler类更新UI线程中的内容实现控件的刷新操作。相关的Handler对象有关消息发送sendXXXX相关方法如下，
 同时还有postXXXX相关方法，这些和Win32中的道理基本一致，一个为发送后直接返回，一个为处理后才返回。</p>
 
-<p>比如我们可以在message里封装Bundle对象。</p>
+<p>&#160; &#160; &#160; &#160;比如我们可以在message里封装Bundle对象。</p>
 
-<p>两边传递的代码如下：</p>
+<p>&#160; &#160; &#160; &#160;两边传递的代码如下：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -309,7 +313,7 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 
 <h4>5、单线程的消息机制</h4>
 
-<p>　　Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
+<p>&#160; &#160; &#160; &#160;Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
 
 <ul>
 <li>1、基于监听器的机制</li>
@@ -451,14 +455,36 @@ var duoshuoQuery = {short_name:"chendd"};
 <section>
   <h1>Tags</h1>
   <ul class="tag-cloud">
-<li><a style="font-size: 60%" href="/tags/markdown/">Markdown</a></li>
-<li><a style="font-size: 80%" href="/tags/octopress/">Octopress</a></li>
-<li><a style="font-size: 60%" href="/tags/activity/">activity</a></li>
-<li><a style="font-size: 165%" href="/tags/android/">android</a></li>
-<li><a style="font-size: 60%" href="/tags/button/">button</a></li>
-<li><a style="font-size: 60%" href="/tags/imagebutton/">imagebutton</a></li>
-<li><a style="font-size: 92%" href="/tags/java/">java</a></li>
-<li><a style="font-size: 60%" href="/tags/layout/">layout</a></li>
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 80%" href="/tags/markdown/">Markdown</a>
+<a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 80%" href="/tags/activity/">activity</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 80%" href="/tags/button/">button</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
+<a style="font-size: 110%" href="/tags/java/">java</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/static/">static</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
 
   </ul>
 </section><section>
@@ -476,9 +502,17 @@ var duoshuoQuery = {short_name:"chendd"};
 
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - chendd -
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:180px; bottom:150px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2016 - chendd -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
 </p>
 
 </footer>

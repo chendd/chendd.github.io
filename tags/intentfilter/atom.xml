@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: IntentFilter | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/intentfilter/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T19:31:33+08:00</updated>
+  <updated>2016-07-29T11:45:42+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -74,12 +74,15 @@
 <p>&#160; &#160; &#160; &#160;开发人员也可以自定义Action，自定义的action 应该包含包名作为前缀： 例如"com.example.project.SHOW_COLOR"</p>
 
 <ul>
-<li><p>c、Data
+<li>c、Data
 &#160; &#160; &#160; &#160;主要是对Intent消息中数据的封装，主要描述Intent的动作所操作到的数据URI和类型，不同类型的Action会有不同Data的封装，
-例如打电话的Intent的动作会封装tel://格式的电话URI，而ACTION_VIEW的Intent中Data则会封装<a href="http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81">http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81</a></p></li>
-<li><p>d、Category
+例如打电话的Intent的动作会封装
+<code>
+tel://格式的电话URI，而ACTION_VIEW的Intent中Data则会封装http:格式的URI。正确的Data封装对Intent匹配请求同样非常重要
+</code></li>
+<li>d、Category
 &#160; &#160; &#160; &#160;是对目标组件类别信息的描述，同样是常量字符串。一个Intent中可以包含多个Category。与Category相关的方法有三个，addCategory()、removeCategory()、getCategorys()
-　　Android已定义的如下图：</p></li>
+　　Android已定义的如下图：</li>
 </ul>
 
 

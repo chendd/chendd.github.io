@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: ContentProvide | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/contentprovide/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T19:31:33+08:00</updated>
+  <updated>2016-07-29T11:45:42+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -111,7 +111,8 @@ URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
 
 <h4>2、在当前应用程序的AndroidManifest.xml中注册此ContentProvider</h4>
 
-<p>1 <provider android:name=".MyProvider" android:authorities="com.example.contentprovider.MyProvider"/></p>
+<pre><code>&lt;provider android:name=".MyProvider" android:authorities="com.example.contentprovider.MyProvider"/&gt;
+</code></pre>
 
 <h4>3、其他应用程序通过ContentResolver和Uri来获取此ContentProvider的数据</h4>
 
@@ -141,6 +142,8 @@ URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
 </code></pre>
 
 <p>日志打印：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/081525138782729.png" alt="image" /></p>
 
 <p>　　上面MyProvider代码和应用程序MainActivity代码不放在同一个包下是想说明ContentProvider不同程序间的数据共享，</p>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd's Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T19:31:33+08:00</updated>
+  <updated>2016-07-29T11:45:42+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -18,8 +18,9 @@
     <link href="http://chendd.github.io/blog/2013/05/15/efficient_android_code/"/>
     <updated>2013-05-15T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/05/15/efficient_android_code</id>
-    <content type="html"><![CDATA[<p>　　为什么在这就意味着没有多少剩余空间给你去浪费了，因此，在你写Androi编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。
-　　对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;为什么在这就意味着没有多少剩余空间给你去浪费了，因此，在你写Androi编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。</p>
+
+<p>&#160; &#160; &#160; &#160;对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
 
 <h4>1、不要做不必要做的事情。</h4>
 
@@ -28,21 +29,22 @@
 <!--more-->
 
 
-<p>下面是常用的几点优化建议：</p>
+<p>&#160; &#160; &#160; &#160;下面是常用的几点优化建议：</p>
 
 <h4>1、尽可能避免创建对象（Object）</h4>
 
-<p>　　因为对象的创建并不是没有代价的，如果你在一个用户界面的循环中分配一个对象，你不得不强制的进行内存回收，那么就会使用户体验出现稍微“打嗝”的现象。
-当从原始的输入数据中提取字符串时，试着从原始字符串返回一个子字符串，而不是创建一份拷贝。</p>
+<p>&#160; &#160; &#160; &#160;因为对象的创建并不是没有代价的，如果你在一个用户界面的循环中分配一个对象，你不得不强制的进行内存回收，那么就会使用户体验出现稍微“打嗝”的现象。</p>
+
+<p>&#160; &#160; &#160; &#160;当从原始的输入数据中提取字符串时，试着从原始字符串返回一个子字符串，而不是创建一份拷贝。</p>
 
 <h4>2、使用自身方法（Use Native Methods）</h4>
 
-<p>　　当处理字符串的时候，不要犹豫，尽可能多的使用诸如String.indexOf()、String.lastIndexOf()这样对象自身带有的方法。因为这些方法使用C/C++来实现的，
+<p>&#160; &#160; &#160; &#160;当处理字符串的时候，不要犹豫，尽可能多的使用诸如String.indexOf()、String.lastIndexOf()这样对象自身带有的方法。因为这些方法使用C/C++来实现的，
 要比在一个java循环中做同样的事情快10-100倍。</p>
 
 <h4>3、缓冲属性调用Cache Field Lookups</h4>
 
-<p>　　访问对象属性要比访问本地变量慢得多。你不应该这样写你的代码：</p>
+<p>&#160; &#160; &#160; &#160;访问对象属性要比访问本地变量慢得多。你不应该这样写你的代码：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -51,7 +53,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>而是应该这样写：</p>
+<p>&#160; &#160; &#160; &#160;而是应该这样写：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -66,11 +68,11 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>我们直接使用“this”表明这些是它的成员变量</p>
+<p>&#160; &#160; &#160; &#160;我们直接使用“this”表明这些是它的成员变量</p>
 
 <h4>4、声明Final常量</h4>
 
-<p>　　我们可以看看下面一个类顶部的声明：</p>
+<p>&#160; &#160; &#160; &#160;我们可以看看下面一个类顶部的声明：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -79,8 +81,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>当一个类第一次使用时，编译器会调用一个类初始化方法，这个方法将42存入变量intVal，并且为strVal在类文件字符串常量表中提取一个引用，当这些值在后面引用时，就会直接属性调用。
-我们可以用关键字“final”来改进代码：</p>
+<p>&#160; &#160; &#160; &#160;当一个类第一次使用时，编译器会调用一个类初始化方法，这个方法将42存入变量intVal，并且为strVal在类文件字符串常量表中提取一个引用，当这些值在后面引用时，就会直接属性调用。</p>
+
+<p>&#160; &#160; &#160; &#160;我们可以用关键字“final”来改进代码：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -89,17 +92,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这个类将不会调用类初始化方法，因为这些常量直接写入了类文件静态属性初始化中，这个初始化直接由虚拟机来处理。代码访问intVal将会使用Integer类型的42，访问strVal将使用相对节省的“字符串常量”来替代一个属性调用。
+<p>&#160; &#160; &#160; &#160;这个类将不会调用类初始化方法，因为这些常量直接写入了类文件静态属性初始化中，这个初始化直接由虚拟机来处理。代码访问intVal将会使用Integer类型的42，访问strVal将使用相对节省的“字符串常量”来替代一个属性调用。
 将一个类或者方法声明为“final”并不会带来任何的执行上的好处，它能够进行一定的最优化处理。例如，如果编译器知道一个Get方法不能被子类重载，那么它就把该函数设置成Inline。</p>
 
 <h4>5、避免浮点类型的使用</h4>
 
-<p>　　嵌入式的处理器通常并不支持浮点数的处理，因此所有的“float”和“double”操作都是通过软件进行的，一些基本的浮点数的操作就需要花费毫秒级的时间。
-同事，即使是整数，一些芯片也只有乘法而没有除法。在这些情况下，整数的除法和取模操作都是通过软件实现。</p>
+<p>&#160; &#160; &#160; &#160;嵌入式的处理器通常并不支持浮点数的处理，因此所有的“float”和“double”操作都是通过软件进行的，一些基本的浮点数的操作就需要花费毫秒级的时间。同时，即使是整数，一些芯片也只有乘法而没有除法。在这些情况下，整数的除法和取模操作都是通过软件实现。</p>
 
 <h4>6、避免列举类型Avoid Enums</h4>
 
-<p>　　列举类型非常好用，当考虑到尺寸和速度的时候，就会显得代价很高，例如：</p>
+<p>&#160; &#160; &#160; &#160;列举类型非常好用，当考虑到尺寸和速度的时候，就会显得代价很高，例如：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -110,9 +112,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这会转变成为一个900字节的class文件（Foo$Shrubbery.class）。第一次使用时，类的初始化要在独享上面调用方法去描述列举的每一项，每一个对象都要有它自身的静态空间，整个被储存在一个数组里面（一个叫做“$VALUE”的静态数组）。那是一大堆的代码和数据，仅仅是为了三个整数值。
-Shrubbery shrub = Shrubbery.GROUND;
-这会引起一个静态属性的调用，如果GROUND是一个静态的Final变量，编译器会把它当做一个常数嵌套在代码里面。</p>
+<p>&#160; &#160; &#160; &#160;这会转变成为一个900字节的class文件（Foo$Shrubbery.class）。第一次使用时，类的初始化要在独享上面调用方法去描述列举的每一项，每一个对象都要有它自身的静态空间，整个被储存在一个数组里面（一个叫做“$VALUE”的静态数组）。那是一大堆的代码和数据，仅仅是为了三个整数值。Shrubbery shrub = Shrubbery.GROUND;这会引起一个静态属性的调用，如果GROUND是一个静态的Final变量，编译器会把它当做一个常数嵌套在代码里面。</p>
 ]]></content>
   </entry>
   
@@ -136,7 +136,7 @@ BroadcastReceiver的最长执行时间则是10秒。</p>
 
 <h4>2、如何避免ANR</h4>
 
-<p>　　Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
+<p>&#160; &#160; &#160; &#160;Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
 特别是，Activity应该在它的关键生命周期方法（如onCreate()和onResume()）里尽可能少的去做创建操作。
 潜在的耗时操作，例如网络或数据库操作，或者高耗时的计算如改变位图尺寸，应该在子线程里
 （或者以数据库操作为例，通过异步请求的方式）来完成。然而，不是说你的主线程阻塞在那里等待子线程的完成——也不是调用
@@ -144,18 +144,22 @@ Thread.wait()或是Thread.sleep()。替代的方法是，主线程应该为子�
 
 <h4>3、Hander 定义</h4>
 
-<p>　　主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
-直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：
-android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
-翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
+<p>&#160; &#160; &#160; &#160;主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
+直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
 所有的UI线程要去负责View的创建并且维护它，例如更新冒个TextView的显示，都必须在主线程中去做，我们不能直接在UI线程中去创建子线程，
 要利用消息机制：handler，如下就是handler的简单工作原理图:</p>
 
 <p><img src="http://images.cnitblog.com/i/602984/201404/181859021979455.gif" alt="image" /></p>
 
-<p>　　Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
+<p>&#160; &#160; &#160; &#160;Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
 
-<p>就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
+<p>&#160; &#160; &#160; &#160;就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -190,16 +194,16 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
+<p>&#160; &#160; &#160; &#160;这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
 
 <p>Looper.prepare()和Looper.loop();</p>
 
 <h4>4、Hander 用法</h4>
 
-<p>　　继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
+<p>&#160; &#160; &#160; &#160;继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
 如下实例：</p>
 
-<p>启动后，更新后的值一直在增加</p>
+<p>&#160; &#160; &#160; &#160;启动后，更新后的值一直在增加</p>
 
 <p><img src="http://images.cnitblog.com/i/602984/201404/172206262912209.png" alt="image" /></p>
 
@@ -304,15 +308,15 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>　　关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
+<p>&#160; &#160; &#160; &#160;关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
 我们通过在线程中使用Handler对象的sendEmptyMessage或sendMessage方法来传递一个Bundle对象到Handler处理器。
 对于Handler类提供了重写方法handleMessage(Message msg) 来判断，通过msg.what来区分每条信息。
 将Bundle解包来实现Handler类更新UI线程中的内容实现控件的刷新操作。相关的Handler对象有关消息发送sendXXXX相关方法如下，
 同时还有postXXXX相关方法，这些和Win32中的道理基本一致，一个为发送后直接返回，一个为处理后才返回。</p>
 
-<p>比如我们可以在message里封装Bundle对象。</p>
+<p>&#160; &#160; &#160; &#160;比如我们可以在message里封装Bundle对象。</p>
 
-<p>两边传递的代码如下：</p>
+<p>&#160; &#160; &#160; &#160;两边传递的代码如下：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -337,7 +341,7 @@ android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread t
 
 <h4>5、单线程的消息机制</h4>
 
-<p>　　Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
+<p>&#160; &#160; &#160; &#160;Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
 
 <ul>
 <li>1、基于监听器的机制</li>
@@ -1550,34 +1554,37 @@ XML文件存放在res/anim下。</p>
 <p>如果要添加一个Notification,需要了解NotificationManager和Notification</p>
 
 <ul>
-<li><p>a、NotificationManager(通知管理器)
+<li>a、NotificationManager(通知管理器)
 NotificationManager负责通知用户事件的发生.
-NotificationManager有三个公共方法:</p>
+NotificationManager有三个公共方法:
 
-<ol>
+<ul>
 <li>cancel(int id) 取消以前显示的一个通知.假如是一个短暂的通知，试图将隐藏，假如是一个持久的通知，将从状态条中移走.</li>
 <li>cancelAll() 取消以前显示的所有通知.</li>
 <li>notify(int id, Notification notification) 把通知持久的发送到状态条上.</li>
-</ol>
+</ul>
 </li>
-<li><p>b、Notification代表着一个通知
-Notification的属性：</p>
+<li>b、Notification代表着一个通知
+Notification的属性：
 
-<p>  audioStreamType 当声音响起时，所用的音频流的类型
-  contentIntent 当通知条目被点击，就执行这个被设置的Intent.
-  contentView 当通知被显示在状态条上的时候，同时这个被设置的视图被显示.
-  defaults 指定哪个值要被设置成默认的.
-  deleteIntent 当用户点击"Clear All Notifications"按钮区删除所有的通知的时候，这个被设置的Intent被执行.
-  icon 状态条所用的图片.
-  iconLevel 假如状态条的图片有几个级别，就设置这里.
-  ledARGB LED灯的颜色.
-  ledOffMS LED关闭时的闪光时间（以毫秒计算）
-  ledOnMS LED开始时的闪光时间（以毫秒计算）
-  number 这个通知代表事件的号码
-  sound 通知的声音
-  tickerText 通知被显示在状态条时，所显示的信息
-  vibrate 振动模式.
-  when 通知的时间戳.</p></li>
+<ul>
+<li>audioStreamType 当声音响起时，所用的音频流的类型</li>
+<li>contentIntent 当通知条目被点击，就执行这个被设置的Intent.</li>
+<li>contentView 当通知被显示在状态条上的时候，同时这个被设置的视图被显示.</li>
+<li>defaults 指定哪个值要被设置成默认的.</li>
+<li>deleteIntent 当用户点击"Clear All Notifications"按钮区删除所有的通知的时候，这个被设置的Intent被执行.</li>
+<li>icon 状态条所用的图片.</li>
+<li>iconLevel 假如状态条的图片有几个级别，就设置这里.</li>
+<li>ledARGB LED灯的颜色.</li>
+<li>ledOffMS LED关闭时的闪光时间（以毫秒计算）</li>
+<li>ledOnMS LED开始时的闪光时间（以毫秒计算）</li>
+<li>number 这个通知代表事件的号码</li>
+<li>sound 通知的声音</li>
+<li>tickerText 通知被显示在状态条时，所显示的信息</li>
+<li>vibrate 振动模式.</li>
+<li>when 通知的时间戳.</li>
+</ul>
+</li>
 </ul>
 
 
@@ -1695,12 +1702,20 @@ Notification的属性：</p>
 <p>&#160; &#160; &#160; &#160;开发人员也可以自定义Action，自定义的action 应该包含包名作为前缀： 例如"com.example.project.SHOW_COLOR"</p>
 
 <ul>
-<li><p>c、Data
+<li>c、Data
 &#160; &#160; &#160; &#160;主要是对Intent消息中数据的封装，主要描述Intent的动作所操作到的数据URI和类型，不同类型的Action会有不同Data的封装，
-例如打电话的Intent的动作会封装tel://格式的电话URI，而ACTION_VIEW的Intent中Data则会封装<a href="http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81">http:%E6%A0%BC%E5%BC%8F%E7%9A%84URI%E3%80%82%E6%AD%A3%E7%A1%AE%E7%9A%84Data%E5%B0%81%E8%A3%85%E5%AF%B9Intent%E5%8C%B9%E9%85%8D%E8%AF%B7%E6%B1%82%E5%90%8C%E6%A0%B7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81</a></p></li>
-<li><p>d、Category
+例如打电话的Intent的动作会封装</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tel://格式的电话URI，而ACTION_VIEW的Intent中Data则会封装http:格式的URI。正确的Data封装对Intent匹配请求同样非常重要</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>d、Category
 &#160; &#160; &#160; &#160;是对目标组件类别信息的描述，同样是常量字符串。一个Intent中可以包含多个Category。与Category相关的方法有三个，addCategory()、removeCategory()、getCategorys()
-　　Android已定义的如下图：</p></li>
+　　Android已定义的如下图：</li>
 </ul>
 
 
@@ -3370,8 +3385,6 @@ Socket服务端代码：</p>
 
 <p>&#160; &#160; &#160; &#160;服务端是普通JAVA项目，先启动服务端，再启动客户端Android项目，客户端连上服务端，把当前时间数据从服务端发往客户端显示出来</p>
 
-<p><img src="http://images.cnitblog.com/i/602984/201403/151231260271893.png" alt="image" /></p>
-
 <p>注意：服务器与客户端无法链接的可能原因有：</p>
 
 <ul>
@@ -4215,7 +4228,12 @@ URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
 
 <h4>2、在当前应用程序的AndroidManifest.xml中注册此ContentProvider</h4>
 
-<p>1 <provider android:name=".MyProvider" android:authorities="com.example.contentprovider.MyProvider"/></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">&lt;</span><span class="n">provider</span> <span class="nl">android:</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;.MyProvider&quot;</span> <span class="nl">android:</span><span class="n">authorities</span><span class="o">=</span><span class="s">&quot;com.example.contentprovider.MyProvider&quot;</span><span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
 
 <h4>3、其他应用程序通过ContentResolver和Uri来获取此ContentProvider的数据</h4>
 
@@ -4269,6 +4287,8 @@ URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
 
 
 <p>日志打印：</p>
+
+<p><img src="http://images.cnitblog.com/i/602984/201403/081525138782729.png" alt="image" /></p>
 
 <p>　　上面MyProvider代码和应用程序MainActivity代码不放在同一个包下是想说明ContentProvider不同程序间的数据共享，</p>
 

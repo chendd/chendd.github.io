@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: net | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/net/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-07-28T19:31:33+08:00</updated>
+  <updated>2016-07-29T11:45:42+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -76,8 +76,6 @@ Socket服务端代码：</p>
 </code></pre>
 
 <p>&#160; &#160; &#160; &#160;服务端是普通JAVA项目，先启动服务端，再启动客户端Android项目，客户端连上服务端，把当前时间数据从服务端发往客户端显示出来</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151231260271893.png" alt="image" /></p>
 
 <p>注意：服务器与客户端无法链接的可能原因有：</p>
 
