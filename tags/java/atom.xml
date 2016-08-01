@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: java | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/java/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-01T10:00:03+08:00</updated>
+  <updated>2016-08-01T10:14:49+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -117,29 +117,34 @@ public void f(){
     <id>http://chendd.github.io/blog/2012/11/02/java_thred_pool</id>
     <content type="html"><![CDATA[<h2>一 简介</h2>
 
-<p>　　线程的使用在java中占有极其重要的地位，在jdk1.4极其之前的jdk版本中，关于线程池的使用是极其简陋的。在jdk1.5之后这一情况有了很大的改观。Jdk1.5之后加入了java.util.concurrent包，这个包中主要介绍java中线程以及线程池的使用。为我们在开发中处理线程的问题提供了非常大的帮助。</p>
+<p>&#160; &#160; &#160; &#160;线程的使用在java中占有极其重要的地位，在jdk1.4极其之前的jdk版本中，关于线程池的使用是极其简陋的。在jdk1.5之后这一情况有了很大的改观。Jdk1.5之后加入了java.util.concurrent包，这个包中主要介绍java中线程以及线程池的使用。为我们在开发中处理线程的问题提供了非常大的帮助。</p>
 
 <h2>二 线程池</h2>
 
-<p>线程池的作用：
-　　线程池作用就是限制系统中执行线程的数量。
-根据系统的环境情况，可以自动或手动设置线程数量，达到运行的最佳效果；少了浪费了系统资源，多了造成系统拥挤效率不高。用线程池控制线程数量，其他线程排队等候。一个任务执行完毕，再从队列的中取最前面的任务开始执行。若队列中没有等待进程，线程池的这一资源处于等待。当一个新任务需要运行时，如果线程池中有等待的工作线程，就可以开始运行了；否则进入等待队列。</p>
+<p>&#160; &#160; &#160; &#160;线程池的作用：线程池作用就是限制系统中执行线程的数量。根据系统的环境情况，可以自动或手动设置线程数量，达到运行的最佳效果；少了浪费了系统资源，多了造成系统拥挤效率不高。用线程池控制线程数量，其他线程排队等候。一个任务执行完毕，再从队列的中取最前面的任务开始执行。若队列中没有等待进程，线程池的这一资源处于等待。当一个新任务需要运行时，如果线程池中有等待的工作线程，就可以开始运行了；否则进入等待队列。</p>
 
-<p>为什么要用线程池:
-　　1.减少了创建和销毁线程的次数，每个工作线程都可以被重复利用，可执行多个任务。
-　　2.可以根据系统的承受能力，调整线程池中工作线线程的数目，防止因为消耗过多的内存，而把服务器累趴下(每个线程需要大约1MB内　　　　存，线程开的越多，消耗的内存也就越大，最后死机)。
-　　</p>
+<p>&#160; &#160; &#160; &#160;为什么要用线程池:</p>
 
-<p>　　Java里面线程池的顶级接口是Executor，但是严格意义上讲Executor并不是一个线程池，而只是一个执行线程的工具。真正的线程池接口是ExecutorService。</p>
+<ul>
+<li>1.减少了创建和销毁线程的次数，每个工作线程都可以被重复利用，可执行多个任务。</li>
+<li>2.可以根据系统的承受能力，调整线程池中工作线线程的数目，防止因为消耗过多的内存，而把服务器累趴下(每个线程需要大约1MB内存，线程开的越多，消耗的内存也就越大，最后死机)。</li>
+</ul>
 
-<p>比较重要的几个类：
-1 ExecutorService
-真正的线程池接口。
-2 ScheduledExecutorService
-能和Timer/TimerTask类似，解决那些需要任务重复执行的问题。
-3 ThreadPoolExecutor
-ExecutorService的默认实现。
-4 ScheduledThreadPoolExecutor
+
+<p>&#160; &#160; &#160; &#160;Java里面线程池的顶级接口是Executor，但是严格意义上讲Executor并不是一个线程池，而只是一个执行线程的工具。真正的线程池接口是ExecutorService。</p>
+
+<p>&#160; &#160; &#160; &#160;比较重要的几个类：</p>
+
+<p>1 ExecutorService
+真正的线程池接口。</p>
+
+<p>2 ScheduledExecutorService
+能和Timer/TimerTask类似，解决那些需要任务重复执行的问题。</p>
+
+<p>3 ThreadPoolExecutor
+ExecutorService的默认实现。</p>
+
+<p>4 ScheduledThreadPoolExecutor
 继承ThreadPoolExecutor的ScheduledExecutorService接口实现，周期性任务调度的类实现。</p>
 
 <p>　　要配置一个线程池是比较复杂的，尤其是对于线程池的原理不是很清楚的情况下，很有可能配置的线程池不是较优的，因此在Executors类里面提供了一些静态工厂，生成一些常用的线程池。</p>
