@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android_study | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/blog/categories/android-study/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-01T10:26:53+08:00</updated>
+  <updated>2016-08-01T10:30:40+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -18,7 +18,7 @@
     <link href="http://chendd.github.io/blog/2013/05/15/efficient_android_code/"/>
     <updated>2013-05-15T21:32:12+08:00</updated>
     <id>http://chendd.github.io/blog/2013/05/15/efficient_android_code</id>
-    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;为什么在这就意味着没有多少剩余空间给你去浪费了，因此，在你写Androi编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。</p>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;编写Android程序时要时刻考虑执行的效率，这系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。</p>
 
 <p>&#160; &#160; &#160; &#160;对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
 
