@@ -1,0 +1,711 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android Hook框架Xposed入门 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一.基础知识 &#160; &#160; &#160; &#160;Xposed是Android平台上较为出名的一个开源框架。在这个框架下，我们可以加载很多插件App，这些插件App可以直接或间接操纵普通应用甚至系统上的东西。Xposed原理上是Hook Android &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2016/05/15/learn_xposed/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android Hook框架Xposed入门</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-05-15T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一.基础知识</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed是Android平台上较为出名的一个开源框架。在这个框架下，我们可以加载很多插件App，这些插件App可以直接或间接操纵普通应用甚至系统上的东西。Xposed原理上是Hook Android 系统的核心进程Zygote来达到修改程序运行过程和结果。讲到这里，可能有人会问什么是Hook？什么是Zygote？</p>
+
+<!--more-->
+
+
+<ul>
+<li><p>Hook(钩子)，钩子实际上是一个处理消息的程序段，通过系统调用，把它挂入系统。每当特定的消息发出，在没有到达目的窗口前，钩子程序就先捕获该消息，亦即钩子函数先得到控制权。这时钩子函数即可以加工处理（改变）该消息，也可以不作处理而继续传递该消息，还可以强制结束消息的传递。</p></li>
+<li><p>Zygote(Android进程名)，Android系统是基于Linux内核的，而在Linux系统中，所有的进程都是init进程的子孙进程，也就是说，所有的进程都是直接或者间接地由init进程fork出来的。在Android系统中，所有的应用程序进程以及系统服务进程SystemServer都是由Zygote进程孕育（fork）出来的，这也许就是为什么要取名英文本意为受精卵的Zygote原因吧。</p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;由于Xposed框架Hook了Android的核心进程Zygote，而其他应用启动都是从Zygote进程fork而来，就够达到针对系统上所有的应用程序进程的Hook。</p>
+
+<h2>二.Xposed简介</h2>
+
+<ul>
+<li><p>官网地址： <a href="http://repo.xposed.info/">http://repo.xposed.info/</a></p></li>
+<li><p>源码地址： <a href="https://github.com/rovo89">https://github.com/rovo89</a></p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;rovo89大神github主页,如图所示</p>
+
+<p>&#160; &#160; &#160; &#160;<img src="http://7arnbf.com1.z0.glb.clouddn.com/01.png" alt="image" /></p>
+
+<p>主页大致可以看出，xposed主要由三个项目来组成的</p>
+
+<ul>
+<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
+<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
+<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+</ul>
+
+
+<p>xposed目前已逐步支持ART虚拟机，兼容android 5.0以上版本</p>
+
+<h2>三.Xposed使用</h2>
+
+<p>&#160; &#160; &#160; &#160;在Android 4.0以上Android设备（需root权限，建议直接用模拟器）安装<a href="http://repo.xposed.info/module/de.robv.android.xposed.installer">XposedInstaller</a></p>
+
+<p>启动XposedInstaller点击 【框架】</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/02.png" alt="image" /></p>
+
+<p>点击 【安装/更新】 并重启，再点击框架看到看到 激活底下两个都是绿色 代表框架安装成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/03.png" alt="image" /></p>
+
+<p>我们可以点击【下载】来查看热门插件进行安装</p>
+
+<p>安装完插件点击【模块】进行勾选激活</p>
+
+<p>之后还需重启，插件才能生效。大家可以自己下载几个插件玩玩，本文重点不在这，就不演示了。</p>
+
+<h2>四.编写插件</h2>
+
+<p>这里我们hook自己编写的一个小的登录app来获取用户名密码。</p>
+
+<p>界面比较简单，输入用户名密码点击登录弹出用户输入的密码</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/05.png" alt="image" /></p>
+
+<p>界面代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">EditText</span> <span class="n">et_username</span><span class="o">;</span>
+</span><span class='line'>  <span class="c1">// 属性为private 时普通反射获取不到该对象</span>
+</span><span class='line'>  <span class="c1">// private  EditText et_password;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">EditText</span> <span class="n">et_password</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Button</span> <span class="n">bt_login</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">et_username</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_username</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">et_password</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_password</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">bt_login</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">bt_login</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">bt_login</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isCorrectInfo</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 校验用户名密码是否正确，直接返回true</span>
+</span><span class='line'>      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">switch</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">bt_login</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">if</span><span class="o">(</span><span class="n">isCorrectInfo</span><span class="o">(</span><span class="n">et_username</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">(),</span> <span class="n">et_password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>              <span class="c1">// 帐号密码校验成功，弹出当前密码</span>
+</span><span class='line'>              <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;password:&quot;</span><span class="o">+</span><span class="n">et_password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">(),</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;application</span>
+</span><span class='line'>    <span class="na">android:allowBackup=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>    <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_launcher&quot;</span>
+</span><span class='line'>    <span class="na">android:label=</span><span class="s">&quot;@string/app_name&quot;</span>
+</span><span class='line'>    <span class="na">android:theme=</span><span class="s">&quot;@style/AppTheme&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c">&lt;!-- 标记xposed插件 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposedmodule&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="c">&lt;!-- 模块描述 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposeddescription&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;登录hook例子！&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="c">&lt;!-- 最低版本号 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposedminversion&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;54&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/application&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+
+<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+
+<h4>3.声明主入口路径</h4>
+
+<p>需要在assets文件夹中新建一个xposed_init的文件，并在其中声明主入口类。如这里我们的主入口类为</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">xposedtest</span><span class="o">.</span><span class="na">HookUtil</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
+
+<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+
+<p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 标记目标app包名</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;com.example.logintest&quot;</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;Loaded app: &quot;</span> <span class="o">+</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Hook MainActivity中的isCorrectInfo(String,String)方法</span>
+</span><span class='line'>        <span class="c1">// findAndHookMethod(hook方法的类名，classLoader，hook方法名，hook方法参数...，XC_MethodHook)</span>
+</span><span class='line'>        <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.example.logintest.MainActivity&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="s">&quot;isCorrectInfo&quot;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">beforeHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;开始hook&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数1 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数2 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;结束hook&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数1 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数2 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>5.运行程序，查看效果</h4>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/06.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 标记目标app包名</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;com.example.logintest&quot;</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;Loaded app: &quot;</span> <span class="o">+</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Hook MainActivity中的onClick(View v)方法</span>
+</span><span class='line'>        <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.example.logintest.MainActivity&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="s">&quot;onClick&quot;</span><span class="o">,</span> <span class="n">View</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">beforeHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">Class</span> <span class="n">clazz</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="na">thisObject</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;class name:&quot;</span><span class="o">+</span><span class="n">clazz</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">Field</span> <span class="n">field</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getField</span><span class="o">(</span><span class="s">&quot;et_password&quot;</span><span class="o">);</span><span class="c1">// 密码输入框 id</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">EditText</span> <span class="n">password</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">field</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">param</span><span class="o">.</span><span class="na">thisObject</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">String</span> <span class="n">string</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;密码 = &quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">);</span>
+</span><span class='line'>                        <span class="c1">// 设置新密码</span>
+</span><span class='line'>                        <span class="n">password</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;改你妹啊!!&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/09.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;之前登录app密码EditText声明为 private 时，导致反射获取报NoSuchFileException，原因是普通的反射不能获取私有变量，
+改为EditText声明改为public后成功，或者不能改EditText声明时，可以用以下方法，无论公有私有都可以获取</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 输入框不为私有private 可通过以下方式获取 </span>
+</span><span class='line'><span class="c1">// Field field = clazz.getField(&quot;et_password&quot;);// 密码输入框 id</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 通过类的字节码得到该类中声明的所有属性，无论私有或公有</span>
+</span><span class='line'><span class="n">Field</span> <span class="n">field</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&quot;et_password&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 设置访问权限（这点对于有过android开发经验的可以说很熟悉）</span>
+</span><span class='line'><span class="n">field</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+
+<p>附：</p>
+
+<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+
+<p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
+
+<p>官方例子: <a href="https://github.com/rovo89/XposedExamples">https://github.com/rovo89/XposedExamples</a></p>
+
+<p>参考文章: <a href="http://www.csdn.net/article/1970-01-01/2825462">http://www.csdn.net/article/1970-01-01/2825462</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-05-15T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/xposed/'>xposed</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/05/15/efficient_android_code/" title="Previous Post: 编写高效的Android代码">&laquo; 编写高效的Android代码</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2016/05/15/learn_xposed" data-title="Android Hook框架Xposed入门" data-url="http://chendd.github.io/blog/2016/05/15/learn_xposed/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">Android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/android_study_23/">Android学习日记23--XML解析</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 80%" href="/tags/markdown/">Markdown</a>
+<a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 80%" href="/tags/activity/">activity</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 80%" href="/tags/button/">button</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
+<a style="font-size: 110%" href="/tags/java/">java</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/static/">static</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (1)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

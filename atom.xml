@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd's Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-01T10:30:40+08:00</updated>
+  <updated>2016-08-23T16:30:25+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -12,6 +12,432 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android Hook框架Xposed入门]]></title>
+    <link href="http://chendd.github.io/blog/2016/05/15/learn_xposed/"/>
+    <updated>2016-05-15T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/05/15/learn_xposed</id>
+    <content type="html"><![CDATA[<h2>一.基础知识</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed是Android平台上较为出名的一个开源框架。在这个框架下，我们可以加载很多插件App，这些插件App可以直接或间接操纵普通应用甚至系统上的东西。Xposed原理上是Hook Android 系统的核心进程Zygote来达到修改程序运行过程和结果。讲到这里，可能有人会问什么是Hook？什么是Zygote？</p>
+
+<!--more-->
+
+
+<ul>
+<li><p>Hook(钩子)，钩子实际上是一个处理消息的程序段，通过系统调用，把它挂入系统。每当特定的消息发出，在没有到达目的窗口前，钩子程序就先捕获该消息，亦即钩子函数先得到控制权。这时钩子函数即可以加工处理（改变）该消息，也可以不作处理而继续传递该消息，还可以强制结束消息的传递。</p></li>
+<li><p>Zygote(Android进程名)，Android系统是基于Linux内核的，而在Linux系统中，所有的进程都是init进程的子孙进程，也就是说，所有的进程都是直接或者间接地由init进程fork出来的。在Android系统中，所有的应用程序进程以及系统服务进程SystemServer都是由Zygote进程孕育（fork）出来的，这也许就是为什么要取名英文本意为受精卵的Zygote原因吧。</p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;由于Xposed框架Hook了Android的核心进程Zygote，而其他应用启动都是从Zygote进程fork而来，就够达到针对系统上所有的应用程序进程的Hook。</p>
+
+<h2>二.Xposed简介</h2>
+
+<ul>
+<li><p>官网地址： <a href="http://repo.xposed.info/">http://repo.xposed.info/</a></p></li>
+<li><p>源码地址： <a href="https://github.com/rovo89">https://github.com/rovo89</a></p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;rovo89大神github主页,如图所示</p>
+
+<p>&#160; &#160; &#160; &#160;<img src="http://7arnbf.com1.z0.glb.clouddn.com/01.png" alt="image" /></p>
+
+<p>主页大致可以看出，xposed主要由三个项目来组成的</p>
+
+<ul>
+<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
+<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
+<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+</ul>
+
+
+<p>xposed目前已逐步支持ART虚拟机，兼容android 5.0以上版本</p>
+
+<h2>三.Xposed使用</h2>
+
+<p>&#160; &#160; &#160; &#160;在Android 4.0以上Android设备（需root权限，建议直接用模拟器）安装<a href="http://repo.xposed.info/module/de.robv.android.xposed.installer">XposedInstaller</a></p>
+
+<p>启动XposedInstaller点击 【框架】</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/02.png" alt="image" /></p>
+
+<p>点击 【安装/更新】 并重启，再点击框架看到看到 激活底下两个都是绿色 代表框架安装成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/03.png" alt="image" /></p>
+
+<p>我们可以点击【下载】来查看热门插件进行安装</p>
+
+<p>安装完插件点击【模块】进行勾选激活</p>
+
+<p>之后还需重启，插件才能生效。大家可以自己下载几个插件玩玩，本文重点不在这，就不演示了。</p>
+
+<h2>四.编写插件</h2>
+
+<p>这里我们hook自己编写的一个小的登录app来获取用户名密码。</p>
+
+<p>界面比较简单，输入用户名密码点击登录弹出用户输入的密码</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/05.png" alt="image" /></p>
+
+<p>界面代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">EditText</span> <span class="n">et_username</span><span class="o">;</span>
+</span><span class='line'>  <span class="c1">// 属性为private 时普通反射获取不到该对象</span>
+</span><span class='line'>  <span class="c1">// private  EditText et_password;</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">EditText</span> <span class="n">et_password</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Button</span> <span class="n">bt_login</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">et_username</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_username</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">et_password</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_password</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">bt_login</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">bt_login</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">bt_login</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isCorrectInfo</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 校验用户名密码是否正确，直接返回true</span>
+</span><span class='line'>      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">switch</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">bt_login</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">if</span><span class="o">(</span><span class="n">isCorrectInfo</span><span class="o">(</span><span class="n">et_username</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">(),</span> <span class="n">et_password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>              <span class="c1">// 帐号密码校验成功，弹出当前密码</span>
+</span><span class='line'>              <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;password:&quot;</span><span class="o">+</span><span class="n">et_password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">(),</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>          <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>          <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;application</span>
+</span><span class='line'>    <span class="na">android:allowBackup=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>    <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_launcher&quot;</span>
+</span><span class='line'>    <span class="na">android:label=</span><span class="s">&quot;@string/app_name&quot;</span>
+</span><span class='line'>    <span class="na">android:theme=</span><span class="s">&quot;@style/AppTheme&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c">&lt;!-- 标记xposed插件 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposedmodule&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="c">&lt;!-- 模块描述 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposeddescription&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;登录hook例子！&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="c">&lt;!-- 最低版本号 --&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta-data</span>
+</span><span class='line'>        <span class="na">android:name=</span><span class="s">&quot;xposedminversion&quot;</span>
+</span><span class='line'>        <span class="na">android:value=</span><span class="s">&quot;54&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/application&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+
+<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+
+<h4>3.声明主入口路径</h4>
+
+<p>需要在assets文件夹中新建一个xposed_init的文件，并在其中声明主入口类。如这里我们的主入口类为</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">xposedtest</span><span class="o">.</span><span class="na">HookUtil</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
+
+<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+
+<p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 标记目标app包名</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;com.example.logintest&quot;</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;Loaded app: &quot;</span> <span class="o">+</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Hook MainActivity中的isCorrectInfo(String,String)方法</span>
+</span><span class='line'>        <span class="c1">// findAndHookMethod(hook方法的类名，classLoader，hook方法名，hook方法参数...，XC_MethodHook)</span>
+</span><span class='line'>        <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.example.logintest.MainActivity&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="s">&quot;isCorrectInfo&quot;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">beforeHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;开始hook&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数1 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数2 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;结束hook&quot;</span><span class="o">);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数1 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;参数2 = &quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>5.运行程序，查看效果</h4>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/06.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// 标记目标app包名</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;com.example.logintest&quot;</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;Loaded app: &quot;</span> <span class="o">+</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">packageName</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Hook MainActivity中的onClick(View v)方法</span>
+</span><span class='line'>        <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.example.logintest.MainActivity&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="s">&quot;onClick&quot;</span><span class="o">,</span> <span class="n">View</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">beforeHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">Class</span> <span class="n">clazz</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="na">thisObject</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;class name:&quot;</span><span class="o">+</span><span class="n">clazz</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">Field</span> <span class="n">field</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getField</span><span class="o">(</span><span class="s">&quot;et_password&quot;</span><span class="o">);</span><span class="c1">// 密码输入框 id</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">EditText</span> <span class="n">password</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">field</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">param</span><span class="o">.</span><span class="na">thisObject</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                        <span class="n">String</span> <span class="n">string</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;密码 = &quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">);</span>
+</span><span class='line'>                        <span class="c1">// 设置新密码</span>
+</span><span class='line'>                        <span class="n">password</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;改你妹啊!!&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/09.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;之前登录app密码EditText声明为 private 时，导致反射获取报NoSuchFileException，原因是普通的反射不能获取私有变量，
+改为EditText声明改为public后成功，或者不能改EditText声明时，可以用以下方法，无论公有私有都可以获取</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 输入框不为私有private 可通过以下方式获取 </span>
+</span><span class='line'><span class="c1">// Field field = clazz.getField(&quot;et_password&quot;);// 密码输入框 id</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 通过类的字节码得到该类中声明的所有属性，无论私有或公有</span>
+</span><span class='line'><span class="n">Field</span> <span class="n">field</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">&quot;et_password&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 设置访问权限（这点对于有过android开发经验的可以说很熟悉）</span>
+</span><span class='line'><span class="n">field</span><span class="o">.</span><span class="na">setAccessible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+
+<p>附：</p>
+
+<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+
+<p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
+
+<p>官方例子: <a href="https://github.com/rovo89/XposedExamples">https://github.com/rovo89/XposedExamples</a></p>
+
+<p>参考文章: <a href="http://www.csdn.net/article/1970-01-01/2825462">http://www.csdn.net/article/1970-01-01/2825462</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[编写高效的Android代码]]></title>
@@ -5382,437 +5808,6 @@ TableRow中可以添加子控件，每个子控件为一列。并不会为每个
 <h4>6、绝对布局</h4>
 
 <p>&#160; &#160; &#160; &#160;AbsoluteLayout是绝对位置布局。在此布局中的子元素的android:layout_x和android:layout_y属性将生效，用于描述该子元素的坐标位置。屏幕左上角为坐标原点（0,0），第一个0代表横坐标，向右移动此值增大，第二个0代表纵坐标，向下移动，此值增大。在此布局中的子元素可以相互重叠。在实际开发中，通常不采用此布局格式，因为它的界面代码过于刚性，以至于有可能不能很好的适配各种终端。由于不采用，在此就不演示代码了。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记11--音频播放类]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/02/android_study_11/"/>
-    <updated>2013-03-02T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/02/android_study_11</id>
-    <content type="html"><![CDATA[<h2>一、android 音频播放类</h2>
-
-<p>&#160; &#160; &#160; &#160;MediaPlayer和SoundPool都可以用来播放音频。
-区别是MediaPlayer占用资源高，延迟时间高，播放长音乐的，并且不能同时播放多个音乐，
-而SoundPool占用资源较少，没什么延迟，但要提前加载，只能播放1M以下的音频文件，能同时播放多个音乐
-因此MediaPlayer一般用来播放背景音乐，而SoundPool主要用来播放游戏音效。</p>
-
-<!--more-->
-
-
-<h4>1、MediaPlayer</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//获取实例：</span>
-</span><span class='line'><span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="kt">int</span> <span class="n">resId</span><span class="o">);</span>  <span class="c1">//参数一：上下文对象，参数二：音乐资源ID，一般放在raw文件夹下。如果没有raw就自己创建一个  </span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//常用方法：</span>
-</span><span class='line'><span class="n">prepare</span><span class="o">();</span><span class="c1">//为播放音乐文件做准备工作    </span>
-</span><span class='line'><span class="n">start</span><span class="o">();</span><span class="c1">//播放音乐   </span>
-</span><span class='line'><span class="n">pause</span><span class="o">();</span><span class="c1">//暂停音乐播放   </span>
-</span><span class='line'><span class="n">stop</span><span class="o">();</span><span class="c1">//停止音乐播放 </span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//MediaPlayer其它常用函数</span>
-</span><span class='line'><span class="n">setLooping</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">looping</span><span class="o">);</span><span class="c1">//设置音乐是否循环播放，true为循环播放  </span>
-</span><span class='line'><span class="n">seekTo</span><span class="o">(</span><span class="kt">int</span> <span class="n">msec</span><span class="o">);</span><span class="c1">//将音乐播放跳转到某一时间点,以毫秒为单位    </span>
-</span><span class='line'><span class="n">getDuration</span><span class="o">();</span><span class="c1">//获取播放的音乐文件总时间长度   </span>
-</span><span class='line'><span class="n">getCurrentPosition</span><span class="o">();</span><span class="c1">//获取当前播放音乐时间点</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>注：pause()和stop(),主要的区别在于：暂停播放后可以调用start()继续播放，停止音乐播放后，需要调用prepare()再调用start()进行播放音乐。</p>
-
-<p>当然不得不提AudioManager（音乐管理类，可以获取当前音乐大小以及最大音量）</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 获取实例</span>
-</span><span class='line'><span class="n">AudioManager</span> <span class="n">am</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">AudioManager</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//常用方法：</span>
-</span><span class='line'><span class="n">setStreamVolume</span><span class="o">(</span><span class="n">imt</span> <span class="n">streamType</span><span class="o">,</span><span class="kt">int</span> <span class="n">index</span><span class="o">,</span><span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="o">;</span><span class="c1">//设置音量大小，参数一：音乐类型（AudioManager.STREAM_MUSIC）,参数二：音量大小，参数三：设置一个或者多个标志  </span>
-</span><span class='line'><span class="n">getStreamVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">);</span><span class="c1">//获取当前音量大小，参数 获取音量大小类型    </span>
-</span><span class='line'><span class="n">getStreamMaxVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">);</span><span class="c1">// 获取当前音量最大值，参数获取音量大小的类型</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>2、SoundPool</h4>
-
-<p>获取实例：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//参数一：允许同时播放的声音最大值，参数二：声音类型，参数三：声音品质</span>
-</span><span class='line'><span class="mi">2</span> <span class="k">new</span>  <span class="nf">SoundPool</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxStreams</span><span class="o">,</span><span class="kt">int</span> <span class="n">streamType</span><span class="o">,</span><span class="kt">int</span> <span class="n">srcQuality</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>常用方法：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//加载音乐文件，返回音乐ID（音乐流文件数据） 参数一：Context实例，参数二：音乐文件ID,</span>
-</span><span class='line'><span class="c1">//参数三：标志优先考虑的声音。目前使用没有任何效果，只是具备兼容性价值。一般写个1就可以。   </span>
-</span><span class='line'><span class="kt">int</span> <span class="n">load</span><span class="err">（</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="kt">int</span> <span class="n">resId</span><span class="o">,</span><span class="kt">int</span> <span class="n">priority</span><span class="err">）</span><span class="o">;</span>
-</span><span class='line'><span class="c1">//音乐播放，播放失败返回0，正常则返回非0值，参数一：加载后得到的音乐文件，参数二：音量的左声道 范围0.0~1.0  参数三：音量的右声道，范围 0.0~1.0  </span>
-</span><span class='line'><span class="c1">//参数四：音乐流的优先级，0为最低优先级，参数五：音乐播放次数，-1表示无限循环，0表示正常一次，大于0则表示循环次数，</span>
-</span><span class='line'><span class="c1">//参数六：播放速率，取值范围：0.5~2.0，1.0表示正常播放。    </span>
-</span><span class='line'><span class="kt">int</span> <span class="nf">play</span><span class="o">(</span><span class="kt">int</span> <span class="n">soundId</span><span class="o">,</span><span class="kt">float</span> <span class="n">leftVolume</span><span class="o">,</span><span class="kt">float</span> <span class="n">rightVolume</span><span class="o">,</span><span class="kt">int</span> <span class="n">proority</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">,</span><span class="kt">float</span> <span class="n">rate</span><span class="o">);</span>
-</span><span class='line'><span class="n">pause</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">);</span>  <span class="c1">//暂停音乐播放  ，参数：音乐文件加载后的流ID    </span>
-</span><span class='line'><span class="n">stop</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">)</span> <span class="o">;</span> <span class="c1">//结束音乐播放 参数：音乐文件加载后的流ID    </span>
-</span><span class='line'><span class="n">release</span><span class="o">();</span>  <span class="c1">//释放SoundPool的资源   </span>
-</span><span class='line'><span class="n">setLoop</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">);</span>  <span class="c1">//设置循环次数 参数一：音乐文件加载后的流ID，参数二：循环次数    </span>
-</span><span class='line'><span class="n">setReat</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">);</span>  <span class="c1">//设置播放速率    </span>
-</span><span class='line'><span class="n">setVolume</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">float</span> <span class="n">leftVolume</span><span class="o">,</span><span class="kt">float</span> <span class="n">rightVolume</span><span class="o">);</span>   <span class="c1">//设置音量大小，参数二：左声道音量，参数三：右声道音量    </span>
-</span><span class='line'><span class="n">setPriority</span><span class="o">(</span><span class="kt">int</span> <span class="n">streamID</span><span class="o">,</span><span class="kt">int</span> <span class="n">priority</span><span class="o">);</span>   <span class="c1">//设置流的优先级，参数二：优先级值。</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>3、基于MediaPlayer的简单播放器</h4>
-
-<p>&#160; &#160; &#160; &#160;导入drawable-mdpi(我一般是传入这个drawable文件夹的) 三张播放、暂停、停止的图片，res下新建raw文件夹并导入ten_year.mp3文件，注意Android的资源文件都不能中文和大写字母命名。</p>
-
-<p>Activity主要代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="n">ImageButton</span> <span class="n">btn_start</span><span class="o">,</span> <span class="n">btn_stop</span><span class="o">,</span> <span class="n">btn_pause</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">TextView</span> <span class="n">tv</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">MediaPlayer</span> <span class="n">mp</span><span class="o">;</span>
-</span><span class='line'>    <span class="c1">// 声明一个变量判断是否为暂停,默认为false</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 通过findViewById找到资源</span>
-</span><span class='line'>        <span class="n">btn_start</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_start</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">btn_stop</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_stop</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">btn_pause</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_pause</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">tv</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">myTextView1</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 创建MediaPlayer对象,将raw文件夹下的ten_year.mp3</span>
-</span><span class='line'>        <span class="n">mp</span> <span class="o">=</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">ten_year</span><span class="o">);</span>
-</span><span class='line'>        <span class="c1">// 增加播放音乐按钮的事件</span>
-</span><span class='line'>        <span class="n">btn_start</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                        <span class="n">mp</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
-</span><span class='line'>                    <span class="o">}</span>
-</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">prepare</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐播放中...&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;播放发生异常...&quot;</span><span class="o">);</span>
-</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">btn_stop</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                        <span class="n">mp</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
-</span><span class='line'>                        <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐停止播放...&quot;</span><span class="o">);</span>
-</span><span class='line'>                    <span class="o">}</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐停止发生异常...&quot;</span><span class="o">);</span>
-</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">btn_pause</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">ImageButton</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                        <span class="k">if</span> <span class="o">(</span><span class="n">isPaused</span> <span class="o">==</span> <span class="kc">false</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                            <span class="n">mp</span><span class="o">.</span><span class="na">pause</span><span class="o">();</span>
-</span><span class='line'>                            <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
-</span><span class='line'>                            <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;暂停播放!&quot;</span><span class="o">);</span>
-</span><span class='line'>                        <span class="o">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">isPaused</span> <span class="o">==</span> <span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                            <span class="n">mp</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>                            <span class="n">isPaused</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
-</span><span class='line'>                            <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;继续播放!&quot;</span><span class="o">);</span>
-</span><span class='line'>                        <span class="o">}</span>
-</span><span class='line'>                    <span class="o">}</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;发生异常...&quot;</span><span class="o">);</span>
-</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="cm">/* 当MediaPlayer.OnCompletionLister会运行的Listener */</span>
-</span><span class='line'>        <span class="n">mp</span><span class="o">.</span><span class="na">setOnCompletionListener</span><span class="o">(</span><span class="k">new</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">OnCompletionListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// @Override</span>
-</span><span class='line'>            <span class="cm">/* 覆盖文件播出完毕事件 */</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">MediaPlayer</span> <span class="n">arg0</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">                     * 解除资源与MediaPlayer的赋值关系 让资源可以为其它程序利用</span>
-</span><span class='line'><span class="cm">                     */</span>
-</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">release</span><span class="o">();</span>
-</span><span class='line'>                    <span class="cm">/* 改变TextView为播放结束 */</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;音乐播发结束!&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
-</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="cm">/* 当MediaPlayer.OnErrorListener会运行的Listener */</span>
-</span><span class='line'>        <span class="n">mp</span><span class="o">.</span><span class="na">setOnErrorListener</span><span class="o">(</span><span class="k">new</span> <span class="n">MediaPlayer</span><span class="o">.</span><span class="na">OnErrorListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="cm">/* 覆盖错误处理事件 */</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onError</span><span class="o">(</span><span class="n">MediaPlayer</span> <span class="n">arg0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">arg2</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="cm">/* 发生错误时也解除资源与MediaPlayer的赋值 */</span>
-</span><span class='line'>                    <span class="n">mp</span><span class="o">.</span><span class="na">release</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;播放发生异常!&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
-</span><span class='line'>                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>运行项目，聆听音乐！</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/152336191213395.png" alt="image" /></p>
-
-<h4>4、GameSoundPool音效播放的工具类</h4>
-
-<p>&#160; &#160; &#160; &#160;由于音效的音频文件太多了，建个map来管理，当要播放那个音效时，传入相应的id即可。</p>
-
-<p> 主要代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GameSoundPool</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">MainActivity</span> <span class="n">mainActivity</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">SoundPool</span> <span class="n">soundPool</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">GameSoundPool</span><span class="o">(</span><span class="n">MainActivity</span> <span class="n">mainActivity</span><span class="o">){</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mainActivity</span> <span class="o">=</span> <span class="n">mainActivity</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;();</span>
-</span><span class='line'>        <span class="n">soundPool</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoundPool</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initGameSound</span><span class="o">(){</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">shoot</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion2</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">explosion3</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">bigexplosion</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">6</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">get_goods</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">7</span><span class="o">,</span> <span class="n">soundPool</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">raw</span><span class="o">.</span><span class="na">button</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="c1">//播放音效</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">playSound</span><span class="o">(</span><span class="kt">int</span> <span class="n">sound</span><span class="o">,</span><span class="kt">int</span> <span class="n">loop</span><span class="o">,</span><span class="kt">boolean</span> <span class="n">flag</span><span class="o">){</span>
-</span><span class='line'>        <span class="n">AudioManager</span> <span class="n">am</span> <span class="o">=</span> <span class="o">(</span><span class="n">AudioManager</span><span class="o">)</span><span class="n">mainActivity</span><span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">Context</span><span class="o">.</span><span class="na">AUDIO_SERVICE</span><span class="o">);</span>
-</span><span class='line'>        <span class="kt">float</span> <span class="n">stramVolumeCurrent</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="na">getStreamVolume</span><span class="o">(</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">);</span>
-</span><span class='line'>        <span class="kt">float</span> <span class="n">stramMaxVolumeCurrent</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="na">getStreamVolume</span><span class="o">(</span><span class="n">AudioManager</span><span class="o">.</span><span class="na">STREAM_MUSIC</span><span class="o">);</span>
-</span><span class='line'>        <span class="kt">float</span> <span class="n">volume</span> <span class="o">=</span> <span class="n">stramVolumeCurrent</span><span class="o">/</span><span class="n">stramMaxVolumeCurrent</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">flag</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">soundPool</span><span class="o">.</span><span class="na">play</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">sound</span><span class="o">),</span> <span class="n">volume</span><span class="o">,</span> <span class="n">volume</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">loop</span><span class="o">,</span> <span class="mf">1.0f</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;由于游戏画面经常会有按钮点击关闭音效，这里的flag 参数主要用于控制是否播放。播放时调用</p>
-
-<p>GameSoundPool.playSound(key, 0,soundFlag); 即可，key是定义具体的音效id，当然我们也可以为了代码可读行写成静态全局变量传进来。</p>
 ]]></content>
   </entry>
   

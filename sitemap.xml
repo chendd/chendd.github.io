@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://chendd.github.io/blog/2016/05/15/learn_xposed/</loc>
+<lastmod>2016-05-15T21:32:12+08:00</lastmod>
+</url>
+<url>
 <loc>http://chendd.github.io/blog/2013/05/15/efficient_android_code/</loc>
 <lastmod>2013-05-15T21:32:12+08:00</lastmod>
 </url>
@@ -190,6 +194,9 @@
 <loc>http://chendd.github.io/blog/categories/android-study/</loc>
 </url>
 <url>
+<loc>http://chendd.github.io/blog/categories/xposed/</loc>
+</url>
+<url>
 <loc>http://chendd.github.io/tags/markdown/</loc>
 </url>
 <url>
@@ -314,5 +321,11 @@
 </url>
 <url>
 <loc>http://chendd.github.io/tags/hander/</loc>
+</url>
+<url>
+<loc>http://chendd.github.io/tags/xposed/</loc>
+</url>
+<url>
+<loc>http://chendd.github.io/tags/hook/</loc>
 </url>
 </urlset>

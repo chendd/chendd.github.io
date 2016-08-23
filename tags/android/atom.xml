@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: android | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/android/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-01T10:30:40+08:00</updated>
+  <updated>2016-08-23T16:30:25+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -12,6 +12,285 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android Hook框架Xposed入门]]></title>
+    <link href="http://chendd.github.io/blog/2016/05/15/learn_xposed/"/>
+    <updated>2016-05-15T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/05/15/learn_xposed</id>
+    <content type="html"><![CDATA[<h2>一.基础知识</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed是Android平台上较为出名的一个开源框架。在这个框架下，我们可以加载很多插件App，这些插件App可以直接或间接操纵普通应用甚至系统上的东西。Xposed原理上是Hook Android 系统的核心进程Zygote来达到修改程序运行过程和结果。讲到这里，可能有人会问什么是Hook？什么是Zygote？</p>
+
+<!--more-->
+
+
+<ul>
+<li><p>Hook(钩子)，钩子实际上是一个处理消息的程序段，通过系统调用，把它挂入系统。每当特定的消息发出，在没有到达目的窗口前，钩子程序就先捕获该消息，亦即钩子函数先得到控制权。这时钩子函数即可以加工处理（改变）该消息，也可以不作处理而继续传递该消息，还可以强制结束消息的传递。</p></li>
+<li><p>Zygote(Android进程名)，Android系统是基于Linux内核的，而在Linux系统中，所有的进程都是init进程的子孙进程，也就是说，所有的进程都是直接或者间接地由init进程fork出来的。在Android系统中，所有的应用程序进程以及系统服务进程SystemServer都是由Zygote进程孕育（fork）出来的，这也许就是为什么要取名英文本意为受精卵的Zygote原因吧。</p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;由于Xposed框架Hook了Android的核心进程Zygote，而其他应用启动都是从Zygote进程fork而来，就够达到针对系统上所有的应用程序进程的Hook。</p>
+
+<h2>二.Xposed简介</h2>
+
+<ul>
+<li><p>官网地址： <a href="http://repo.xposed.info/">http://repo.xposed.info/</a></p></li>
+<li><p>源码地址： <a href="https://github.com/rovo89">https://github.com/rovo89</a></p></li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;rovo89大神github主页,如图所示</p>
+
+<p>&#160; &#160; &#160; &#160;<img src="http://7arnbf.com1.z0.glb.clouddn.com/01.png" alt="image" /></p>
+
+<p>主页大致可以看出，xposed主要由三个项目来组成的</p>
+
+<ul>
+<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
+<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
+<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+</ul>
+
+
+<p>xposed目前已逐步支持ART虚拟机，兼容android 5.0以上版本</p>
+
+<h2>三.Xposed使用</h2>
+
+<p>&#160; &#160; &#160; &#160;在Android 4.0以上Android设备（需root权限，建议直接用模拟器）安装<a href="http://repo.xposed.info/module/de.robv.android.xposed.installer">XposedInstaller</a></p>
+
+<p>启动XposedInstaller点击 【框架】</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/02.png" alt="image" /></p>
+
+<p>点击 【安装/更新】 并重启，再点击框架看到看到 激活底下两个都是绿色 代表框架安装成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/03.png" alt="image" /></p>
+
+<p>我们可以点击【下载】来查看热门插件进行安装</p>
+
+<p>安装完插件点击【模块】进行勾选激活</p>
+
+<p>之后还需重启，插件才能生效。大家可以自己下载几个插件玩玩，本文重点不在这，就不演示了。</p>
+
+<h2>四.编写插件</h2>
+
+<p>这里我们hook自己编写的一个小的登录app来获取用户名密码。</p>
+
+<p>界面比较简单，输入用户名密码点击登录弹出用户输入的密码</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/05.png" alt="image" /></p>
+
+<p>界面代码</p>
+
+<pre><code class="java">public EditText et_username;
+    // 属性为private 时普通反射获取不到该对象
+    // private  EditText et_password;
+    public EditText et_password;
+
+    public Button bt_login;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        et_username = (EditText) findViewById(R.id.et_username);
+        et_password = (EditText) findViewById(R.id.et_password);
+
+        bt_login = (Button) findViewById(R.id.bt_login);
+        bt_login.setOnClickListener(this);
+    }
+
+
+    private boolean isCorrectInfo(String username, String password) {
+        // 校验用户名密码是否正确，直接返回true
+        return true;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.bt_login:
+            if(isCorrectInfo(et_username.getText().toString(), et_password.getText().toString())) {
+                // 帐号密码校验成功，弹出当前密码
+                Toast.makeText(MainActivity.this, "password:"+et_password.getText().toString(), Toast.LENGTH_SHORT).show();
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+</code></pre>
+
+<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+
+<pre><code class="xml">&lt;application
+    android:allowBackup="true"
+    android:icon="@drawable/ic_launcher"
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme" &gt;
+
+    &lt;!-- 标记xposed插件 --&gt;   
+    &lt;meta-data
+        android:name="xposedmodule"
+        android:value="true" /&gt;
+    &lt;!-- 模块描述 --&gt;
+    &lt;meta-data
+        android:name="xposeddescription"
+        android:value="登录hook例子！" /&gt;
+    &lt;!-- 最低版本号 --&gt;
+    &lt;meta-data
+        android:name="xposedminversion"
+        android:value="54" /&gt;
+
+&lt;/application&gt;
+</code></pre>
+
+<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+
+<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+
+<h4>3.声明主入口路径</h4>
+
+<p>需要在assets文件夹中新建一个xposed_init的文件，并在其中声明主入口类。如这里我们的主入口类为
+<code>java
+com.example.xposedtest.HookUtil
+</code></p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
+
+<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+
+<p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
+
+<pre><code class="java">public class HookUtil implements IXposedHookLoadPackage{
+
+    @Override
+    public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
+        // 标记目标app包名
+        if (!lpparam.packageName.equals("com.example.logintest"))
+            return;
+        XposedBridge.log("Loaded app: " + lpparam.packageName);
+
+        // Hook MainActivity中的isCorrectInfo(String,String)方法
+        // findAndHookMethod(hook方法的类名，classLoader，hook方法名，hook方法参数...，XC_MethodHook)
+        XposedHelpers.findAndHookMethod("com.example.logintest.MainActivity", lpparam.classLoader, "isCorrectInfo", String.class,
+                String.class, new XC_MethodHook() {
+
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("开始hook");
+                        XposedBridge.log("参数1 = " + param.args[0]);
+                        XposedBridge.log("参数2 = " + param.args[1]);
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("结束hook");
+                        XposedBridge.log("参数1 = " + param.args[0]);
+                        XposedBridge.log("参数2 = " + param.args[1]);
+
+                    }
+                });
+
+
+    }
+
+}
+</code></pre>
+
+<h4>5.运行程序，查看效果</h4>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/06.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
+
+<pre><code class="java">
+public class HookUtil implements IXposedHookLoadPackage{
+
+    @Override
+    public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
+        // 标记目标app包名
+        if (!lpparam.packageName.equals("com.example.logintest"))
+            return;
+        XposedBridge.log("Loaded app: " + lpparam.packageName);
+
+
+        // Hook MainActivity中的onClick(View v)方法
+        XposedHelpers.findAndHookMethod("com.example.logintest.MainActivity", lpparam.classLoader, "onClick", View.class, new XC_MethodHook() {
+
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                        Class clazz = param.thisObject.getClass();
+                        XposedBridge.log("class name:"+clazz.getName());
+
+                        Field field = clazz.getField("et_password");// 密码输入框 id
+
+                        EditText password = (EditText) field.get(param.thisObject);
+
+                        String string = password.getText().toString();
+                        XposedBridge.log("密码 = " + string);
+                        // 设置新密码
+                        password.setText("改你妹啊!!");
+
+                    }
+                });
+
+
+
+
+    }
+
+}
+</code></pre>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/09.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;之前登录app密码EditText声明为 private 时，导致反射获取报NoSuchFileException，原因是普通的反射不能获取私有变量，
+改为EditText声明改为public后成功，或者不能改EditText声明时，可以用以下方法，无论公有私有都可以获取</p>
+
+<pre><code class="java">
+// 输入框不为私有private 可通过以下方式获取 
+// Field field = clazz.getField("et_password");// 密码输入框 id
+
+// 通过类的字节码得到该类中声明的所有属性，无论私有或公有
+Field field = clazz.getDeclaredField("et_password");
+// 设置访问权限（这点对于有过android开发经验的可以说很熟悉）
+field.setAccessible(true);
+</code></pre>
+
+<h2>4.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+
+<p>附：</p>
+
+<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+
+<p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
+
+<p>官方例子: <a href="https://github.com/rovo89/XposedExamples">https://github.com/rovo89/XposedExamples</a></p>
+
+<p>参考文章: <a href="http://www.csdn.net/article/1970-01-01/2825462">http://www.csdn.net/article/1970-01-01/2825462</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[编写高效的Android代码]]></title>
@@ -763,140 +1042,6 @@ Pull解析和Sax解析不一样的地方有(1)pull读取xml文件后触发相应
 
 <p>　　对于三种解析XML方法，各有千秋，倾向于PULL解析器，因为SAX解析器操作起来太笨重，DOM不适合文档较大，内存较小的场景，
 唯有Pull轻巧灵活，速度快，占用内存小，使用非常顺手，Pull解析可以用于很多场合，例如接受google天气，rss新闻等。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记22--Animation动画简介]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/26/android_study_22/"/>
-    <updated>2013-03-26T21:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/26/android_study_22</id>
-    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;Animation动画主要有两种：帧动画(Frame Animation)和补间动画(Tween Animation)。
-补间动画主要包括对位置、角度、尺寸等属性的变化，而帧动画则是通过若干帧图片轮流切换显示的。</p>
-
-<h4>1、帧动画</h4>
-
-<p>&#160; &#160; &#160; &#160;按顺序显示事先准备好的图片，跟动漫类似。主要用到的类AnimationDrawable，每个帧都是AnimationDrawable对象。
-定义帧动画可以在代码直接进行。也可以通过XML文件定义，定义帧动画的文件存放在res/anim目录下。XML指定帧出现的顺序
-及每个帧的持续时间。</p>
-
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;帧动画XML主要标记和属性如下:</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262025574051823.png" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;需要强调的是：启动Frame Animation动画的代码rocketAnimation.start();不能在OnCreate()中，因为在OnCreate()中
-AnimationDrawable还没有完全的与ImageView绑定，在OnCreate()中启动动画，就只能看到第一张图片。这里实在拖曳事件中实现的。</p>
-
-<p>&#160; &#160; &#160; &#160;AnimationDrawable的主要方法如下：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262028348437192.png" alt="image" />
-　　</p>
-
-<p>&#160; &#160; &#160; &#160;帧动画使用例子</p>
-
-<p>&#160; &#160; &#160; &#160;完整帧动画XML(frame_ani.xml)代码：</p>
-
-<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
- &lt;animation-list xmlns:android="http://schemas.android.com/apk/res/android"
-     android:oneshot="false"&gt;
-    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish1" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish2" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish3" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish4" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish5" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish6" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish7" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
-    &lt;item android:drawable="@drawable/fish8" android:duration="200" android:visible="true"/&gt;
- &lt;/animation-list&gt;
-</code></pre>
-
-<p>启动帧动画JAVA代码：</p>
-
-<pre><code class="java">@Override    
-public void onClick(View v) {            //重写onClick方法
-      ImageView iv = (ImageView)findViewById(R.id.iv);
-      iv.setBackgroundResource(R.anim.frame_ani);
-      AnimationDrawable ad = (AnimationDrawable)iv.getBackground();
-      ad.start();        //启动AnimationDrawable
-}
-</code></pre>
-
-<p>点击按钮，启动帧动画，可以看见不同fish图片的切换，鱼儿在游动(自己脑补哈)。</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262029485935994.png" alt="image" /></p>
-
-<h4>2、补间动画</h4>
-
-<p>&#160; &#160; &#160; &#160;补间动画作用于View视图，主要包括对View对象的位置、尺寸、旋转角度、透明度的变化。补间动画涉及的类主要有Animation、AnimationSet等。
-&#160; &#160; &#160; &#160;补间动画同帧动画可以在代码直接进行。也可以通过XML文件定义，推荐用XML，因为这样可读性比较高和利于扩展。
-XML文件存放在res/anim下。</p>
-
-<p>　　补间动画XML几种变化标记和属性如下:</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262034318435727.png" alt="image" /></p>
-
-<p>　　公有属性如下：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262034454364374.png" alt="image" />　</p>
-
-<p>　　补间动画使用例子：</p>
-
-<p>完整补间动画XML代码：</p>
-
-<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;!-- XML的版本以及编码方式 --&gt;
-&lt;set xmlns:android="http://schemas.android.com/apk/res/android"&gt; 
-  &lt;alpha
-    android:fromAlpha="0.0" 
-    android:toAlpha="1.0" 
-    android:duration="6000" 
-  /&gt; &lt;!-- 透明度的变换 --&gt;
-  &lt;scale
-    android:interpolator= "@android:anim/accelerate_decelerate_interpolator" 
-    android:fromXScale="0.0" 
-    android:toXScale="1.0" 
-    android:fromYScale="0.0" 
-    android:toYScale="1.0" 
-    android:pivotX="50%" 
-    android:pivotY="50%"
-    android:fillAfter="false" 
-    android:duration="9000"
-  /&gt; &lt;!-- 尺寸的变换 --&gt;
-  &lt;translate
-    android:fromXDelta="30" 
-    android:toXDelta="0" 
-    android:fromYDelta="30"
-    android:toYDelta="0" 
-    android:duration="10000" 
-  /&gt; &lt;!-- 尺位置的变换 --&gt;
-  &lt;rotate
-    android:interpolator="@android:anim/accelerate_decelerate_interpolator" 
-    android:fromDegrees="0" 
-    android:toDegrees="+360" 
-    android:pivotX="50%" 
-    android:pivotY="50%"
-    android:duration="10000"
-  /&gt; &lt;!-- 旋转变换 --&gt;
-&lt;/set&gt;
-</code></pre>
-
-<p>启动补间动画JAVA代码:</p>
-
-<pre><code class="java">@Override
-public void onClick(View v) {                //重写onClick方法
-       ImageView iv = (ImageView)findViewById(R.id.iv);
-       Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.tween_ani);
-       iv.startAnimation(animation);            //启动动画            
-}
-</code></pre>
-
-<p>点击按钮，启动补间动画，可以看见螃蟹从中心慢慢旋转显现出来。</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/262039309214990.png" alt="image" /><img src="http://images.cnitblog.com/i/602984/201403/262039459996150.png" alt="image" /></p>
 ]]></content>
   </entry>
   

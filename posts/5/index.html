@@ -79,6 +79,95 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/11/02/java_reference/">JAVA引用类型及作用</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-11-02T18:21:11+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2012</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>0. 引言</h4>
+
+<p>　　Java 中一共有 4 种类型的引用 : StrongReference、 SoftReference、 WeakReference 以及 PhantomReference ,
+这 4 种类型的引用与 GC 有着密切的关系.</p>
+
+<h4>1. 强引用 (StrongReference)</h4>
+
+<p>　　普通的引用做法,如:
+String str = &ldquo;hello&rdquo;;
+只要引用存在就不会被回收,除非手动置为null,或者超出范围,gc才会回收</p>
+
+<h4>2. 软引用 (SoftReference)</h4>
+
+<p>　　当JVM虚拟机内存不足时,会回收软引用对象.这样做的好处是,保证java抛出OutOfMemory异常前,把弱引用对象置为null,
+用于一些资源的缓存,实现Cache功能.如:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">A</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">A</span><span class="o">();</span>
+</span><span class='line'><span class="n">SoftReference</span> <span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoftReference</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//引用时</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">sr</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+</span><span class='line'>　　<span class="n">obj</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span><span class='line'>　　<span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">A</span><span class="o">();</span>
+</span><span class='line'>　　<span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SoftReference</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　　垃圾收集器在运行时可能会（也可能不会）释放软可及对象.对象是否被释放取决
+于垃圾收集器的算法以及垃圾收集器运行时可用的内存数量.</p>
+
+<h4>3. 弱引用 (WeakReference)</h4>
+
+<p>　　和软引用 大同小异, SoftReference和WeakReference的区别是：一旦gc发现对象是WeakReference可达就会把它放到ReferenceQueue中，然后等下次gc时回收它；当对象是SoftReference可达时，gc可能会向操作系统申请更多内存，而不是直接回收它，当实在没辙了才回收它。像cache系统，最适合用SoftReference。让gc来替我们决定什么时候回收对象以及回收哪些对象。</p>
+
+<h4>4. 虚引用 (PhantomRefrence)</h4>
+
+<p>　　用得较少,建立虚引用之后通过get方法返回结果始终为null,对ReferenceQueue软引用和弱引用可以有可无，但是虚引用必须有
+虚引用的唯一用处是跟踪 referent 何时被 enqueue 到 ReferenceQueue 中</p>
+
+<h4>5. 比较</h4>
+
+<p>　　四种引用的强弱关系按上面顺序排下来:强 > 软 > 弱 > 虚.对于对象是属于哪种可及的对象，由他的最强的引用决定</p>
+
+<h4>6. 小结</h4>
+
+<p>　　一般的应用程序不会涉及到 Reference 编程， 但是了解这些知识会对理解 GC 的工作原理以及性能调优有一定帮助, 在实现一些基础性设施比如缓存时也可能会用到</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/07/26/build_octopress_in_window/">Octopress写博客步骤</a></h1>
     
     
@@ -163,6 +252,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
       </li>
     
@@ -176,10 +269,6 @@
     
       <li class="post">
         <a href="/blog/2013/03/29/android_study_23/">Android学习日记23--XML解析</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/26/android_study_22/">Android学习日记22--Animation动画简介</a>
       </li>
     
   </ul>
@@ -229,6 +318,7 @@
     <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 <li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (1)</a></li>
 
   </ul>
 </section>
