@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android Hook框架Xposed进阶 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="&#160; &#160; &#160; &#160;上一篇《Android Hook框架Xposed入门》，我们对xposed进行简单的介绍并hook自己写的登录app。这次我们对xposed进行深入的了解并hook系统应用和第三方应用。 一.API说明 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2016/05/17/advanced_xposed/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android Hook框架Xposed进阶</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-05-17T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>&#160; &#160; &#160; &#160;上一篇<a href="http://chendd.com/blog/2016/05/15/learn_xposed/">《Android Hook框架Xposed入门》</a>，我们对xposed进行简单的介绍并hook自己写的登录app。这次我们对xposed进行深入的了解并hook系统应用和第三方应用。</p>
+
+<h2>一.API说明</h2>
+
+<ul>
+<li>IXposedHookLoadPackage.java
+
+<ul>
+<li>方法: handleLoadPackage,这个方法用于在加载应用程序的包的时候执行用户的操作</li>
+<li>参数说明: final LoadPackageParam lpparam 这个参数包含了加载的应用程序的一些基本信息</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedHelpers.java
+
+<ul>
+<li>方法: findAndHookMethod,这是一个辅助方法，可以通过静态导入使用</li>
+<li>参数说明: findAndHookMethod(Class&lt;?> clazz, //需要 Hook 的类名ClassLoader，//类加载器，可以设置为 nullString methodName, //需要 Hook 的方法名 Object&hellip; parameterTypesAndCallback)该函数的最后一个参数集，包含了：
+（1）Hook 的目标方法的参数,譬如："com.android.internal.policy.impl.PhoneWindow.DecorView"是方法的参数的类。
+（2）回调方法：a.XC_MethodHook b.XC_MethodReplacement</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedBridge.java
+
+<ul>
+<li>无参方法: log,该方法可以将 log 信息以及 Throwable 抛出的异常信息输出到标准的logcat 以及/data/xposed/debug.log 这个文件中</li>
+<li>无参方法: hookAllMethods/hookAllConstructors，该方法可以用来 hook 某个类中的所有方法或者构造函数，但是不同的Rom（非Android原生 Rom）会有不同的变种。</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>二.Hook/Replace</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed 框架中真正起作用的是对方法的hook，那么寻找正确的目标方法名和所在的类名就很关键了。一般寻找目标方法有两种方法：</p>
+
+<ul>
+<li>直接在 AOSP 中查看</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对系统应用，要hook修改系统层面的东西，就可以通过查看google官方开放的源码来查看相应的接口。</p>
+
+<ul>
+<li>反编译目标程序，查看Smali代码。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对第三方应用，常见的反编译工具有apktool，反编译后可以得到jar或者得到smali文件。Android采用的是java语言 进行开发，但是Android系统有自己的虚拟机Dalvik,代码编译最终不是采用的java的class，而是使用的smali。对于jar文件，我们可以使用jd-gui来查看源码，但是jar的话可能很多地方无法正确的解释出来，如果我们反编译的是smali则可以正确的理解程序的意思。smali类似汇编的形式，不熟悉smali语法，我们可以用smail2java工具进行转化，就可以通过java查找相应要hook的方法名信息。</p>
+
+<h2>三.Hook系统应用</h2>
+
+<p>&#160; &#160; &#160; &#160;这节简单讲讲hook系统应用来修改IMEI(设备信息)。APP获取IMEI是通过代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">TelephonyManager</span> <span class="n">tm</span> <span class="o">=</span> <span class="o">(</span><span class="n">TelephonyManager</span><span class="o">)</span> <span class="k">this</span><span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">TELEPHONY_SERVICE</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">IMEI</span><span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="na">getDeviceId</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>通过上述接口获取的，我们首先hook住TelephonyManager类的方法getDeviceId()，修改返回结果为"00000000000000" 这样无效的IMEI。</p>
+
+<p>主入口HookUtil代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span><span class="o">{</span>
+</span><span class='line'>        <span class="n">HookMethod</span><span class="o">(</span><span class="n">TelephonyManager</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getDeviceId&quot;</span><span class="o">,</span> <span class="s">&quot;00000000000000&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">HookMethod</span><span class="o">(</span><span class="kd">final</span> <span class="n">Class</span> <span class="n">clazz</span><span class="o">,</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">method</span><span class="o">,</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">result</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
+</span><span class='line'>            <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="n">clazz</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[]</span> <span class="o">{</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">param</span><span class="o">.</span><span class="na">setResult</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span> <span class="o">});</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;写个简单获取IMEI例子测试是否hook成功。未激活插件时获取IMEI的值：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/11.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;激活插件再获取IMEI的值，发现已经修改成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/12.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;既然能够修改IMEI，那么其他手机信息也可以依瓢画葫芦进行修改，只要知道返回这些信息的相应接口。</p>
+
+<h2>四.Hook第三方应用</h2>
+
+<p>&#160; &#160; &#160; &#160;接下来我们尝试hook第三方应用微信。微信是这几年很火的聊天软件，聊天的内容不局限文字、语音、图片&hellip;&hellip;微信中还可以掷骰子和猜拳互动是比较娱乐性的功能。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/13.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;如果能够hook微信里面的骰子和猜拳接口，那么我们就尝试基于Xspoed的微信猜拳、骰子点数作弊插件。保证每次掷出来的骰子或者猜拳出的是我们想要的结果。</p>
+
+<p>&#160; &#160; &#160; &#160;由于微信版本众多，每个版本发布前都经过proguard混淆打包，导致相同接口每个版本的接口名不一致，但是相同版本在不同机器的接口保证唯一，我们这次用6.3.9 for Android也就是weixin_700版本进行hook，其它版本同理也可以hook。</p>
+
+<p>&#160; &#160; &#160; &#160;根据网上大神反编译微信源码分析，掷骰子和猜拳的接口在com.tencent.mm.sdk.platformtools.bb类的
+pu方法中</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/14.png" alt="image" /></p>
+
+<p>由代码我们可以分析出，掷骰子和猜拳的结果是本地取随机数来控制，当传入int paramInt = 2时，代表猜拳的接口，随机返回0，1，2三个随机数分别代表"剪刀", &ldquo;石头&rdquo;, &ldquo;布"。当传入int paramInt = 5时，代表掷骰子的接口，随机返回0~5六个随机数分别代表1~6的点数。</p>
+
+<p>那么我们就可以编写HookUtil的代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.tencent.mm.sdk.platformtools.bb&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">,</span> <span class="s">&quot;pu&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">findAndHookMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">className</span><span class="o">,</span> <span class="kd">final</span> <span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">,</span> <span class="n">String</span> <span class="n">methodName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>      <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="n">methodName</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodReplacement</span><span class="o">()</span>
+</span><span class='line'>      <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="nd">@Override</span>
+</span><span class='line'>          <span class="kd">protected</span> <span class="n">Object</span> <span class="nf">replaceHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span>
+</span><span class='line'>          <span class="o">{</span>
+</span><span class='line'>              <span class="kt">int</span> <span class="n">gameType</span> <span class="o">=</span> <span class="o">(</span><span class="n">Integer</span><span class="o">)</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="k">switch</span> <span class="o">(</span><span class="n">gameType</span><span class="o">)</span>
+</span><span class='line'>              <span class="o">{</span>
+</span><span class='line'>              <span class="k">case</span> <span class="mi">5</span><span class="o">:</span> <span class="c1">// 摇骰子</span>
+</span><span class='line'>                  <span class="n">Uri</span> <span class="n">diceUri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;content://com.example.hookdemo.provider/wx_plugs_setting&quot;</span><span class="o">);</span>
+</span><span class='line'>                  <span class="n">Cursor</span> <span class="n">diceCursor</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">.</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">diceUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>                  <span class="k">if</span> <span class="o">(</span><span class="n">diceCursor</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>                  <span class="o">{</span>
+</span><span class='line'>                      <span class="k">while</span> <span class="o">(</span><span class="n">diceCursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
+</span><span class='line'>                      <span class="o">{</span>
+</span><span class='line'>                          <span class="n">diceCount</span> <span class="o">=</span> <span class="n">diceCursor</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">diceCursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;dice_num&quot;</span><span class="o">));</span>
+</span><span class='line'>                          <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;查询获取骰子数为:&quot;</span> <span class="o">+</span> <span class="n">diceCount</span><span class="o">);</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">}</span>
+</span><span class='line'>                  <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>                  
+</span><span class='line'>              <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="c1">// 猜拳</span>
+</span><span class='line'>                  
+</span><span class='line'>                  <span class="n">Uri</span> <span class="n">morraUri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;content://com.example.hookdemo.provider/wx_plugs_setting&quot;</span><span class="o">);</span>
+</span><span class='line'>                  <span class="n">Cursor</span> <span class="n">morraCursor</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">.</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">morraUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>                  <span class="k">if</span> <span class="o">(</span><span class="n">morraCursor</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>                  <span class="o">{</span>
+</span><span class='line'>                      <span class="k">while</span> <span class="o">(</span><span class="n">morraCursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
+</span><span class='line'>                      <span class="o">{</span>
+</span><span class='line'>                          <span class="n">diceCount</span> <span class="o">=</span> <span class="n">morraCursor</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">morraCursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;morra_num&quot;</span><span class="o">));</span>
+</span><span class='line'>                          <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;查询猜拳数为:&quot;</span> <span class="o">+</span> <span class="n">morraNum</span><span class="o">);</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">}</span>
+</span><span class='line'>                  <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;replaceHookedMethod--函数返回值:&quot;</span> <span class="o">+</span> <span class="n">diceCount</span><span class="o">);</span>
+</span><span class='line'>              <span class="k">return</span> <span class="n">diceCount</span><span class="o">;</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">});</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;接下来我们编写保存设置想要点数和猜拳的并保存sqlite并通过ContentProvider提供统一的接口。当然也可以通过xposed提供的XSharedPreferences来做可能会更简单点。这样每次hook到请求返回骰子和猜拳结果就会根据我们每次保存的结果动态更改。</p>
+
+<p>运行插件，点击【模块】，找到我们的插件勾选，并点击进行配置</p>
+
+<p>设置摇出来的骰子点数为6点。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/15.png" alt="image" /></p>
+
+<p>设置猜拳出的是剪刀。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/16.png" alt="image" /></p>
+
+<p>重启激活插件，进入微信查看效果：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/17.png" alt="image" /></p>
+
+<p>重新进入模块配置界面，设置点数为1，猜拳为石头</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/18.png" alt="image" /></p>
+
+<p>再进来微信查看是否生效</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/19.png" alt="image" /></p>
+
+<p>有些人试验会不成功，可能是因为微信版本不是6.3.9导致接口名不一致，比如微信6.3.16的接口就为 com.tencent.mm.sdk.platformtools.ba的pT()方法。</p>
+
+<p>我们可以根据当前微信的不同版本（微信历史版本可以在安智市场下载），hook相应的接口</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>     <span class="k">case</span> <span class="s">&quot;6.3.5&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;or&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.7&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bc&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;oK&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.8&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bc&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;oZ&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.9&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bb&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.11&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ay&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.13&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ay&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.15&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.16&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pT&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;看到这，有些骚年会动歪心思，是不是可以hook微信抢红包的接口来获利，你们真是too young，too simple。你们以为微信抢红包金额接口会从客户端随机取个数吗，明显是要服务端分配下发的，服务端要严格控制任何漏洞，不向骰子和猜拳是客户端产生各随机结果再发送到服务端同步给其它客户端。再者万一你们找到漏洞，这种涉及金钱的被发现是要被腾讯告抓去坐牢滴~</p>
+
+<h2>五.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;通过介绍Xposed常用API接口，寻找hook的目标方法，以及演示分别hook系统应用和第三方应用的例子来进一步阐述Xposed的使用。可以看出Xposed的功能非常强大，可能有人会担心自己手机上的帐号密码或者钱财丢失，其实Xposed使用还是有些限制的，比如需要手机root权限，不好hook jni写的C语言接口。所有一般我们使用的手机尽量不要root，我们App关键接口尽量用jni的so库来实现。</p>
+
+<p>附：</p>
+
+<p>HookIMEI源码: <a href="https://github.com/chendd/Hook_IMEI.git">https://github.com/chendd/Hook_IMEI.git</a></p>
+
+<p>Hook微信源码: <a href="https://github.com/chendd/WeChatHook.git">https://github.com/chendd/WeChatHook.git</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-05-17T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/xposed/'>xposed</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/05/15/learn_xposed/" title="Previous Post: Android Hook框架Xposed入门">&laquo; Android Hook框架Xposed入门</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2016/05/17/advanced_xposed" data-title="Android Hook框架Xposed进阶" data-url="http://chendd.github.io/blog/2016/05/17/advanced_xposed/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_25/">Android学习日记25--ANR和Hander消息机制</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 80%" href="/tags/activity/">activity</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 80%" href="/tags/button/">button</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 99%" href="/tags/hook/">hook</a>
+<a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
+<a style="font-size: 110%" href="/tags/java/">java</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 99%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

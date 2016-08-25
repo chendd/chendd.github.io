@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd's Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-23T16:30:25+08:00</updated>
+  <updated>2016-08-25T15:38:54+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -12,6 +12,373 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android Hook框架Xposed进阶]]></title>
+    <link href="http://chendd.github.io/blog/2016/05/17/advanced_xposed/"/>
+    <updated>2016-05-17T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/05/17/advanced_xposed</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;上一篇<a href="http://chendd.com/blog/2016/05/15/learn_xposed/">《Android Hook框架Xposed入门》</a>，我们对xposed进行简单的介绍并hook自己写的登录app。这次我们对xposed进行深入的了解并hook系统应用和第三方应用。</p>
+
+<h2>一.API说明</h2>
+
+<ul>
+<li>IXposedHookLoadPackage.java
+
+<ul>
+<li>方法: handleLoadPackage,这个方法用于在加载应用程序的包的时候执行用户的操作</li>
+<li>参数说明: final LoadPackageParam lpparam 这个参数包含了加载的应用程序的一些基本信息</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedHelpers.java
+
+<ul>
+<li>方法: findAndHookMethod,这是一个辅助方法，可以通过静态导入使用</li>
+<li>参数说明: findAndHookMethod(Class&lt;?> clazz, //需要 Hook 的类名ClassLoader，//类加载器，可以设置为 nullString methodName, //需要 Hook 的方法名 Object&hellip; parameterTypesAndCallback)该函数的最后一个参数集，包含了：
+（1）Hook 的目标方法的参数,譬如："com.android.internal.policy.impl.PhoneWindow.DecorView"是方法的参数的类。
+（2）回调方法：a.XC_MethodHook b.XC_MethodReplacement</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedBridge.java
+
+<ul>
+<li>无参方法: log,该方法可以将 log 信息以及 Throwable 抛出的异常信息输出到标准的logcat 以及/data/xposed/debug.log 这个文件中</li>
+<li>无参方法: hookAllMethods/hookAllConstructors，该方法可以用来 hook 某个类中的所有方法或者构造函数，但是不同的Rom（非Android原生 Rom）会有不同的变种。</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>二.Hook/Replace</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed 框架中真正起作用的是对方法的hook，那么寻找正确的目标方法名和所在的类名就很关键了。一般寻找目标方法有两种方法：</p>
+
+<ul>
+<li>直接在 AOSP 中查看</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对系统应用，要hook修改系统层面的东西，就可以通过查看google官方开放的源码来查看相应的接口。</p>
+
+<ul>
+<li>反编译目标程序，查看Smali代码。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对第三方应用，常见的反编译工具有apktool，反编译后可以得到jar或者得到smali文件。Android采用的是java语言 进行开发，但是Android系统有自己的虚拟机Dalvik,代码编译最终不是采用的java的class，而是使用的smali。对于jar文件，我们可以使用jd-gui来查看源码，但是jar的话可能很多地方无法正确的解释出来，如果我们反编译的是smali则可以正确的理解程序的意思。smali类似汇编的形式，不熟悉smali语法，我们可以用smail2java工具进行转化，就可以通过java查找相应要hook的方法名信息。</p>
+
+<h2>三.Hook系统应用</h2>
+
+<p>&#160; &#160; &#160; &#160;这节简单讲讲hook系统应用来修改IMEI(设备信息)。APP获取IMEI是通过代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">TelephonyManager</span> <span class="n">tm</span> <span class="o">=</span> <span class="o">(</span><span class="n">TelephonyManager</span><span class="o">)</span> <span class="k">this</span><span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">TELEPHONY_SERVICE</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">IMEI</span><span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="na">getDeviceId</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>通过上述接口获取的，我们首先hook住TelephonyManager类的方法getDeviceId()，修改返回结果为"00000000000000" 这样无效的IMEI。</p>
+
+<p>主入口HookUtil代码：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HookUtil</span> <span class="kd">implements</span> <span class="n">IXposedHookLoadPackage</span><span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleLoadPackage</span><span class="o">(</span><span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span><span class="o">{</span>
+</span><span class='line'>        <span class="n">HookMethod</span><span class="o">(</span><span class="n">TelephonyManager</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getDeviceId&quot;</span><span class="o">,</span> <span class="s">&quot;00000000000000&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">HookMethod</span><span class="o">(</span><span class="kd">final</span> <span class="n">Class</span> <span class="n">clazz</span><span class="o">,</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">method</span><span class="o">,</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">result</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
+</span><span class='line'>            <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="n">clazz</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[]</span> <span class="o">{</span> <span class="k">new</span> <span class="nf">XC_MethodHook</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">param</span><span class="o">.</span><span class="na">setResult</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span> <span class="o">});</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;写个简单获取IMEI例子测试是否hook成功。未激活插件时获取IMEI的值：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/11.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;激活插件再获取IMEI的值，发现已经修改成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/12.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;既然能够修改IMEI，那么其他手机信息也可以依瓢画葫芦进行修改，只要知道返回这些信息的相应接口。</p>
+
+<h2>四.Hook第三方应用</h2>
+
+<p>&#160; &#160; &#160; &#160;接下来我们尝试hook第三方应用微信。微信是这几年很火的聊天软件，聊天的内容不局限文字、语音、图片&hellip;&hellip;微信中还可以掷骰子和猜拳互动是比较娱乐性的功能。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/13.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;如果能够hook微信里面的骰子和猜拳接口，那么我们就尝试基于Xspoed的微信猜拳、骰子点数作弊插件。保证每次掷出来的骰子或者猜拳出的是我们想要的结果。</p>
+
+<p>&#160; &#160; &#160; &#160;由于微信版本众多，每个版本发布前都经过proguard混淆打包，导致相同接口每个版本的接口名不一致，但是相同版本在不同机器的接口保证唯一，我们这次用6.3.9 for Android也就是weixin_700版本进行hook，其它版本同理也可以hook。</p>
+
+<p>&#160; &#160; &#160; &#160;根据网上大神反编译微信源码分析，掷骰子和猜拳的接口在com.tencent.mm.sdk.platformtools.bb类的
+pu方法中</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/14.png" alt="image" /></p>
+
+<p>由代码我们可以分析出，掷骰子和猜拳的结果是本地取随机数来控制，当传入int paramInt = 2时，代表猜拳的接口，随机返回0，1，2三个随机数分别代表"剪刀", &ldquo;石头&rdquo;, &ldquo;布"。当传入int paramInt = 5时，代表掷骰子的接口，随机返回0~5六个随机数分别代表1~6的点数。</p>
+
+<p>那么我们就可以编写HookUtil的代码</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">findAndHookMethod</span><span class="o">(</span><span class="s">&quot;com.tencent.mm.sdk.platformtools.bb&quot;</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">,</span> <span class="s">&quot;pu&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">findAndHookMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">className</span><span class="o">,</span> <span class="kd">final</span> <span class="n">LoadPackageParam</span> <span class="n">lpparam</span><span class="o">,</span> <span class="n">String</span> <span class="n">methodName</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">{</span>
+</span><span class='line'>      <span class="n">XposedHelpers</span><span class="o">.</span><span class="na">findAndHookMethod</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">lpparam</span><span class="o">.</span><span class="na">classLoader</span><span class="o">,</span> <span class="n">methodName</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="nf">XC_MethodReplacement</span><span class="o">()</span>
+</span><span class='line'>      <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="nd">@Override</span>
+</span><span class='line'>          <span class="kd">protected</span> <span class="n">Object</span> <span class="nf">replaceHookedMethod</span><span class="o">(</span><span class="n">MethodHookParam</span> <span class="n">param</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span>
+</span><span class='line'>          <span class="o">{</span>
+</span><span class='line'>              <span class="kt">int</span> <span class="n">gameType</span> <span class="o">=</span> <span class="o">(</span><span class="n">Integer</span><span class="o">)</span> <span class="n">param</span><span class="o">.</span><span class="na">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="k">switch</span> <span class="o">(</span><span class="n">gameType</span><span class="o">)</span>
+</span><span class='line'>              <span class="o">{</span>
+</span><span class='line'>              <span class="k">case</span> <span class="mi">5</span><span class="o">:</span> <span class="c1">// 摇骰子</span>
+</span><span class='line'>                  <span class="n">Uri</span> <span class="n">diceUri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;content://com.example.hookdemo.provider/wx_plugs_setting&quot;</span><span class="o">);</span>
+</span><span class='line'>                  <span class="n">Cursor</span> <span class="n">diceCursor</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">.</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">diceUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>                  <span class="k">if</span> <span class="o">(</span><span class="n">diceCursor</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>                  <span class="o">{</span>
+</span><span class='line'>                      <span class="k">while</span> <span class="o">(</span><span class="n">diceCursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
+</span><span class='line'>                      <span class="o">{</span>
+</span><span class='line'>                          <span class="n">diceCount</span> <span class="o">=</span> <span class="n">diceCursor</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">diceCursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;dice_num&quot;</span><span class="o">));</span>
+</span><span class='line'>                          <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;查询获取骰子数为:&quot;</span> <span class="o">+</span> <span class="n">diceCount</span><span class="o">);</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">}</span>
+</span><span class='line'>                  <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>                  
+</span><span class='line'>              <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="c1">// 猜拳</span>
+</span><span class='line'>                  
+</span><span class='line'>                  <span class="n">Uri</span> <span class="n">morraUri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;content://com.example.hookdemo.provider/wx_plugs_setting&quot;</span><span class="o">);</span>
+</span><span class='line'>                  <span class="n">Cursor</span> <span class="n">morraCursor</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">.</span><span class="na">getContentResolver</span><span class="o">().</span><span class="na">query</span><span class="o">(</span><span class="n">morraUri</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>                  <span class="k">if</span> <span class="o">(</span><span class="n">morraCursor</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>                  <span class="o">{</span>
+</span><span class='line'>                      <span class="k">while</span> <span class="o">(</span><span class="n">morraCursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
+</span><span class='line'>                      <span class="o">{</span>
+</span><span class='line'>                          <span class="n">diceCount</span> <span class="o">=</span> <span class="n">morraCursor</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">morraCursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;morra_num&quot;</span><span class="o">));</span>
+</span><span class='line'>                          <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;查询猜拳数为:&quot;</span> <span class="o">+</span> <span class="n">morraNum</span><span class="o">);</span>
+</span><span class='line'>                      <span class="o">}</span>
+</span><span class='line'>                  <span class="o">}</span>
+</span><span class='line'>                  <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="n">XposedBridge</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;replaceHookedMethod--函数返回值:&quot;</span> <span class="o">+</span> <span class="n">diceCount</span><span class="o">);</span>
+</span><span class='line'>              <span class="k">return</span> <span class="n">diceCount</span><span class="o">;</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">});</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;接下来我们编写保存设置想要点数和猜拳的并保存sqlite并通过ContentProvider提供统一的接口。当然也可以通过xposed提供的XSharedPreferences来做可能会更简单点。这样每次hook到请求返回骰子和猜拳结果就会根据我们每次保存的结果动态更改。</p>
+
+<p>运行插件，点击【模块】，找到我们的插件勾选，并点击进行配置</p>
+
+<p>设置摇出来的骰子点数为6点。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/15.png" alt="image" /></p>
+
+<p>设置猜拳出的是剪刀。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/16.png" alt="image" /></p>
+
+<p>重启激活插件，进入微信查看效果：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/17.png" alt="image" /></p>
+
+<p>重新进入模块配置界面，设置点数为1，猜拳为石头</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/18.png" alt="image" /></p>
+
+<p>再进来微信查看是否生效</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/19.png" alt="image" /></p>
+
+<p>有些人试验会不成功，可能是因为微信版本不是6.3.9导致接口名不一致，比如微信6.3.16的接口就为 com.tencent.mm.sdk.platformtools.ba的pT()方法。</p>
+
+<p>我们可以根据当前微信的不同版本（微信历史版本可以在安智市场下载），hook相应的接口</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>     <span class="k">case</span> <span class="s">&quot;6.3.5&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;or&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.7&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bc&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;oK&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.8&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bc&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;oZ&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.9&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.bb&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.11&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ay&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.13&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ay&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.15&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pu&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;6.3.16&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">ClassName</span> <span class="o">=</span> <span class="s">&quot;com.tencent.mm.sdk.platformtools.ba&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">MethodName</span> <span class="o">=</span> <span class="s">&quot;pT&quot;</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&#160; &#160; &#160; &#160;看到这，有些骚年会动歪心思，是不是可以hook微信抢红包的接口来获利，你们真是too young，too simple。你们以为微信抢红包金额接口会从客户端随机取个数吗，明显是要服务端分配下发的，服务端要严格控制任何漏洞，不向骰子和猜拳是客户端产生各随机结果再发送到服务端同步给其它客户端。再者万一你们找到漏洞，这种涉及金钱的被发现是要被腾讯告抓去坐牢滴~</p>
+
+<h2>五.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;通过介绍Xposed常用API接口，寻找hook的目标方法，以及演示分别hook系统应用和第三方应用的例子来进一步阐述Xposed的使用。可以看出Xposed的功能非常强大，可能有人会担心自己手机上的帐号密码或者钱财丢失，其实Xposed使用还是有些限制的，比如需要手机root权限，不好hook jni写的C语言接口。所有一般我们使用的手机尽量不要root，我们App关键接口尽量用jni的so库来实现。</p>
+
+<p>附：</p>
+
+<p>HookIMEI源码: <a href="https://github.com/chendd/Hook_IMEI.git">https://github.com/chendd/Hook_IMEI.git</a></p>
+
+<p>Hook微信源码: <a href="https://github.com/chendd/WeChatHook.git">https://github.com/chendd/WeChatHook.git</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android Hook框架Xposed入门]]></title>
@@ -48,9 +415,9 @@
 <p>主页大致可以看出，xposed主要由三个项目来组成的</p>
 
 <ul>
-<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
-<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
-<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+<li>Xposed，Xposed的C++ 部分，主要是用来替换/system/bin/app_process，并为XposedBridge提供JNI方法</li>
+<li>XposedBridge,Xposed 提供的jar文件，app_process启动过程中会加载该jar包，其他的Modules的开发都是基于该jar包</li>
+<li>XposedInstaller,Xposed的安装包，提供对基于Xposed框架的Modules的管理</li>
 </ul>
 
 
@@ -167,7 +534,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+<h4>1.在AndroidManifest.xml文件中配置</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -212,9 +579,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+<h4>2.导入其jar包</h4>
 
-<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+<p>&#160; &#160; &#160; &#160;<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a>，下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
 
 <h4>3.声明主入口路径</h4>
 
@@ -227,7 +594,7 @@
 
 <p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
 
-<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+<h4>4.使用findAndHookMethod方法Hook</h4>
 
 <p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
 
@@ -308,7 +675,7 @@
 
 <p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/27.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
 
@@ -397,7 +764,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/28.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
 
@@ -425,11 +792,11 @@
 
 <h2>4.总结</h2>
 
-<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook不是自己的应用做些好玩的东西。</p>
 
 <p>附：</p>
 
-<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+<p>本文源码: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
 
 <p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
 
@@ -5183,631 +5550,6 @@ SharedPreferences对象本身只能获取数据而不支持存储和修改，存
 
 <p>缺点：
 只能存储boolean，int，float，long和String五种简单的数据类型，功能单一。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记12--布局管理器]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/03/android_study_12/"/>
-    <updated>2013-03-03T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/03/android_study_12</id>
-    <content type="html"><![CDATA[<h4>1、概述</h4>
-
-<p>&#160; &#160; &#160; &#160;布局管理器的用途：</p>
-
-<ul>
-<li>a、可以更好的管理组件;</li>
-<li>b、通过使用布局管理器，Android应用程序可以做到平台无关性</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;布局管理器都是ViewGroup的子类，所有可充当容器的父类都是ViewGroup，而ViewGroup也是View的子类</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/032030374569965.jpg" alt="image" />　　</p>
-
-<p>&#160; &#160; &#160; &#160;下面分别介绍常用的布局管理器</p>
-
-<h4>2、线性布局管理器</h4>
-
-<p>&#160; &#160; &#160; &#160;LinearLayout,最常用的布局之一。它提供控件水平或垂直排列的模型</p>
-
-<p>&#160; &#160; &#160; &#160;常用属性及其对应方法：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/022144094936518.jpg" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;gravity 可取属性说明：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/172209512095155.jpg" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;当需要为gravity设多个值时，可用|分隔开</p>
-
-<p>&#160; &#160; &#160; &#160;布局XML:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
-</span><span class='line'><span class="na">android:orientation=</span><span class="s">&quot;horizontal&quot;</span>
-</span><span class='line'><span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'><span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'><span class="na">android:id=</span><span class="s">&quot;@+id/lla&quot;</span>
-</span><span class='line'><span class="na">android:gravity=</span><span class="s">&quot;right&quot;</span>
-</span><span class='line'><span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;Button</span>
-</span><span class='line'><span class="na">android:text=</span><span class="s">&quot;添加&quot;</span>
-</span><span class='line'><span class="na">android:id=</span><span class="s">&quot;@+id/Button01&quot;</span>
-</span><span class='line'><span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'><span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;/Button&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>JAVA代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 计数器，记录按钮个数</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// 重写 onCreate 方法</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">horizontal_layout</span><span class="o">);</span>
-</span><span class='line'>        <span class="c1">// 获取屏幕中的按钮控件对象</span>
-</span><span class='line'>        <span class="n">Button</span> <span class="n">button</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">Button01</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 为按钮添加 OnClickListener 接口实现</span>
-</span><span class='line'>        <span class="n">button</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="c1">// 获取线性布局对象</span>
-</span><span class='line'>                <span class="n">LinearLayout</span> <span class="n">ll</span> <span class="o">=</span> <span class="o">(</span><span class="n">LinearLayout</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">lla</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span>
-</span><span class='line'>                        <span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">button</span><span class="o">);</span>
-</span><span class='line'>                <span class="c1">// 创建一个 Button 对象</span>
-</span><span class='line'>                <span class="n">Button</span> <span class="n">tempbutton</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Button</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">tempbutton</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span> <span class="o">+</span> <span class="o">(++</span><span class="n">count</span><span class="o">));</span> <span class="c1">// 设置 Button 控件显示的内容</span>
-</span><span class='line'>                <span class="c1">// 设置 Button 的宽度</span>
-</span><span class='line'>                <span class="n">tempbutton</span><span class="o">.</span><span class="na">setWidth</span><span class="o">(</span><span class="mi">80</span><span class="o">);</span>
-</span><span class='line'>                <span class="c1">// 向线性布局中添加 View</span>
-</span><span class='line'>                <span class="n">ll</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">tempbutton</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;运行效果：每点击添加按钮一次会在下方垂直生成一个按钮</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/022150299382543.jpg" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;将布局文件中</p>
-
-<p>android:orientation=&ldquo;vertical&rdquo;</p>
-
-<p>vertical改为horizontal</p>
-
-<p>&#160; &#160; &#160; &#160;每点击一次会在右方水平方向生成一个按钮</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/022152106602619.jpg" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;当水平方向该行容不下一个宽度为80的按钮时，按钮就会被压缩，如下图</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/022153319459350.jpg" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;此时再点击添加按钮时，画面没有任何变化，不会另起一行添加按钮，超出屏幕的将不会被显示。</p>
-
-<h4>3、表格布局</h4>
-
-<p>&#160; &#160; &#160; &#160;TableLayout 类似HTML里的Table分为行和列来管理。
-每一行为一个TableRow，也可以为View对象。当为View对象时就跨越该行所有列
-TableRow中可以添加子控件，每个子控件为一列。并不会为每个单元格绘制边框
-每个单元格为一个View，可以有空的单元格，也可以跨越多列
-一个列的宽度由该列最宽的单元格决定的</p>
-
-<p>TableLayout 可以设置三种属性</p>
-
-<ul>
-<li>Shrinkable ：它可以被压缩以适应其父容器的大小</li>
-<li>Stretchable ：它可以被拉伸以填满空闲区域</li>
-<li>Collapsed ：该列被隐藏</li>
-</ul>
-
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/032017117258508.png" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;如果要对多列进行设置，用逗号隔开</p>
-
-<p>&#160; &#160; &#160; &#160;这三个属性在JAVA代码也有对应的方法，值得一提的是它是继承Linearlayout的</p>
-
-<p>布局XML:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
-</span><span class='line'>    <span class="na">android:id=</span><span class="s">&quot;@+id/LinearLayout01&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:background=</span><span class="s">&quot;@drawable/water&quot;</span>
-</span><span class='line'>    <span class="na">android:gravity=</span><span class="s">&quot;bottom&quot;</span>
-</span><span class='line'>    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout01&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nt">&lt;TextView</span>
-</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TextView01&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
-</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/tv1&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout02&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:stretchColumns=</span><span class="s">&quot;0&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nt">&lt;TableRow</span>
-</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TableRow01&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nt">&lt;TextView</span>
-</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView02&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
-</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvStrech&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nt">&lt;TextView</span>
-</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView03&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShort&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/TableRow&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TableLayout</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/TableLayout03&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:collapseColumns=</span><span class="s">&quot;1&quot;</span>
-</span><span class='line'>        <span class="na">android:shrinkColumns=</span><span class="s">&quot;0&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nt">&lt;TableRow</span>
-</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/TableRow02&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nt">&lt;TextView</span>
-</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView04&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
-</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShrink&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nt">&lt;TextView</span>
-</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView05&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/lightred&quot;</span>
-</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvShort&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nt">&lt;TextView</span>
-</span><span class='line'>                <span class="na">android:id=</span><span class="s">&quot;@+id/TextView06&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>                <span class="na">android:layout_margin=</span><span class="s">&quot;4px&quot;</span>
-</span><span class='line'>                <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
-</span><span class='line'>                <span class="na">android:text=</span><span class="s">&quot;@string/tvLong&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/TextView&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/TableRow&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/TableLayout&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>运行效果：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/032020546195104.png" alt="image" /></p>
-
-<h4>4、相对布局</h4>
-
-<p>&#160; &#160; &#160; &#160;RelativeLayout子控件 的位置由兄弟控件或父容器来决定的
-如果A控件由B控件来决定位置，则布局文件B控件要在A控件声明之前</p>
-
-<p>常用属性</p>
-
-<ul>
-<li><p>第一类:属性值为true或false</p>
-
-<ul>
-<li>android:layout_centerHrizontal 水平居中</li>
-<li>android:layout_centerVertical 垂直居中</li>
-<li>android:layout_centerInparent 相对于父元素完全居中</li>
-<li>android:layout_alignParentBottom 贴紧父元素的下边缘</li>
-<li>android:layout_alignParentLeft 贴紧父元素的左边缘</li>
-<li>android:layout_alignParentRight 贴紧父元素的右边缘</li>
-<li>android:layout_alignParentTop 贴紧父元素的上边缘</li>
-<li>android:layout_alignWithParentIfMissing 如果对应的兄弟元素找不到的话就以父元素做参照物</li>
-</ul>
-</li>
-<li><p>第二类：属性值必须为id的引用名“@id/id-name”</p>
-
-<ul>
-<li>android:layout_below 在某元素的下方</li>
-<li>android:layout_above 在某元素的的上方</li>
-<li>android:layout_toLeftOf 在某元素的左边</li>
-<li>android:layout_toRightOf 在某元素的右边</li>
-<li>android:layout_alignTop 本元素的上边缘和某元素的的上边缘对齐</li>
-<li>android:layout_alignLeft 本元素的左边缘和某元素的的左边缘对齐</li>
-<li>android:layout_alignBottom 本元素的下边缘和某元素的的下边缘对齐</li>
-<li>android:layout_alignRight 本元素的右边缘和某元素的的右边缘对齐</li>
-</ul>
-</li>
-<li><p>第三类：属性值为具体的像素值，如30dip，40px</p>
-
-<ul>
-<li>android:layout_marginBottom 离某元素底边缘的距离</li>
-<li>android:layout_marginLeft 离某元素左边缘的距离</li>
-<li>android:layout_marginRight 离某元素右边缘的距离</li>
-<li>android:layout_marginTop 离某元素上边缘的距离</li>
-</ul>
-</li>
-</ul>
-
-
-<p>布局XML:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
-</span><span class='line'>    <span class="na">xmlns:tools=</span><span class="s">&quot;http://schemas.android.com/tools&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:paddingBottom=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
-</span><span class='line'>    <span class="na">android:paddingLeft=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
-</span><span class='line'>    <span class="na">android:paddingRight=</span><span class="s">&quot;@dimen/activity_horizontal_margin&quot;</span>
-</span><span class='line'>    <span class="na">android:paddingTop=</span><span class="s">&quot;@dimen/activity_vertical_margin&quot;</span>
-</span><span class='line'>    <span class="na">tools:context=</span><span class="s">&quot;.MainActivity&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;@string/hello_world&quot;</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv1&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_centerInParent=</span><span class="s">&quot;true&quot;</span>
-</span><span class='line'>        <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;big&quot;</span>
-</span><span class='line'>        <span class="na">android:textSize=</span><span class="s">&quot;30sp&quot;</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv2&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_toRightOf=</span><span class="s">&quot;@id/tv1&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_alignBottom=</span><span class="s">&quot;@id/tv1&quot;</span>
-</span><span class='line'>        <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;middle&quot;</span>
-</span><span class='line'>        <span class="na">android:textSize=</span><span class="s">&quot;20sp&quot;</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/tv3&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_above=</span><span class="s">&quot;@id/tv1&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_alignLeft=</span><span class="s">&quot;@id/tv1&quot;</span>
-</span><span class='line'>        <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/RelativeLayout&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>运行效果：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/032022358875807.png" alt="image" /></p>
-
-<h4>5、帧布局</h4>
-
-<p>&#160; &#160; &#160; &#160;FrameLayout在屏幕上开辟一块区域，在这块区域可以添加多个控件
-但都会被对其到屏幕左上角，并且大小取决于最大的控件，如果控件一样大，只能看到最上面的控件</p>
-
-<p>布局XML:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;FrameLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span> <span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;fill_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/lightgray&quot;</span>
-</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;big&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;150dp&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;150dp&quot;</span>
-</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/darkgray&quot;</span>
-</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;middle&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;TextView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;50dp&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;50dp&quot;</span>
-</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/blue&quot;</span>
-</span><span class='line'>        <span class="na">android:gravity=</span><span class="s">&quot;center&quot;</span>
-</span><span class='line'>        <span class="na">android:text=</span><span class="s">&quot;small&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/FrameLayout&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>运行效果：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/032024006754913.png" alt="image" /></p>
-
-<h4>6、绝对布局</h4>
-
-<p>&#160; &#160; &#160; &#160;AbsoluteLayout是绝对位置布局。在此布局中的子元素的android:layout_x和android:layout_y属性将生效，用于描述该子元素的坐标位置。屏幕左上角为坐标原点（0,0），第一个0代表横坐标，向右移动此值增大，第二个0代表纵坐标，向下移动，此值增大。在此布局中的子元素可以相互重叠。在实际开发中，通常不采用此布局格式，因为它的界面代码过于刚性，以至于有可能不能很好的适配各种终端。由于不采用，在此就不演示代码了。</p>
 ]]></content>
   </entry>
   

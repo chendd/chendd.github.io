@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Xposed | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/blog/categories/xposed/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-08-23T16:30:25+08:00</updated>
+  <updated>2016-08-25T15:38:54+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -12,6 +12,265 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android Hook框架Xposed进阶]]></title>
+    <link href="http://chendd.github.io/blog/2016/05/17/advanced_xposed/"/>
+    <updated>2016-05-17T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/05/17/advanced_xposed</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;上一篇<a href="http://chendd.com/blog/2016/05/15/learn_xposed/">《Android Hook框架Xposed入门》</a>，我们对xposed进行简单的介绍并hook自己写的登录app。这次我们对xposed进行深入的了解并hook系统应用和第三方应用。</p>
+
+<h2>一.API说明</h2>
+
+<ul>
+<li>IXposedHookLoadPackage.java
+
+<ul>
+<li>方法: handleLoadPackage,这个方法用于在加载应用程序的包的时候执行用户的操作</li>
+<li>参数说明: final LoadPackageParam lpparam 这个参数包含了加载的应用程序的一些基本信息</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedHelpers.java
+
+<ul>
+<li>方法: findAndHookMethod,这是一个辅助方法，可以通过静态导入使用</li>
+<li>参数说明: findAndHookMethod(Class&lt;?> clazz, //需要 Hook 的类名ClassLoader，//类加载器，可以设置为 nullString methodName, //需要 Hook 的方法名 Object&hellip; parameterTypesAndCallback)该函数的最后一个参数集，包含了：
+（1）Hook 的目标方法的参数,譬如："com.android.internal.policy.impl.PhoneWindow.DecorView"是方法的参数的类。
+（2）回调方法：a.XC_MethodHook b.XC_MethodReplacement</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<ul>
+<li>XposedBridge.java
+
+<ul>
+<li>无参方法: log,该方法可以将 log 信息以及 Throwable 抛出的异常信息输出到标准的logcat 以及/data/xposed/debug.log 这个文件中</li>
+<li>无参方法: hookAllMethods/hookAllConstructors，该方法可以用来 hook 某个类中的所有方法或者构造函数，但是不同的Rom（非Android原生 Rom）会有不同的变种。</li>
+</ul>
+</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>二.Hook/Replace</h2>
+
+<p>&#160; &#160; &#160; &#160;Xposed 框架中真正起作用的是对方法的hook，那么寻找正确的目标方法名和所在的类名就很关键了。一般寻找目标方法有两种方法：</p>
+
+<ul>
+<li>直接在 AOSP 中查看</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对系统应用，要hook修改系统层面的东西，就可以通过查看google官方开放的源码来查看相应的接口。</p>
+
+<ul>
+<li>反编译目标程序，查看Smali代码。</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;这种是针对第三方应用，常见的反编译工具有apktool，反编译后可以得到jar或者得到smali文件。Android采用的是java语言 进行开发，但是Android系统有自己的虚拟机Dalvik,代码编译最终不是采用的java的class，而是使用的smali。对于jar文件，我们可以使用jd-gui来查看源码，但是jar的话可能很多地方无法正确的解释出来，如果我们反编译的是smali则可以正确的理解程序的意思。smali类似汇编的形式，不熟悉smali语法，我们可以用smail2java工具进行转化，就可以通过java查找相应要hook的方法名信息。</p>
+
+<h2>三.Hook系统应用</h2>
+
+<p>&#160; &#160; &#160; &#160;这节简单讲讲hook系统应用来修改IMEI(设备信息)。APP获取IMEI是通过代码</p>
+
+<pre><code class="java">TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+String IMEI= tm.getDeviceId();
+</code></pre>
+
+<p>通过上述接口获取的，我们首先hook住TelephonyManager类的方法getDeviceId()，修改返回结果为"00000000000000" 这样无效的IMEI。</p>
+
+<p>主入口HookUtil代码：</p>
+
+<pre><code class="java">public class HookUtil implements IXposedHookLoadPackage{
+
+    public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable{
+        HookMethod(TelephonyManager.class, "getDeviceId", "00000000000000");
+    }
+
+    private void HookMethod(final Class clazz, final String method, final String result){
+        try{
+            XposedHelpers.findAndHookMethod(clazz, method, new Object[] { new XC_MethodHook() {
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    param.setResult(result);
+                }
+            } });
+        } catch (Throwable e){
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;写个简单获取IMEI例子测试是否hook成功。未激活插件时获取IMEI的值：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/11.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;激活插件再获取IMEI的值，发现已经修改成功</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/12.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;既然能够修改IMEI，那么其他手机信息也可以依瓢画葫芦进行修改，只要知道返回这些信息的相应接口。</p>
+
+<h2>四.Hook第三方应用</h2>
+
+<p>&#160; &#160; &#160; &#160;接下来我们尝试hook第三方应用微信。微信是这几年很火的聊天软件，聊天的内容不局限文字、语音、图片&hellip;&hellip;微信中还可以掷骰子和猜拳互动是比较娱乐性的功能。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/13.png" alt="image" /></p>
+
+<p>&#160; &#160; &#160; &#160;如果能够hook微信里面的骰子和猜拳接口，那么我们就尝试基于Xspoed的微信猜拳、骰子点数作弊插件。保证每次掷出来的骰子或者猜拳出的是我们想要的结果。</p>
+
+<p>&#160; &#160; &#160; &#160;由于微信版本众多，每个版本发布前都经过proguard混淆打包，导致相同接口每个版本的接口名不一致，但是相同版本在不同机器的接口保证唯一，我们这次用6.3.9 for Android也就是weixin_700版本进行hook，其它版本同理也可以hook。</p>
+
+<p>&#160; &#160; &#160; &#160;根据网上大神反编译微信源码分析，掷骰子和猜拳的接口在com.tencent.mm.sdk.platformtools.bb类的
+pu方法中</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/14.png" alt="image" /></p>
+
+<p>由代码我们可以分析出，掷骰子和猜拳的结果是本地取随机数来控制，当传入int paramInt = 2时，代表猜拳的接口，随机返回0，1，2三个随机数分别代表"剪刀", &ldquo;石头&rdquo;, &ldquo;布"。当传入int paramInt = 5时，代表掷骰子的接口，随机返回0~5六个随机数分别代表1~6的点数。</p>
+
+<p>那么我们就可以编写HookUtil的代码</p>
+
+<pre><code class="java">findAndHookMethod("com.tencent.mm.sdk.platformtools.bb", lpparam, "pu");
+</code></pre>
+
+<pre><code class="java">private void findAndHookMethod(String className, final LoadPackageParam lpparam, String methodName)
+    {
+        XposedHelpers.findAndHookMethod(className, lpparam.classLoader, methodName, int.class, new XC_MethodReplacement()
+        {
+
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable
+            {
+                int gameType = (Integer) param.args[0];
+
+                switch (gameType)
+                {
+                case 5: // 摇骰子
+                    Uri diceUri = Uri.parse("content://com.example.hookdemo.provider/wx_plugs_setting");
+                    Cursor diceCursor = mContext.getContentResolver().query(diceUri, null, null, null, null);
+                    if (diceCursor != null)
+                    {
+                        while (diceCursor.moveToNext())
+                        {
+                            diceCount = diceCursor.getInt(diceCursor.getColumnIndex("dice_num"));
+                            XposedBridge.log("查询获取骰子数为:" + diceCount);
+                        }
+                    }
+                    break;
+
+                case 2: // 猜拳
+
+                    Uri morraUri = Uri.parse("content://com.example.hookdemo.provider/wx_plugs_setting");
+                    Cursor morraCursor = mContext.getContentResolver().query(morraUri, null, null, null, null);
+                    if (morraCursor != null)
+                    {
+                        while (morraCursor.moveToNext())
+                        {
+                            diceCount = morraCursor.getInt(morraCursor.getColumnIndex("morra_num"));
+                            XposedBridge.log("查询猜拳数为:" + morraNum);
+                        }
+                    }
+                    break;
+
+                }
+
+                XposedBridge.log("replaceHookedMethod--函数返回值:" + diceCount);
+                return diceCount;
+            }
+        });
+    }
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;接下来我们编写保存设置想要点数和猜拳的并保存sqlite并通过ContentProvider提供统一的接口。当然也可以通过xposed提供的XSharedPreferences来做可能会更简单点。这样每次hook到请求返回骰子和猜拳结果就会根据我们每次保存的结果动态更改。</p>
+
+<p>运行插件，点击【模块】，找到我们的插件勾选，并点击进行配置</p>
+
+<p>设置摇出来的骰子点数为6点。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/15.png" alt="image" /></p>
+
+<p>设置猜拳出的是剪刀。</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/16.png" alt="image" /></p>
+
+<p>重启激活插件，进入微信查看效果：</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/17.png" alt="image" /></p>
+
+<p>重新进入模块配置界面，设置点数为1，猜拳为石头</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/18.png" alt="image" /></p>
+
+<p>再进来微信查看是否生效</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/19.png" alt="image" /></p>
+
+<p>有些人试验会不成功，可能是因为微信版本不是6.3.9导致接口名不一致，比如微信6.3.16的接口就为 com.tencent.mm.sdk.platformtools.ba的pT()方法。</p>
+
+<p>我们可以根据当前微信的不同版本（微信历史版本可以在安智市场下载），hook相应的接口</p>
+
+<pre><code class="java">            case "6.3.5":
+                ClassName = "com.tencent.mm.sdk.platformtools.ba";
+                MethodName = "or";
+                break;
+            case "6.3.7":
+                ClassName = "com.tencent.mm.sdk.platformtools.bc";
+                MethodName = "oK";
+                break;
+            case "6.3.8":
+                ClassName = "com.tencent.mm.sdk.platformtools.bc";
+                MethodName = "oZ";
+                break;
+            case "6.3.9":
+                ClassName = "com.tencent.mm.sdk.platformtools.bb";
+                MethodName = "pu";
+                break;
+            case "6.3.11":
+                ClassName = "com.tencent.mm.sdk.platformtools.ay";
+                MethodName = "pu";
+                break;
+            case "6.3.13":
+                ClassName = "com.tencent.mm.sdk.platformtools.ay";
+                MethodName = "pu";
+                break;
+            case "6.3.15":
+                ClassName = "com.tencent.mm.sdk.platformtools.ba";
+                MethodName = "pu";
+                break;
+            case "6.3.16":
+                ClassName = "com.tencent.mm.sdk.platformtools.ba";
+                MethodName = "pT";
+                break;
+</code></pre>
+
+<p>&#160; &#160; &#160; &#160;看到这，有些骚年会动歪心思，是不是可以hook微信抢红包的接口来获利，你们真是too young，too simple。你们以为微信抢红包金额接口会从客户端随机取个数吗，明显是要服务端分配下发的，服务端要严格控制任何漏洞，不向骰子和猜拳是客户端产生各随机结果再发送到服务端同步给其它客户端。再者万一你们找到漏洞，这种涉及金钱的被发现是要被腾讯告抓去坐牢滴~</p>
+
+<h2>五.总结</h2>
+
+<p>&#160; &#160; &#160; &#160;通过介绍Xposed常用API接口，寻找hook的目标方法，以及演示分别hook系统应用和第三方应用的例子来进一步阐述Xposed的使用。可以看出Xposed的功能非常强大，可能有人会担心自己手机上的帐号密码或者钱财丢失，其实Xposed使用还是有些限制的，比如需要手机root权限，不好hook jni写的C语言接口。所有一般我们使用的手机尽量不要root，我们App关键接口尽量用jni的so库来实现。</p>
+
+<p>附：</p>
+
+<p>HookIMEI源码: <a href="https://github.com/chendd/Hook_IMEI.git">https://github.com/chendd/Hook_IMEI.git</a></p>
+
+<p>Hook微信源码: <a href="https://github.com/chendd/WeChatHook.git">https://github.com/chendd/WeChatHook.git</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android Hook框架Xposed入门]]></title>
@@ -48,9 +307,9 @@
 <p>主页大致可以看出，xposed主要由三个项目来组成的</p>
 
 <ul>
-<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
-<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
-<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+<li>Xposed，Xposed的C++ 部分，主要是用来替换/system/bin/app_process，并为XposedBridge提供JNI方法</li>
+<li>XposedBridge,Xposed 提供的jar文件，app_process启动过程中会加载该jar包，其他的Modules的开发都是基于该jar包</li>
+<li>XposedInstaller,Xposed的安装包，提供对基于Xposed框架的Modules的管理</li>
 </ul>
 
 
@@ -126,7 +385,7 @@
     }
 </code></pre>
 
-<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+<h4>1.在AndroidManifest.xml文件中配置</h4>
 
 <pre><code class="xml">&lt;application
     android:allowBackup="true"
@@ -150,9 +409,9 @@
 &lt;/application&gt;
 </code></pre>
 
-<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+<h4>2.导入其jar包</h4>
 
-<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+<p>&#160; &#160; &#160; &#160;<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a>，下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
 
 <h4>3.声明主入口路径</h4>
 
@@ -163,7 +422,7 @@ com.example.xposedtest.HookUtil
 
 <p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
 
-<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+<h4>4.使用findAndHookMethod方法Hook</h4>
 
 <p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
 
@@ -209,7 +468,7 @@ com.example.xposedtest.HookUtil
 
 <p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/27.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
 
@@ -257,7 +516,7 @@ public class HookUtil implements IXposedHookLoadPackage{
 }
 </code></pre>
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/28.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
 
@@ -278,11 +537,11 @@ field.setAccessible(true);
 
 <h2>4.总结</h2>
 
-<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook不是自己的应用做些好玩的东西。</p>
 
 <p>附：</p>
 
-<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+<p>本文源码: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
 
 <p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
 

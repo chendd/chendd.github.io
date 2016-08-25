@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://chendd.github.io/blog/2016/05/17/advanced_xposed/</loc>
+<lastmod>2016-05-17T21:32:12+08:00</lastmod>
+</url>
+<url>
 <loc>http://chendd.github.io/blog/2016/05/15/learn_xposed/</loc>
 <lastmod>2016-05-15T21:32:12+08:00</lastmod>
 </url>

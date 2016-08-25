@@ -122,9 +122,9 @@
 <p>主页大致可以看出，xposed主要由三个项目来组成的</p>
 
 <ul>
-<li>Xposed，Xposed框架的native部分（主要是修改app_process二进制文件）</li>
-<li>XposedBridge,Xposed向开发者提供的API与相应的工具类库</li>
-<li>XposedInstaller,Xposed框架的Android端本地管理，环境架构搭建，以及第三方module资源下载的工具。</li>
+<li>Xposed，Xposed的C++ 部分，主要是用来替换/system/bin/app_process，并为XposedBridge提供JNI方法</li>
+<li>XposedBridge,Xposed 提供的jar文件，app_process启动过程中会加载该jar包，其他的Modules的开发都是基于该jar包</li>
+<li>XposedInstaller,Xposed的安装包，提供对基于Xposed框架的Modules的管理</li>
 </ul>
 
 
@@ -241,7 +241,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h4>1.在AndroidManifest.xml文件中配置插件名称与Api版本号</h4>
+<h4>1.在AndroidManifest.xml文件中配置</h4>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -286,9 +286,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h4>2.下载其API库<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a></h4>
+<h4>2.导入其jar包</h4>
 
-<p>&#160; &#160; &#160; &#160;下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
+<p>&#160; &#160; &#160; &#160;<a href="http://forum.xda-developers.com/xposed/xposed-api-changelog-developer-news-t2714067">XposedBridgeApi-.jar</a>，下载完毕后我们需要将Xposed Library复制到lib目录（注意是lib目录，不是Android提供的libs目录），然后将这个jar包添加到Build PATH中。</p>
 
 <h4>3.声明主入口路径</h4>
 
@@ -301,7 +301,7 @@
 
 <p><img src="http://7arnbf.com1.z0.glb.clouddn.com/04.png" alt="image" /></p>
 
-<h4>4.使用findAndHookMethod方法Hook劫持登陆信息</h4>
+<h4>4.使用findAndHookMethod方法Hook</h4>
 
 <p>&#160; &#160; &#160; &#160;这是最重要的一步，我们之前所分析的都需要到这一步进行操作。如我们之前所分析的登陆程序，我们需要劫持，就是需要Hook其com.example.logintest.MainActivity中的isCorrectInfo方法。我们使用Xposed提供的findAndHookMethod直接进行MethodHook操作。在其Hook回调中使用XposedBridge.log方法，将登陆的账号密码信息打印至Xposed的日志中。具体操作如下所示</p>
 
@@ -382,7 +382,7 @@
 
 <p>&#160; &#160; &#160; &#160;重启Android设备，进入XposedInstaller点击【日志】查看，因为我们之前使用的是XposedBridge.log方法打印log，所以log都会显示在此处。我们发现我们需要劫持的账号密码都显示再来此处。</p>
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/07.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/27.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;这里由于demo是我们自己写的，所以知道hook它的帐号校验方法isCorrectInfo来获取用户名密码，如果有些程序账户校验没有封装方法呢？其实我们可以hook其它一些必有的方法，如button的onClick方法，甚至可以动态改变EditText的内容，做法如下:</p>
 
@@ -471,7 +471,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/08.png" alt="image" /></p>
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/28.png" alt="image" /></p>
 
 <p>&#160; &#160; &#160; &#160;点击登录按钮，发现输入框内容改变了</p>
 
@@ -499,11 +499,11 @@
 
 <h2>4.总结</h2>
 
-<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook微信做些好玩的东西。</p>
+<p>&#160; &#160; &#160; &#160;既然能成功Hook自己的App，那么系统应用和其它应用的也同理，只不过需要知道系统公开接口或者反编译获得相应的接口，下次讲解Hook不是自己的应用做些好玩的东西。</p>
 
 <p>附：</p>
 
-<p>我的demo: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
+<p>本文源码: <a href="https://github.com/chendd/XposedTest.git">https://github.com/chendd/XposedTest.git</a></p>
 
 <p>官方教程: <a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial">https://github.com/rovo89/XposedBridge/wiki/Development-tutorial</a></p>
 
@@ -572,6 +572,8 @@
         <a class="basic-alignment left" href="/blog/2013/05/15/efficient_android_code/" title="Previous Post: 编写高效的Android代码">&laquo; 编写高效的Android代码</a>
       
       
+        <a class="basic-alignment right" href="/blog/2016/05/17/advanced_xposed/" title="Next Post: Android Hook框架Xposed进阶">Android Hook框架Xposed进阶 &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -605,6 +607,10 @@ var duoshuoQuery = {short_name:"chendd"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
       </li>
     
@@ -618,10 +624,6 @@ var duoshuoQuery = {short_name:"chendd"};
     
       <li class="post">
         <a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/android_study_23/">Android学习日记23--XML解析</a>
       </li>
     
   </ul>
@@ -641,7 +643,6 @@ var duoshuoQuery = {short_name:"chendd"};
 <a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
 <a style="font-size: 80%" href="/tags/gridview/">GridView</a>
 <a style="font-size: 80%" href="/tags/listview/">ListView</a>
-<a style="font-size: 80%" href="/tags/markdown/">Markdown</a>
 <a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
 <a style="font-size: 80%" href="/tags/paint/">Paint</a>
 <a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
@@ -653,6 +654,7 @@ var duoshuoQuery = {short_name:"chendd"};
 <a style="font-size: 180%" href="/tags/android/">android</a>
 <a style="font-size: 80%" href="/tags/button/">button</a>
 <a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 99%" href="/tags/hook/">hook</a>
 <a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
 <a style="font-size: 110%" href="/tags/java/">java</a>
 <a style="font-size: 80%" href="/tags/layout/">layout</a>
@@ -660,9 +662,9 @@ var duoshuoQuery = {short_name:"chendd"};
 <a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
 <a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
 <a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
-<a style="font-size: 80%" href="/tags/static/">static</a>
 <a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
 <a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 99%" href="/tags/xposed/">xposed</a>
 
   </ul>
 </section><section>
@@ -671,7 +673,7 @@ var duoshuoQuery = {short_name:"chendd"};
     <li class='category'><a href='/blog/categories/android-study/'>android_study (37)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 <li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
-<li class='category'><a href='/blog/categories/xposed/'>xposed (1)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
 
   </ul>
 </section>
