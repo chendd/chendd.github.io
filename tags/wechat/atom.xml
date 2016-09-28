@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: wechat | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/wechat/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-09-28T15:06:01+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[关于微信小程序的一些看法]]></title>
+    <link href="http://chendd.github.io/blog/2016/09/27/about_wechat_littleapp/"/>
+    <updated>2016-09-27T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2016/09/27/about_wechat_littleapp</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;自从微信9.21公布小程序内侧，这几天各大网站论坛都在如火如荼的讨论。腾讯想做微信生态的想法已是路人皆知，但有能不能做大做好还是未知数，像腾讯之前推出的web qq桌面也是火了几天，后来又归于平静。此番腾讯在微信身上推出的小程序又有点类似百度之前推出的轻应用，即通过web的形式在微信内部打开，不需要下载安装，即开即用，不用就关闭。</p>
+
+<p>&#160; &#160; &#160; &#160;出于好奇根据微信官方的教程，搭了个hello world demo看了下，简直就是把webapp用微信打开的样子，内部还是基于webview实现的，只不过微信把他们封装了，方便调用微信相关接口进行用户管理。虽然webapp这些年一直在改进优化，但其本身的缺陷还是比较明显的，微信小程序还是拜托不了webapp的劣根性。</p>
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;我并不看好小程序的发展，结算发展好了，势必会触及苹果的利益，让其在app store下架，就像当年阿里云 的推出遭谷歌的反对一样。还有就是小程序的入口过深，完全依赖微信，受制于腾讯，相信其他巨头不可能将相应的产品也搬到微信小程序上。最后，身为android、ios原生开发者可能会担心微信小程序导致原生需求量的减少，进而影响失业的，我觉得如果小程序真的发展到那个地步，我们也可以学学小程序开发嘛，估计以后web前端的技能也是移动开发者的必备，再不济赶紧买点腾讯的股票做对冲(手动滑稽)</p>
+
+<p>最后附上小程序的github awesome <a href="https://github.com/Aufree/awesome-wechat-weapp">https://github.com/Aufree/awesome-wechat-weapp</a></p>
+]]></content>
+  </entry>
+  
+</feed>
