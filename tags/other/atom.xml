@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: other | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/other/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-10-10T11:54:37+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android程序逆向工程]]></title>
+    <link href="http://chendd.github.io/blog/2015/11/24/android_reverse_engineering/"/>
+    <updated>2015-11-24T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2015/11/24/android_reverse_engineering</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;随着智能手机的普及，功能越来越强大。程序也越来多和复杂化。研究一下android系统的逆向工程也是挺有意思的。
+目前android逆向工程还处于初级阶段。表现在于：</p>
+
+<ul>
+<li>1.没有完整的动态调试程序。目前由于android系统的bionic并不完全支持POSIX,导致现有编译的gdb不支持多线程无符号调试。（我实验了一下，的确多线程问题比较多，当然，gdb本身也有问题）。所以对于NDK逆向工程比较麻烦，以静态分析为主。</li>
+<li>2.手机本身种类较多，而且android版本繁多，更新较快，增加了逆向的难度。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>但是android系统自身也有好处：</p>
+
+<ul>
+<li>1.手机系统的简化工作让分析也随着简化。</li>
+<li>2.公开源代码 大不了我修改系统API编译系统来进行API hook。谁也拦不住。（android不支持LD_Library API hook).</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;以上谈到的都是arm c，一般用于NDK中的逆向工程。那么对于才用Dalvik虚拟机中的dex程序，逆向就完全没有难度。目前最好的逆向工具是baksmali。综合工具是apktools,甚至于支持动态调试。</p>
+
+<p>&#160; &#160; &#160; &#160;如果以前你接触过windows的逆向工程，那么对于android的逆向难度不大。首先谈谈最简单的dex程序逆向。</p>
+
+<p>&#160; &#160; &#160; &#160;第一种 dex程序其实就是java。google为了避免版权问题采用的一种技巧。java的逆向工程不用说，已经很成熟了。在java中大规模采用的混淆手段目前在android dex程序中采用得很少，也就是说，dex程序基本就是裸体，任人观赏。smali代码看看你就懂得。很简单，比如我自己写了ultraedit的高亮函数宏，很方便查找smali的函数。用Jgraph写个小程序画出函数内部流程。你懂的。</p>
+
+<p>&#160; &#160; &#160; &#160;第二种 就是NDK中的so文件的逆向，正如我前面说的。动态调试比较困难，理论上呢可以自己完全定制系统来实现动态调试，但是，的确没这么多精力。（如果你有时间和精力，可以完全定制一个系统实现兼容GDB的android内核）。那么就是以业界著名的IDA来静态分析。IDA最新版本支持率QEMU的代码段调试。希望将来我们能用上~~~ 那么IDA分析so 文件，根据我的经验，5.4以后的版本才对arm thumb指令处理较好。所以，请注意版本问题。一下就是对elf文件和arm code的理解和分析了。这个以后再说吧。</p>
+
+<p>&#160; &#160; &#160; &#160;以上是我对android 逆向工程的一点小小体会和理解，不乏很多错误，请谅解。希望能抛砖引玉。喜欢的朋友可以看看。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[如何优化手机电量]]></title>
+    <link href="http://chendd.github.io/blog/2015/04/30/optimization_electricity/"/>
+    <updated>2015-04-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2015/04/30/optimization_electricity</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;通过电量的计算公式我们可以看到影响电量的因子无非就是CPU的时间和网络数据以及Wakelock，GPS的使用。
+在09年Google IO大会Jeffrey Sharkey的演讲（Coding for Life — Battery Life, That Is）中就探讨了这个问题，指出android应用的耗电主要在以下三个方面：</p>
+
+<ul>
+<li>大数据量的传输。</li>
+<li>不停的在网络间切换。</li>
+<li>解析大量的文本数据。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;并提出了相关的优化建议：
+在需要网络连接的程序中，首先检查网络连接是否正常，如果没有网络连接，那么就不需要执行相应的程序。
+使用效率高的数据格式和解析方法，推荐使用JSON和Protobuf。
+目在进行大数据量下载时，尽量使用GZIP方式下载。
+其它：回收java对象，特别是较大的java对像，使用reset方法；对定位要求不是太高的话尽量不要使用GPS定位，可能使用wifi和移动网络cell定位即可；尽量不要使用浮点运算；获取屏幕尺寸等信息可以使用缓存技术，不需要进行多次请求；使用AlarmManager来定时启动服务替代使用sleep方式的定时任务。</p>
+]]></content>
+  </entry>
+  
+</feed>

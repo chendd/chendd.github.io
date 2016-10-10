@@ -4,7 +4,7 @@
   <title><![CDATA[Chendd's Blog]]></title>
   <link href="http://chendd.github.io/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-09-28T15:06:01+08:00</updated>
+  <updated>2016-10-10T11:54:37+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -821,6 +821,527 @@ pu方法中</p>
 <p>官方例子: <a href="https://github.com/rovo89/XposedExamples">https://github.com/rovo89/XposedExamples</a></p>
 
 <p>参考文章: <a href="http://www.csdn.net/article/1970-01-01/2825462">http://www.csdn.net/article/1970-01-01/2825462</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android程序逆向工程]]></title>
+    <link href="http://chendd.github.io/blog/2015/11/24/android_reverse_engineering/"/>
+    <updated>2015-11-24T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2015/11/24/android_reverse_engineering</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;随着智能手机的普及，功能越来越强大。程序也越来多和复杂化。研究一下android系统的逆向工程也是挺有意思的。
+目前android逆向工程还处于初级阶段。表现在于：</p>
+
+<ul>
+<li>1.没有完整的动态调试程序。目前由于android系统的bionic并不完全支持POSIX,导致现有编译的gdb不支持多线程无符号调试。（我实验了一下，的确多线程问题比较多，当然，gdb本身也有问题）。所以对于NDK逆向工程比较麻烦，以静态分析为主。</li>
+<li>2.手机本身种类较多，而且android版本繁多，更新较快，增加了逆向的难度。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>但是android系统自身也有好处：</p>
+
+<ul>
+<li>1.手机系统的简化工作让分析也随着简化。</li>
+<li>2.公开源代码 大不了我修改系统API编译系统来进行API hook。谁也拦不住。（android不支持LD_Library API hook).</li>
+</ul>
+
+
+<p>&#160; &#160; &#160; &#160;以上谈到的都是arm c，一般用于NDK中的逆向工程。那么对于才用Dalvik虚拟机中的dex程序，逆向就完全没有难度。目前最好的逆向工具是baksmali。综合工具是apktools,甚至于支持动态调试。</p>
+
+<p>&#160; &#160; &#160; &#160;如果以前你接触过windows的逆向工程，那么对于android的逆向难度不大。首先谈谈最简单的dex程序逆向。</p>
+
+<p>&#160; &#160; &#160; &#160;第一种 dex程序其实就是java。google为了避免版权问题采用的一种技巧。java的逆向工程不用说，已经很成熟了。在java中大规模采用的混淆手段目前在android dex程序中采用得很少，也就是说，dex程序基本就是裸体，任人观赏。smali代码看看你就懂得。很简单，比如我自己写了ultraedit的高亮函数宏，很方便查找smali的函数。用Jgraph写个小程序画出函数内部流程。你懂的。</p>
+
+<p>&#160; &#160; &#160; &#160;第二种 就是NDK中的so文件的逆向，正如我前面说的。动态调试比较困难，理论上呢可以自己完全定制系统来实现动态调试，但是，的确没这么多精力。（如果你有时间和精力，可以完全定制一个系统实现兼容GDB的android内核）。那么就是以业界著名的IDA来静态分析。IDA最新版本支持率QEMU的代码段调试。希望将来我们能用上~~~ 那么IDA分析so 文件，根据我的经验，5.4以后的版本才对arm thumb指令处理较好。所以，请注意版本问题。一下就是对elf文件和arm code的理解和分析了。这个以后再说吧。</p>
+
+<p>&#160; &#160; &#160; &#160;以上是我对android 逆向工程的一点小小体会和理解，不乏很多错误，请谅解。希望能抛砖引玉。喜欢的朋友可以看看。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[如何优化手机电量]]></title>
+    <link href="http://chendd.github.io/blog/2015/04/30/optimization_electricity/"/>
+    <updated>2015-04-30T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2015/04/30/optimization_electricity</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;通过电量的计算公式我们可以看到影响电量的因子无非就是CPU的时间和网络数据以及Wakelock，GPS的使用。
+在09年Google IO大会Jeffrey Sharkey的演讲（Coding for Life — Battery Life, That Is）中就探讨了这个问题，指出android应用的耗电主要在以下三个方面：</p>
+
+<ul>
+<li>大数据量的传输。</li>
+<li>不停的在网络间切换。</li>
+<li>解析大量的文本数据。</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>&#160; &#160; &#160; &#160;并提出了相关的优化建议：
+在需要网络连接的程序中，首先检查网络连接是否正常，如果没有网络连接，那么就不需要执行相应的程序。
+使用效率高的数据格式和解析方法，推荐使用JSON和Protobuf。
+目在进行大数据量下载时，尽量使用GZIP方式下载。
+其它：回收java对象，特别是较大的java对像，使用reset方法；对定位要求不是太高的话尽量不要使用GPS定位，可能使用wifi和移动网络cell定位即可；尽量不要使用浮点运算；获取屏幕尺寸等信息可以使用缓存技术，不需要进行多次请求；使用AlarmManager来定时启动服务替代使用sleep方式的定时任务。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Github 简单使用]]></title>
+    <link href="http://chendd.github.io/blog/2014/08/10/github_learn/"/>
+    <updated>2014-08-10T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/08/10/github_learn</id>
+    <content type="html"><![CDATA[<h2>一、从远程克隆项目，修改后提交</h2>
+
+<h4>1、先切换要放项目的本地目录</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\Users\chendd&gt;cd E:\web
+</span><span class='line'>
+</span><span class='line'>C:\Users\chendd&gt;e:</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h4>2、根据服务器的git地址克隆到本地，并查看状态</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web&gt;git clone https://github.com/findbugGroup/findbug-v0.1.git
+</span><span class='line'>Cloning into 'findbug-v0.1'...
+</span><span class='line'>remote: Counting objects: 1436, done.
+</span><span class='line'>remote: Compressing objects: 100% (1313/1313), done.
+</span><span class='line'>remote: Total 1436 (delta 476), reused 0 (delta 0)
+</span><span class='line'>Receiving objects: 100% (1436/1436), 3.29 MiB | 190.00 KiB/s, done.
+</span><span class='line'>Resolving deltas: 100% (490/490), done.
+</span><span class='line'>Checking connectivity... done.
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;git status
+</span><span class='line'>fatal: Not a git repository (or any of the parent directories): .git
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;cd findbug-v0.1
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git status
+</span><span class='line'>On branch master
+</span><span class='line'>Your branch is up-to-date with 'origin/master'.
+</span><span class='line'>
+</span><span class='line'>Changes not staged for commit:
+</span><span class='line'>  (use "git add &lt;file&gt;..." to update what will be committed)
+</span><span class='line'>  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
+</span><span class='line'>
+</span><span class='line'>        modified:   README.md
+</span><span class='line'>
+</span><span class='line'>no changes added to commit (use "git add" and/or "git commit -a")</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3、修改下项目，提交到本地暂存（可能要输入用户名，密码。也可以提前配置）</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;git commit -a -m "test"
+</span><span class='line'>
+</span><span class='line'>*** Please tell me who you are.
+</span><span class='line'>
+</span><span class='line'>Run
+</span><span class='line'>
+</span><span class='line'>  git config --global user.email "you@example.com"
+</span><span class='line'>  git config --global user.name "Your Name"
+</span><span class='line'>
+</span><span class='line'>to set your account's default identity.
+</span><span class='line'>Omit --global to set the identity only in this repository.
+</span><span class='line'>
+</span><span class='line'>fatal: unable to auto-detect email address (got 'chendd@chendd-PC.(none)')
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git config --global user.email "mail4chedd@qq.com"
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git config --global user.name "chendd"
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git commit -a -m "test"
+</span><span class='line'>[master 32a7c94] test
+</span><span class='line'> 1 file changed, 1 insertion(+)</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4、提交到远程服务器上去</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;git push origin master
+</span><span class='line'>Username for 'https://github.com': chendd
+</span><span class='line'>Password for 'https://chendd@github.com':
+</span><span class='line'>Counting objects: 5, done.
+</span><span class='line'>Delta compression using up to 2 threads.
+</span><span class='line'>Compressing objects: 100% (2/2), done.
+</span><span class='line'>Writing objects: 100% (3/3), 284 bytes | 0 bytes/s, done.
+</span><span class='line'>Total 3 (delta 1), reused 0 (delta 0)
+</span><span class='line'>To https://github.com/findbugGroup/findbug-v0.1.git
+</span><span class='line'>   6fd4585..32a7c94  master -&gt; master</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>二、将本地项目提交到远程服务器</h2>
+
+<h4>1、先在远程网站上 new 个新的repository，复制git地址</h4>
+
+<p>然后按照 网站上说的 终端上运行命令（这里我是后来再新建的，故git名加个2，区分）</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/1.jpg" alt="image" /></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;cd ..
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;mkdir beatplane
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;cd beatplane
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git init
+</span><span class='line'>Initialized empty Git repository in E:/web/beatplane/.git/
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;touch README.md
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git add README.md
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git add .
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git commit -m "first commit"
+</span><span class='line'>[master (root-commit) 7c19145] first commit
+</span><span class='line'> 3 files changed, 0 insertions(+), 0 deletions(-)
+</span><span class='line'> create mode 100644 README.md
+</span><span class='line'> create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+</span><span class='line'>7\346\241\243 (2).txt"
+</span><span class='line'> create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+</span><span class='line'>7\346\241\243.txt"
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git remote add origin https://github.com/chendd/BeatPlane.git
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git push -u origin master
+</span><span class='line'>Username for 'https://github.com': chendd
+</span><span class='line'>Password for 'https://chendd@github.com':
+</span><span class='line'>Counting objects: 3, done.
+</span><span class='line'>Delta compression using up to 2 threads.
+</span><span class='line'>Compressing objects: 100% (2/2), done.
+</span><span class='line'>Writing objects: 100% (3/3), 239 bytes | 0 bytes/s, done.
+</span><span class='line'>Total 3 (delta 0), reused 0 (delta 0)
+</span><span class='line'>To https://github.com/chendd/BeatPlane.git
+</span><span class='line'> * [new branch]      master -&gt; master
+</span><span class='line'>Branch master set up to track remote branch master from origin.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>提交刷新网页，大功告成</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/2.jpg" alt="image" /></p>
+
+<p>附：<a href="http://tieba.baidu.com/p/2856796771">git客户端安装和使用</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android 横竖屏切换处理]]></title>
+    <link href="http://chendd.github.io/blog/2014/07/25/android_land_port/"/>
+    <updated>2014-07-25T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/07/25/android_land_port</id>
+    <content type="html"><![CDATA[<p>Android横竖屏要解决的问题应该就两个：</p>
+
+<ul>
+<li>布局问题</li>
+<li>重新载入问题</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>一.布局问题：</h2>
+
+<p>&#160; &#160; &#160; &#160;如果不想让软件在横竖屏之间切换，最简单的办法就是在项目的AndroidManifest.xml中找到你所指定的activity中加上android:screenOrientation属性，他有以下几个参数：</p>
+
+<ul>
+<li>unspecified:默认值 由系统来判断显示方向.判定的策略是和设备相关的，所以不同的设备会有不同的显示方向.</li>
+<li>landscape:横屏显示（宽比高要长）</li>
+<li>portrait:竖屏显示(高比宽要长)</li>
+<li>user:用户当前首选的方向</li>
+<li>behind:和该Activity下面的那个Activity的方向一致(在Activity堆栈中的)</li>
+<li>sensor:有物理的感应器来决定。如果用户旋转设备这屏幕会横竖屏切换。</li>
+<li>nosensor:忽略物理感应器，这样就不会随着用户旋转设备而更改了（"unspecified"设置除外）。</li>
+</ul>
+
+
+<p>也可以在Java代码中通过</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">setRequestedOrientation</span><span class="o">(</span><span class="n">ActivityInfo</span><span class="o">.</span><span class="na">SCREEN_ORIENTATION_LANDSCAPE</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>来设置。</p>
+
+<p>如果要让软件在横竖屏之间切换，由于横竖屏的高宽会发生转换，有可能会要求不同的布局。可以通过以下方法来切换布局：</p>
+
+<ul>
+<li><p>在res目录下建立layout-land和layout-port目录,相应的layout文件不变，比如main.xml。layout-land是横屏的layout,layout-port是竖屏的layout，其他的不用管，模拟器会自动寻找。</p></li>
+<li><p>通过 this.getResources().getConfiguration().orientation来判断当前是横屏还是竖屏然后来加载相应的 xml布局文件。因为当屏幕变为横屏的时候,系统会重新呼叫当前Activity的onCreate方法,你可以把以下方法放在你的onCreate中来检查当前的方向,然后可以让你的setContentView来载入不同的layout xml.</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">().</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">orientation</span> <span class="o">==</span> <span class="n">Configuration</span><span class="o">.</span><span class="na">ORIENTATION_LANDSCAPE</span><span class="o">){</span>
+</span><span class='line'>　　<span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="s">&quot;info&quot;</span><span class="o">,</span> <span class="s">&quot;landscape&quot;</span><span class="o">);</span> <span class="c1">// 横屏</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getResources</span><span class="o">().</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">orientation</span> <span class="o">==</span><span class="n">Configuration</span><span class="o">.</span><span class="na">ORIENTATION_PORTRAIT</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>　　<span class="n">Log</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="s">&quot;info&quot;</span><span class="o">,</span> <span class="s">&quot;portrait&quot;</span><span class="o">);</span> <span class="c1">// 竖屏</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在onConfigurationChanged()方法中也可以检测拥有硬键盘的键盘状态</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//检测实体键盘的状态：推出或者合上 &amp;nbsp;&amp;nbsp;</span>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">newConfig</span><span class="o">.</span><span class="na">hardKeyboardHidden</span> <span class="o">==</span><span class="n">Configuration</span><span class="o">.</span><span class="na">HARDKEYBOARDHIDDEN_NO</span><span class="o">){</span>
+</span><span class='line'>　　<span class="c1">//实体键盘处于推出状态，在此处添加额外的处理代码</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">newConfig</span><span class="o">.</span><span class="na">hardKeyboardHidden</span> <span class="o">==</span><span class="n">Configuration</span><span class="o">.</span><span class="na">HARDKEYBOARDHIDDEN_YES</span><span class="o">){</span>
+</span><span class='line'>　　<span class="c1">//实体键盘处于合上状态，在此处添加额外的处理代码</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>二.重新载入问题：</h2>
+
+<p>&#160; &#160; &#160; &#160;如果不需要从新载入，可以在AndroidManifest.xml中加入配置 android:configChanges=&ldquo;orientation|keyboardHidden"，配置 android:configChanges的作用就是如文档所说的：</p>
+
+<blockquote><p>Specify one or more configuration changesthat the activity will handle itself. If not specified, the activity will berestarted if any of these configuration changes happen in the system。</p></blockquote>
+
+<p>这样在程序中Activity就不会重复的调用onCreate()甚至不会调用onPause、onResume.只会调用一个 onConfigurationChanged(Configuration newConfig)。如果需要重新载入，则不需要做任何修改。不过如果需要在重新载入过程中保存之前的操作内容或数据，则需要保存之前的数据。然后在 activity的onCreate()中取出来。当然，如此就不能设置android:configChanges()了，否则就不会调用 onCreate()方法。</p>
+
+<p>&#160; &#160; &#160; &#160;如果要彻底禁止翻转，可以设置android:screenOrientation的属性为nosensor，如此就可以忽略重力感应带来的麻烦了。不过在模拟器上不管用，在真机上是正确的。android:screenOrientation=&ldquo;portrait"则无论手机如何变动，拥有这个属性的activity都将是竖屏显示。android:screenOrientation="landscape"，为横屏显示。</p>
+
+<p>&#160; &#160; &#160; &#160;这里提一个小知识，Android模拟器中，快捷键"Ctrl+F11/F12"可以实现转屏</p>
+
+<h2>三.总结：</h2>
+
+<p>总之，对于横竖屏切换的问题，统计了下，大家的解决办法是：</p>
+
+<p>①不理会。</p>
+
+<p>②只竖屏显示(android:screenOrientation=&ldquo;portrait&rdquo;);只横屏显示(android:screenOrientation=&ldquo;landscape&rdquo;)</p>
+
+<p>③简单的防止重载：
+   在 AndroidManifest.xml中加入：android:configChanges=&ldquo;orientation|keyboardHidden&rdquo;
+   在activity中重载onConfigurationChanged事件</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onConfigurationChanged</span><span class="o">(</span><span class="n">Configuration</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'> 　　<span class="kd">super</span><span class="o">.</span><span class="na">onConfigurationChanged</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>④横竖屏分别布局
+   横竖屏分别布局的方法是：
+   在res下新建
+   layout-land 横屏
+   layout-port 竖屏
+   然后把layout中的xml文件分别考到以上目录，修改布局就可以了代码中不做任何更改。
+   在 AndroidManifest.xml文件中的主Activity中加入
+   android:configChanges=&ldquo;orientation|keyboardHidden&rdquo;
+   然后在主Activity中的onConfigurationChanged加入</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onConfigurationChanged</span><span class="o">(</span><span class="n">Configuration</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>　　<span class="kd">super</span><span class="o">.</span><span class="na">onConfigurationChanged</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">orientation</span> <span class="o">==</span> <span class="n">Configuration</span><span class="o">.</span><span class="na">ORIENTATION_PORTRAIT</span><span class="o">){</span>
+</span><span class='line'>　　        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">main</span><span class="o">);</span> <span class="c1">//布局</span>
+</span><span class='line'>　　        <span class="n">tv</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">EditText01</span><span class="o">);</span><span class="c1">//控件</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">orientation</span> <span class="o">==</span> <span class="n">Configuration</span><span class="o">.</span><span class="na">ORIENTATION_LANDSCAPE</span><span class="o">){</span>
+</span><span class='line'>　　        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">main</span><span class="o">);</span> <span class="c1">//布局</span>
+</span><span class='line'>　　        <span class="n">tv</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">EditText01</span><span class="o">);</span><span class="c1">//控件</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android 多语言版本开发]]></title>
+    <link href="http://chendd.github.io/blog/2014/07/23/android_multi_language/"/>
+    <updated>2014-07-23T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/07/23/android_multi_language</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;最近项目中用用到语言切换功能，第一想到的就是资源文件，没错。</p>
+
+<p>&#160; &#160; &#160; &#160;在资源文件中新建一个文件夹values-en，en表示英语，有一些还细化到地区，如values-en-rUS 即美国地区的英语，r是必需的。在里面新建一个strings.xml，把默认values文件夹中的strings.xml中的内容Copy至values-en中的strings.xml，再把该文件夹中的中文内容转换为英文，例如<string name="set">设置</string>转换为<string name="set">set</string>。不止values文件可以这样，res文件夹下的都可以，但是assets就不行，这是外部文件。如果有做webapp引用网页形式 考虑多语言版本，可以java代码判断系统语言，再去调用相应的html文件。</p>
+
+<!--more-->
+
+
+<p>然后再主Activity中写一个方法</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">switchLanguage</span><span class="o">(</span><span class="n">Locale</span> <span class="n">locale</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>       <span class="c1">//应用内配置语言</span>
+</span><span class='line'>　　　　<span class="n">Resources</span> <span class="n">resources</span> <span class="o">=</span><span class="n">getResources</span><span class="o">();</span><span class="c1">//获得res资源对象  </span>
+</span><span class='line'>　　　　<span class="n">Configuration</span> <span class="n">config</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">();</span><span class="c1">//获得设置对象  </span>
+</span><span class='line'>　　　　<span class="n">DisplayMetrics</span> <span class="n">dm</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="na">getDisplayMetrics</span><span class="o">();</span><span class="c1">//获得屏幕参数：主要是分辨率，像素等。</span>
+</span><span class='line'>　　　　<span class="n">config</span><span class="o">.</span><span class="na">locale</span> <span class="o">=</span> <span class="n">Locale</span><span class="o">.</span><span class="na">SIMPLIFIED_CHINESE</span><span class="o">;</span> <span class="c1">//简体中文</span>
+</span><span class='line'>　　　　<span class="n">resources</span><span class="o">.</span><span class="na">updateConfiguration</span><span class="o">(</span><span class="n">config</span><span class="o">,</span> <span class="n">dm</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有一些相对不那么常用的语言Locale没提供相应的常量，这时
+如阿拉伯语，直接</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">config</span><span class="o">.</span><span class="na">locale</span> <span class="o">=</span><span class="k">new</span> <span class="nf">Locale</span><span class="o">(</span><span class="s">&quot;ar&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　    <br/>
+必须在OnCreate函数中调用
+还得注意的是：在AndroidManifest.xml中要配置一下
+在activity节点中加上这个属性：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>android:configChanges=&quot;locale&quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>添加权限：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.CHANGE_CONFIGURATION&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
 ]]></content>
   </entry>
   
@@ -3883,1574 +4404,6 @@ getCount方法用于返回图像总数，这个总数不能大于图像的实际
 
 
 <p>比较麻烦还是重写getView()方法。里面的GridInfo只是普通的JAVA bean类。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记15--WebView(网络视图)]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/16/android_study_15/"/>
-    <updated>2013-03-16T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/16/android_study_15</id>
-    <content type="html"><![CDATA[<h2>一、WebView</h2>
-
-<h4>1、简述</h4>
-
-<p>&#160; &#160; &#160; &#160;WebView(网络视图)内置WebKit引擎，能加载显示网页，还支持JS，并且能够在Android平台使用AJAX
-WebView可以在布局中声明，也可以在Activity中直接实例化</p>
-
-<!--more-->
-
-
-<h4>2、主要步骤</h4>
-
-<p>&#160; &#160; &#160; &#160;使用WebView 的主要步骤：</p>
-
-<ul>
-<li>1.在布局文件中声明WebView，通过findViewById或在Activity中实例化WebView组件：WebView webView = new WebView(this);</li>
-<li>2.调用WebView的loadUrl()方法，设置WevView要显示的网页：
-互联网用：webView.loadUrl(&ldquo;<a href="http://www.google.com">http://www.google.com</a>&rdquo;);
-本地文件用：webView.loadUrl(&ldquo;file:///android_asset/Todos.html&rdquo;); 本地文件存放在：assets 文件中</li>
-<li>3.调用Activity的setContentView( )方法来显示网页视图</li>
-<li>4.用WebView点链接看了很多页以后为了让WebView支持回退功能，需要覆盖覆盖Activity类的onKeyDown()方法，如果不做任何处理，点击系统回退剪键，整个浏览器会调用finish()而结束自身，而不是回退到上一页面</li>
-<li>5.需要在AndroidManifest.xml文件中添加权限，否则会出现Web page not available错误。
-<uses-permission android:name="android.permission.INTERNET" /></li>
-</ul>
-
-
-<h4>3、实例演示</h4>
-
-<p>Activity代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">getWindow</span><span class="o">().</span><span class="na">requestFeature</span><span class="o">(</span><span class="n">Window</span><span class="o">.</span><span class="na">FEATURE_PROGRESS</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">wv</span> <span class="o">=</span> <span class="o">(</span><span class="n">WebView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">wv</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">wv</span><span class="o">.</span><span class="na">setWebChromeClient</span><span class="o">(</span><span class="k">new</span> <span class="nf">WebChromeClient</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// 为WebView设置WebChromeClient</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onProgressChanged</span><span class="o">(</span><span class="n">WebView</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">newProgress</span><span class="o">)</span> <span class="o">{</span><span class="c1">// 重写onProgressChanged方法</span>
-</span><span class='line'>                <span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">.</span><span class="na">setProgress</span><span class="o">(</span><span class="n">newProgress</span> <span class="o">*</span> <span class="mi">100</span><span class="o">);</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>        <span class="n">wv</span><span class="o">.</span><span class="na">setWebViewClient</span><span class="o">(</span><span class="k">new</span> <span class="nf">WebViewClient</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// 为WebView设置WebViewClient</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onReceivedError</span><span class="o">(</span><span class="n">WebView</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">errorCode</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">String</span> <span class="n">description</span><span class="o">,</span> <span class="n">String</span> <span class="n">failingUrl</span><span class="o">)</span> <span class="o">{</span><span class="c1">// 重写onReceivedError方法</span>
-</span><span class='line'>                <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;Sorry!&quot;</span> <span class="o">+</span> <span class="n">description</span><span class="o">,</span>
-</span><span class='line'>                        <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>        <span class="n">Button</span> <span class="n">btn</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn</span><span class="o">);</span> <span class="c1">// 获取Button对象</span>
-</span><span class='line'>        <span class="n">btn</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// 为Button对象设置OnClickListener监听器</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">EditText</span> <span class="n">et</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">);</span> <span class="c1">// 获得WebView对象</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">url</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">().</span><span class="na">trim</span><span class="o">();</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">URLUtil</span><span class="o">.</span><span class="na">isNetworkUrl</span><span class="o">(</span><span class="n">url</span><span class="o">))</span> <span class="o">{</span> <span class="c1">// 判断是否是网址</span>
-</span><span class='line'>                    <span class="n">wv</span><span class="o">.</span><span class="na">loadUrl</span><span class="o">(</span><span class="n">url</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;对不起，您输入的网址有错。&quot;</span><span class="o">,</span>
-</span><span class='line'>                            <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">et</span><span class="o">.</span><span class="na">requestFocus</span><span class="o">();</span> <span class="c1">// 将焦点移到EditText</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>        <span class="c1">// 设置前进后退按钮</span>
-</span><span class='line'>        <span class="n">Button</span> <span class="n">btnForward</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btnForward</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">btnForward</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">wv</span><span class="o">.</span><span class="na">canGoForward</span><span class="o">())</span> <span class="o">{</span> <span class="c1">// 判断是否能够前进</span>
-</span><span class='line'>                    <span class="n">wv</span><span class="o">.</span><span class="na">goForward</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;对不起，您现在不能前进！&quot;</span><span class="o">,</span>
-</span><span class='line'>                            <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>        <span class="n">Button</span> <span class="n">btnBack</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btnBack</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">btnBack</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">wv</span><span class="o">.</span><span class="na">canGoBack</span><span class="o">())</span> <span class="o">{</span> <span class="c1">// 判断是否能够前进</span>
-</span><span class='line'>                    <span class="n">wv</span><span class="o">.</span><span class="na">goBack</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;对不起，您现在不能后退！&quot;</span><span class="o">,</span>
-</span><span class='line'>                            <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;第一次输入网址运行报错：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151919224807731.png" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;原因是没有在AndroidManifest配置权限，加入权限：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.INTERNET&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>再次输入博客园首页网址点击'浏览'：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151921391838701.png" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;竟然出现一张美女图片，无意中发现个彩蛋，网址输成<a href="http://www.cnblog.com/">http://www.cnblog.com/</a>  ，漏了个s</p>
-
-<p>重新输入网址浏览：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151924470437076.png" alt="image" /></p>
-
-<p>上面有个进度条显示网页加载进度，多输入几个网址测试'前进'，'后退'的功能。再输入本地文件测试，显示以前写的待办事项网页</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151926573559664.png" alt="image" /></p>
-
-<p>&#160; &#160; &#160; &#160;注意：在输入本地文件网址时，代码要把判断是否是网址URLUtil.isNetworkUrl(url)去掉，因为不会识别file:///为网址</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">URLUtil</span><span class="o">.</span><span class="na">isNetworkUrl</span><span class="o">(</span><span class="n">url</span><span class="o">))</span> <span class="o">{</span> <span class="c1">// 判断是否是网址</span>
-</span><span class='line'>  <span class="n">wv</span><span class="o">.</span><span class="na">loadUrl</span><span class="o">(</span><span class="n">url</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">&quot;对不起，您输入的网址有错。&quot;</span><span class="o">,</span>
-</span><span class='line'>            <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">et</span><span class="o">.</span><span class="na">requestFocus</span><span class="o">();</span> <span class="c1">// 将焦点移到EditText</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记14--网络通信]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/15/android_study_14/"/>
-    <updated>2013-03-15T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/15/android_study_14</id>
-    <content type="html"><![CDATA[<h2>一、Android网络通信</h2>
-
-<p>&#160; &#160; &#160; &#160;android网络通信一般有三种：java.net.<em>(标准Java接口)、org.apache接口(基于http协议)和android.net.</em>(Android网络接口)，涉及到包括流、数据包套接字(socket)、Internet协议、常见Http处理等。android 内置HttpClient，简化和网站间的交互。但是不支持Web Services,需要利用ksoap2_android才能支持。</p>
-
-<!--more-->
-
-
-<h4>1、使用Socket进行通信</h4>
-
-<p>&#160; &#160; &#160; &#160;Socket通常也称作"套接字"，用于描述IP地址和端口，是一个通信链的句柄。Android Socket开发和JAVA Socket开发类似
-无非是创建一个Socket服务端和Socket客户端进行通信。
-Socket服务端代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span><span class="o">{</span>
-</span><span class='line'>            <span class="c1">// 新建服务器Socket</span>
-</span><span class='line'>            <span class="n">ServerSocket</span> <span class="n">ss</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ServerSocket</span><span class="o">(</span><span class="mi">8888</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Listening...&quot;</span><span class="o">);</span>
-</span><span class='line'>            <span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">){</span>
-</span><span class='line'>                <span class="c1">// 监听是否有客户端连上</span>
-</span><span class='line'>                <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
-</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client Connected...&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="n">DataOutputStream</span> <span class="n">dout</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DataOutputStream</span><span class="o">(</span><span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
-</span><span class='line'>                <span class="n">Date</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Date</span><span class="o">();</span>
-</span><span class='line'>                <span class="c1">// 演示传送个 当前时间给客户端</span>
-</span><span class='line'>                <span class="n">dout</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">d</span><span class="o">.</span><span class="na">toLocaleString</span><span class="o">());</span>
-</span><span class='line'>                <span class="n">dout</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>                <span class="n">socket</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Socket客户端代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">connectToServer</span><span class="o">(){</span>                    <span class="c1">//方法：连接客户端</span>
-</span><span class='line'>            <span class="k">try</span><span class="o">{</span>
-</span><span class='line'>                <span class="n">Socket</span> <span class="n">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Socket</span><span class="o">(</span><span class="s">&quot;10.0.2.2&quot;</span><span class="o">,</span> <span class="mi">8888</span><span class="o">);</span><span class="c1">//创建Socket对象</span>
-</span><span class='line'>                <span class="n">DataInputStream</span> <span class="n">din</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DataInputStream</span><span class="o">(</span><span class="n">socket</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">());</span>    <span class="c1">//获得DataInputStream对象</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">din</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>                             <span class="c1">//读取服务端发来的消息</span>
-</span><span class='line'>                <span class="n">EditText</span> <span class="n">et</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">);</span>        <span class="c1">//获得EditText对象</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>                                    <span class="c1">//设置EditText对象</span>
-</span><span class='line'>                <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;error data&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>                                        <span class="c1">//捕获并打印异常</span>
-</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;服务端是普通JAVA项目，先启动服务端，再启动客户端Android项目，客户端连上服务端，把当前时间数据从服务端发往客户端显示出来</p>
-
-<p>注意：服务器与客户端无法链接的可能原因有：</p>
-
-<ul>
-<li>a、AndroidManifest没有加访问网络的权限：<uses-permission android:name="android.permission.INTERNET"></uses-- permission></li>
-<li>b、IP地址要使用：10.0.2.2，不能用localhost</li>
-<li>c、模拟器不能配置代理</li>
-</ul>
-
-
-<h4>2、使用Http进行通信</h4>
-
-<p>&#160; &#160; &#160; &#160;使用HttpClient在Android客户端访问Web，有点html知识都知道，提交表单有两种方式
-get和post，Android客户端访问Web也是这两种方式。在本机先建个web应用(方便演示)。
-data.jsp的代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='jsp'><span class='line'><span class="k">&lt;%@</span><span class="n">page</span> <span class="n">language</span><span class="o">=</span><span class="s">&quot;java&quot;</span> <span class="n">import</span><span class="o">=</span><span class="s">&quot;java.util.*&quot;</span> <span class="n">pageEncoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="k">%&gt;</span>
-</span><span class='line'><span class="nt">&lt;html&gt;</span>
-</span><span class='line'><span class="nt">&lt;head&gt;</span>
-</span><span class='line'><span class="nt">&lt;title&gt;</span>
-</span><span class='line'>Http Test
-</span><span class='line'><span class="nt">&lt;/title&gt;</span>
-</span><span class='line'><span class="nt">&lt;/head&gt;</span>
-</span><span class='line'><span class="nt">&lt;body&gt;</span>
-</span><span class='line'><span class="k">&lt;%</span>
-</span><span class='line'><span class="n">String</span> <span class="n">type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;parameter&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="n">type</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="s">&quot;iso-8859-1&quot;</span><span class="o">),</span><span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;&lt;h1&gt;&quot;</span> <span class="o">+</span> <span class="n">result</span> <span class="o">+</span> <span class="s">&quot;&lt;/h1&gt;&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="k">%&gt;</span>
-</span><span class='line'><span class="nt">&lt;/body&gt;</span>
-</span><span class='line'><span class="nt">&lt;/html&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>启动tomcat，访问<a href="http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0">http://192.168.1.101:8080/test/data.jsp?parameter=%E5%8F%91%E9%80%81%E7%9A%84%E5%8F%82%E6%95%B0</a></p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151234538404137.png" alt="image" /></p>
-
-<p>注意：192.168.1.101是我本机的IP，要替换成自己的IP。</p>
-
-<p> 按钮监听代码:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//绑定按钮监听器  </span>
-</span><span class='line'>        <span class="n">get</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="c1">//注意：此处ip不能用127.0.0.1或localhost,Android模拟器已将它自己作为了localhost  </span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/data.jsp?parameter=以Get方式发送请求&quot;</span><span class="o">;</span>
-</span><span class='line'>                <span class="n">textView</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">uri</span><span class="o">));</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span><span class='line'>        <span class="c1">//绑定按钮监听器  </span>
-</span><span class='line'>        <span class="n">post</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">uri</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/data.jsp&quot;</span><span class="o">;</span>
-</span><span class='line'>                <span class="n">textView</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">uri</span><span class="o">));</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p> get方式请求代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/** </span>
-</span><span class='line'><span class="cm">     * 以get方式发送请求，访问web </span>
-</span><span class='line'><span class="cm">     * @param uri web地址 </span>
-</span><span class='line'><span class="cm">     * @return 响应数据 </span>
-</span><span class='line'><span class="cm">     */</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">get</span><span class="o">(</span><span class="n">String</span> <span class="n">uri</span><span class="o">){</span>
-</span><span class='line'>        <span class="n">BufferedReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">StringBuffer</span> <span class="n">sb</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DefaultHttpClient</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">HttpGet</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">HttpGet</span><span class="o">(</span><span class="n">uri</span><span class="o">);</span>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">//发送请求，得到响应  </span>
-</span><span class='line'>            <span class="n">HttpResponse</span> <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">//请求成功  </span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getStatusLine</span><span class="o">().</span><span class="na">getStatusCode</span><span class="o">()</span> <span class="o">==</span> <span class="n">HttpStatus</span><span class="o">.</span><span class="na">SC_OK</span><span class="o">){</span>
-</span><span class='line'>                <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getEntity</span><span class="o">().</span><span class="na">getContent</span><span class="o">()));</span>
-</span><span class='line'>                <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuffer</span><span class="o">();</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">NL</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;line.separator&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="k">while</span><span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
-</span><span class='line'>                    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClientProtocolException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">finally</span><span class="o">{</span>
-</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">reader</span><span class="o">){</span>
-</span><span class='line'>                    <span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">sb</span><span class="o">){</span>
-</span><span class='line'>            <span class="n">result</span> <span class="o">=</span>  <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p> post方式请求代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/** </span>
-</span><span class='line'><span class="cm">     * 以post方式发送请求，访问web </span>
-</span><span class='line'><span class="cm">     * @param uri web地址 </span>
-</span><span class='line'><span class="cm">     * @return 响应数据 </span>
-</span><span class='line'><span class="cm">     */</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">post</span><span class="o">(</span><span class="n">String</span> <span class="n">uri</span><span class="o">){</span>
-</span><span class='line'>        <span class="n">BufferedReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">StringBuffer</span> <span class="n">sb</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DefaultHttpClient</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">HttpPost</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">HttpPost</span><span class="o">(</span><span class="n">uri</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">//保存要传递的参数  </span>
-</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">NameValuePair</span><span class="o">&gt;</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">NameValuePair</span><span class="o">&gt;();</span>
-</span><span class='line'>        <span class="c1">//添加参数  </span>
-</span><span class='line'>        <span class="n">params</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nf">BasicNameValuePair</span><span class="o">(</span><span class="s">&quot;parameter&quot;</span><span class="o">,</span><span class="s">&quot;以Post方式发送请求&quot;</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">//设置字符集  </span>
-</span><span class='line'>            <span class="n">HttpEntity</span> <span class="n">entity</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">UrlEncodedFormEntity</span><span class="o">(</span><span class="n">params</span><span class="o">,</span><span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
-</span><span class='line'>            <span class="c1">//请求对象  </span>
-</span><span class='line'>            <span class="n">request</span><span class="o">.</span><span class="na">setEntity</span><span class="o">(</span><span class="n">entity</span><span class="o">);</span>
-</span><span class='line'>            <span class="c1">//发送请求  </span>
-</span><span class='line'>            <span class="n">HttpResponse</span> <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">//请求成功  </span>
-</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getStatusLine</span><span class="o">().</span><span class="na">getStatusCode</span><span class="o">()</span> <span class="o">==</span> <span class="n">HttpStatus</span><span class="o">.</span><span class="na">SC_OK</span><span class="o">){</span>
-</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;post success&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">getEntity</span><span class="o">().</span><span class="na">getContent</span><span class="o">()));</span>
-</span><span class='line'>                <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuffer</span><span class="o">();</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">NL</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;line.separator&quot;</span><span class="o">);</span>
-</span><span class='line'>                <span class="k">while</span><span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
-</span><span class='line'>                    <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClientProtocolException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">finally</span><span class="o">{</span>
-</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                <span class="c1">//关闭流  </span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">reader</span><span class="o">){</span>
-</span><span class='line'>                    <span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>                    <span class="n">reader</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">!=</span> <span class="n">sb</span><span class="o">){</span>
-</span><span class='line'>            <span class="n">result</span> <span class="o">=</span>  <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>点击'get'按钮：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151240451685606.png" alt="image" /></p>
-
-<p>点击'post'按钮</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151240579655195.png" alt="image" /></p>
-
-<h4>3、获取http网络资源</h4>
-
-<p>&#160; &#160; &#160; &#160;其实这里就是前面讲Android数据存储的最后一种：网络存储。将txt文件和png图片放在tomcat服务器上，模拟器通过http路径去获取资源显示出来。</p>
-
-<p>获取路径为：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">stringURL</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/test.txt&quot;</span><span class="o">;</span>
-</span><span class='line'><span class="n">String</span> <span class="n">bitmapURL</span> <span class="o">=</span> <span class="s">&quot;http://192.168.1.101:8080/test/crab.png&quot;</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>获取文本资源代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//方法，根据指定URL字符串获取网络资源</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getStringURLResources</span><span class="o">(){</span>
-</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
-</span><span class='line'>            <span class="n">URL</span> <span class="n">myUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">URL</span><span class="o">(</span><span class="n">stringURL</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">URLConnection</span> <span class="n">myConn</span> <span class="o">=</span> <span class="n">myUrl</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>    <span class="c1">//打开连接</span>
-</span><span class='line'>            <span class="n">InputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="n">myConn</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">();</span>        <span class="c1">//获取输入流</span>
-</span><span class='line'>            <span class="n">BufferedInputStream</span> <span class="n">bis</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BufferedInputStream</span><span class="o">(</span><span class="n">in</span><span class="o">);</span><span class="c1">//获取BufferedInputStream对象</span>
-</span><span class='line'>            <span class="n">ByteArrayBuffer</span> <span class="n">baf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ByteArrayBuffer</span><span class="o">(</span><span class="n">bis</span><span class="o">.</span><span class="na">available</span><span class="o">());</span>
-</span><span class='line'>            <span class="kt">int</span> <span class="n">data</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>            <span class="k">while</span><span class="o">((</span><span class="n">data</span> <span class="o">=</span> <span class="n">bis</span><span class="o">.</span><span class="na">read</span><span class="o">())!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>        <span class="c1">//读取BufferedInputStream中数据</span>
-</span><span class='line'>                <span class="n">baf</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">byte</span><span class="o">)</span><span class="n">data</span><span class="o">);</span>                <span class="c1">//将数据读取到ByteArrayBuffer中</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">EncodingUtils</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">baf</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">(),</span> <span class="s">&quot;GBK&quot;</span><span class="o">);</span>    <span class="c1">//转换为字符串，用UTF-8中文会乱码</span>
-</span><span class='line'>            <span class="n">EditText</span> <span class="n">et</span> <span class="o">=</span> <span class="o">(</span><span class="n">EditText</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et</span><span class="o">);</span>        <span class="c1">//获得EditText对象</span>
-</span><span class='line'>            <span class="n">et</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>                        <span class="c1">//设置EditText控件中的内容</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>获取图片资源代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">getBitmapURLResources</span><span class="o">(){</span>
-</span><span class='line'>        <span class="k">try</span><span class="o">{</span>
-</span><span class='line'>            <span class="n">URL</span> <span class="n">myUrl</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">URL</span><span class="o">(</span><span class="n">bitmapURL</span><span class="o">);</span>    <span class="c1">//创建URL对象</span>
-</span><span class='line'>            <span class="n">URLConnection</span> <span class="n">myConn</span> <span class="o">=</span> <span class="n">myUrl</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>            <span class="c1">//打开连接</span>
-</span><span class='line'>            <span class="n">InputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="n">myConn</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">();</span>            <span class="c1">//获得InputStream对象</span>
-</span><span class='line'>            <span class="n">Bitmap</span> <span class="n">bmp</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeStream</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>        <span class="c1">//创建Bitmap</span>
-</span><span class='line'>            <span class="n">ImageView</span> <span class="n">iv</span> <span class="o">=</span> <span class="o">(</span><span class="n">ImageView</span><span class="o">)</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">iv</span><span class="o">);</span>    <span class="c1">//获得ImageView对象</span>
-</span><span class='line'>            <span class="n">iv</span><span class="o">.</span><span class="na">setImageBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">);</span>                    <span class="c1">//设置ImageView显示的内容</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>注意：String msg = EncodingUtils.getString(baf.toByteArray(), &ldquo;GBK&rdquo;);//转换为字符串，用UTF-8中文会乱码</p>
-
-<p>运行效果：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/151250158712853.png" alt="image" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记13--数据存储之File存储]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/13/android_study_13_4/"/>
-    <updated>2013-03-13T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/13/android_study_13_4</id>
-    <content type="html"><![CDATA[<h2>4、文件存储File</h2>
-
-<p>&#160; &#160; &#160; &#160;File即传统的I/O 流存储文件，Activity提供了openFileOutput()方法可以用于把数据输出到文件中，
-具体的实现过程与在J2SE环境中保存数据到文件中是一样的。</p>
-
-<p>&#160; &#160; &#160; &#160;下面例子演示 如何保存文件、读取文件和把文件保存在SD卡上。</p>
-
-<p> <!--more-->　　</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/142228035435470.png" alt="image" /></p>
-
-<h4>(1) 保存文件</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">FileOutputStream</span> <span class="n">output</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">openFileOutput</span><span class="o">(</span><span class="s">&quot;test.txt&quot;</span><span class="o">,</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_WORLD_READABLE</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">output</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
-</span><span class='line'>            <span class="n">output</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>            <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span><span class="s">&quot;Saved&quot;</span><span class="o">,</span><span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// TODO: handle exception</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;openFileOutput()方法的第一参数用于指定文件名称，不能包含路径分隔符“/” ，如果文件不存在，Android 会自动创建它。
-创建的文件保存在/data/data/<package name>/files目录，如： /data/data/com.example.filesave/files/test.txt</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/132023545892953.png" alt="image" /></p>
-
-<p>openFileOutput()方法的第二参数用于指定操作模式，有四种模式，分别为：</p>
-
-<ul>
-<li>Context.MODE_PRIVATE</li>
-<li>Context.MODE_APPEND</li>
-<li>Context.MODE_WORLD_READABLE</li>
-<li>Context.MODE_WORLD_WRITEABLE</li>
-<li>Context.MODE_PRIVATE：为默认操作模式，代表该文件是私有数据，只能被应用本身访问，在该模式下，写入的内容会覆盖原文件的内容，</li>
-</ul>
-
-
-<p>&#160; &#160; &#160; &#160;如果想把新写入的内容追加到原文件中。可以使用Context.MODE_APPEND
-Context.MODE_APPEND：模式会检查文件是否存在，存在就往文件追加内容，否则就创建新文件。
-Context.MODE_WORLD_READABLE和Context.MODE_WORLD_WRITEABLE用来控制其他应用是否有权限读写该文件。
-MODE_WORLD_READABLE：表示当前文件可以被其他应用读取；MODE_WORLD_WRITEABLE：表示当前文件可以被其他应用写入。
-如果希望文件被其他应用读和写，可以传入：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">openFileOutput</span><span class="o">(</span><span class="s">&quot;test.txt&quot;</span><span class="o">,</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_WORLD_READABLE</span> <span class="o">+</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_WORLD_WRITEABLE</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;android有一套自己的安全模型，当应用程序(.apk)在安装时系统就会分配给他一个userid，当该应用要去访问其他资源比如文件的时候，就需要userid匹配。默认情况下，</p>
-
-<p>&#160; &#160; &#160; &#160;任何应用创建的文件，sharedpreferences，数据库都应该是私有的（位于/data/data/<package name>/files），其他程序无法访问。
-除非在创建时指定了Context.MODE_WORLD_READABLE或者Context.MODE_WORLD_WRITEABLE ，只有这样其他程序才能正确访问。</p>
-
-<h4>(2) 读取文件</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">String</span> <span class="nf">load</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">FileInputStream</span> <span class="n">input</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">openFileInput</span><span class="o">(</span><span class="s">&quot;test.txt&quot;</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">ByteArrayOutputStream</span> <span class="n">byteOutput</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ByteArrayOutputStream</span><span class="o">();</span>
-</span><span class='line'>            <span class="kt">byte</span><span class="o">[]</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">1024</span><span class="o">];</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="k">while</span> <span class="o">((</span><span class="n">length</span><span class="o">=</span><span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">))!=-</span><span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">byteOutput</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">buffer</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="n">length</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">input</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>            <span class="n">byteOutput</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">str</span> <span class="o">=</span> <span class="n">byteOutput</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
-</span><span class='line'>            <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span><span class="s">&quot;Load&quot;</span><span class="o">,</span><span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// TODO Auto-generated catch block</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">return</span> <span class="n">str</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;对于私有文件只能被创建该文件的应用访问，如果希望文件能被其他应用读和写，可以在创建文件时，指定Context.MODE_WORLD_READABLE和Context.MODE_WORLD_WRITEABLE权限。
-Activity还提供了getCacheDir()和getFilesDir()方法：</p>
-
-<ul>
-<li>getCacheDir()方法用于获取/data/data/<package name>/cache目录</li>
-<li>getFilesDir()方法用于获取/data/data/<package name>/files目录。</li>
-</ul>
-
-
-<p>打印文件读取的内容：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/132034007243345.png" alt="image" /></p>
-
-<p>(3) 创建SD卡　　</p>
-
-<p>&#160; &#160; &#160; &#160;使用Activity的openFileOutput()方法保存文件，文件是存放在手机空间上，一般手机的存储空间不是很大，存放些小文件还行，如果要存放像视频这样的大文件，是不可行的。对于像视频这样的大文件，我们可以把它存放在SDCard。 SDCard是干什么的？你可以把它看作是插在手机上的移动硬盘或U盘。</p>
-
-<p>创建模拟器SD卡有两种方法</p>
-
-<p>第一种：用命令行创建</p>
-
-<ul>
-<li>1.打开你安装Android的文件夹找到tools这个文件夹，复制路径</li>
-<li>2.设置命令提示符的默认路径为你复制的路径</li>
-<li><p>3.在后面输入如下命令（注意空格）：</p>
-
-<p>  mksdcard 256M C:\Users\chendd\Desktop\sdcard.img
-  256M是你要设置SD卡的大小，后面是你创建虚拟SD卡的路径。
-  回车，这样就创建好了SD卡的镜像文件，还要让Android模拟器知道这个SD卡在什么地方，命令如下：
-  dir C:\Users\chendd\Desktop\sdcard.img
-  再次回车</p></li>
-<li><p>4、设置模拟器,edit里SD Card 选择File，然后browse你的sdcard.img，再edit AVD结束。</p></li>
-</ul>
-
-
-<p>但是我这样创建这个时候File Exprorer下的sdcard的permissions变成了d&mdash;&mdash;&ndash;,没有读写权限，囧！</p>
-
-<p>第二种：直接在AVD manager创建</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/142238519804602.png" alt="image" /></p>
-
-<p>创建60M的内存卡sdcard的permissions变成了d&mdash;rwxr-x，可以读写，这样创建简单霸气！</p>
-
-<p>在程序中访问SDCard，你需要申请访问SDCard的权限。
-在AndroidManifest.xml中加入访问SDCard的权限如下:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- 在SDCard中创建与删除文件权限 --&gt;</span>
-</span><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.MOUNT_UNMOUNT_FILESYSTEMS&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'><span class="c">&lt;!-- 往SDCard写入数据权限 --&gt;</span>
-</span><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>(4) 保存文件在SD卡上
-　　要往SDCard存放文件，程序必须先判断手机是否装有SDCard，并且可以进行读写</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save_sd</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">File</span> <span class="n">sdCardDir</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="na">getExternalStorageDirectory</span><span class="o">();</span><span class="c1">//获取SDCard目录</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">File</span> <span class="n">saveFile</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">File</span><span class="o">(</span><span class="n">sdCardDir</span><span class="o">,</span> <span class="s">&quot;testsd.txt&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">FileOutputStream</span> <span class="n">outStream</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="k">if</span><span class="o">(!</span><span class="n">saveFile</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span>
-</span><span class='line'>            <span class="o">{</span>
-</span><span class='line'>                <span class="n">saveFile</span><span class="o">.</span><span class="na">createNewFile</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="n">outStream</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FileOutputStream</span><span class="o">(</span><span class="n">saveFile</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">outStream</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
-</span><span class='line'>            <span class="n">outStream</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>            <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span><span class="s">&quot;Save_sd&quot;</span><span class="o">,</span><span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// TODO Auto-generated catch block</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;Environment.getExternalStorageState()方法用于获取SDCard的状态，如果手机装有SDCard，并且可以进行读写，那么方法返回的状态等于Environment.MEDIA_MOUNTED。</p>
-
-<p>&#160; &#160; &#160; &#160;Environment.getExternalStorageDirectory()方法用于获取SDCard的目录，当然要获取SDCard的目录，你也可以这样写：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">sdCardDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">File</span><span class="o">(</span><span class="s">&quot;/sdcard&quot;</span><span class="o">);</span> <span class="c1">//获取SDCard目录</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">File</span> <span class="n">saveFile</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">File</span><span class="o">(</span><span class="n">sdCardDir</span><span class="o">,</span> <span class="s">&quot;test.txt&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 第一种写法更灵活</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//上面两句代码可以合成一句： File saveFile = new File(&quot;/sdcard/a.txt&quot;);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">FileOutputStream</span> <span class="n">outStream</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FileOutputStream</span><span class="o">(</span><span class="n">saveFile</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">outStream</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">outStream</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>文件对SD卡的读写一路报太多错误，在下一篇整理出来。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记13--数据存储之ContentProvide]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/08/android_study_13_3/"/>
-    <updated>2013-03-08T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/08/android_study_13_3</id>
-    <content type="html"><![CDATA[<h4>3、ContentProvider</h4>
-
-<p>&#160; &#160; &#160; &#160;数据在Android当中是私有的，当然这些数据包括文件数据和数据库数据以及一些其他类型的数据。ContentProvider实现多应用程序间的数据共享类
-一般利用ContentProvider为需要共享的数据定义一个URI(统一资源定位符)
-然后其他程序通过Context获得ContentResolver并将数据的URI传入即可</p>
-
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;Android已为一些常用的数据创建ContentProvider,这些ContentProvider位于
-android.provider包下，常用的就是手机上联系人信息，但是要取得相应的权限自己的应用程序才能访问
-具体设置是在AndroidManifest.xml</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.READ_CONTACTS&quot;</span> <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;对于ContentProvide重要的是数据模型和URI
-数据模型:ContentProvide为所需要的数据创建表，每行代表一条记录，每条记录有唯一的'_ID'标识
-URI:每个ContentProvide对外提供一个URI来标识自己的数据集</p>
-
-<p>URI特点：</p>
-
-<ul>
-<li>1、无法改变的标准前缀，包括；"content://&ldquo;、"tel://"等。当前缀是"content://"时，说明通过一个Content Provider控制这些数据</li>
-<li>2、URI的标识，它通过authorities属性声明，用于定义了是哪个ContentProvider提供这些数据。对于第三方应用程序，为了保证URI标识的唯一性，它必须是一个完整的类名(数据路径)。例如;&ldquo;content://com.example.contentprovide.myprovider&rdquo;
-3、如果URI中包含表示需要获取的记录的<em>ID；则就返回该id对应的数据，如果没有</em>ID，就表示返回全部</li>
-</ul>
-
-
-<p>举个例子，如：</p>
-
-<p>所有联系人的URI： content://contacts/people</p>
-
-<p>某个联系人的URI: content://contacts/people/5</p>
-
-<p>具体使用步骤：</p>
-
-<h4>1、在当前应用程序中定义一个ContentProvider</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyProvider</span> <span class="kd">extends</span> <span class="n">ContentProvider</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Uri</span> <span class="n">arg0</span><span class="o">,</span> <span class="n">String</span> <span class="n">arg1</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">arg2</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getType</span><span class="o">(</span><span class="n">Uri</span> <span class="n">arg0</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Uri</span> <span class="nf">insert</span><span class="o">(</span><span class="n">Uri</span> <span class="n">arg0</span><span class="o">,</span> <span class="n">ContentValues</span> <span class="n">arg1</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// 创建数据库，建表和插入数据</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>        <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span><span class="k">this</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">openOrCreateDatabase</span><span class="o">(</span><span class="s">&quot;mydb.db&quot;</span><span class="o">,</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">db</span><span class="o">.</span><span class="na">execSQL</span><span class="o">(</span><span class="s">&quot;create table tab(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">ContentValues</span> <span class="n">values</span> <span class="o">=</span><span class="k">new</span> <span class="nf">ContentValues</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">values</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;Hello ContentProvider!&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">db</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="s">&quot;_id&quot;</span><span class="o">,</span> <span class="n">values</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">db</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// 查询</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Cursor</span> <span class="nf">query</span><span class="o">(</span><span class="n">Uri</span> <span class="n">arg0</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">arg1</span><span class="o">,</span> <span class="n">String</span> <span class="n">arg2</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">arg3</span><span class="o">,</span>
-</span><span class='line'>            <span class="n">String</span> <span class="n">arg4</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>         <span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span><span class="k">this</span><span class="o">.</span><span class="na">getContext</span><span class="o">().</span><span class="na">openOrCreateDatabase</span><span class="o">(</span><span class="s">&quot;mydb.db&quot;</span><span class="o">,</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>         <span class="n">Cursor</span> <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span><span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>         <span class="k">return</span> <span class="n">c</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">update</span><span class="o">(</span><span class="n">Uri</span> <span class="n">arg0</span><span class="o">,</span> <span class="n">ContentValues</span> <span class="n">arg1</span><span class="o">,</span> <span class="n">String</span> <span class="n">arg2</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">arg3</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p> 这里为了演示方便只实现创建和查询两个简单的方法</p>
-
-<h4>2、在当前应用程序的AndroidManifest.xml中注册此ContentProvider</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">&lt;</span><span class="n">provider</span> <span class="nl">android:</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;.MyProvider&quot;</span> <span class="nl">android:</span><span class="n">authorities</span><span class="o">=</span><span class="s">&quot;com.example.contentprovider.MyProvider&quot;</span><span class="o">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<h4>3、其他应用程序通过ContentResolver和Uri来获取此ContentProvider的数据</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 获取当前context</span>
-</span><span class='line'>        <span class="n">Context</span> <span class="n">context</span> <span class="o">=</span> <span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 得到ContentResolver对象</span>
-</span><span class='line'>        <span class="n">ContentResolver</span> <span class="n">resolver</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getContentResolver</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// uri格式 &quot;content://&quot;、数据的路径、标示ID(可选)</span>
-</span><span class='line'>        <span class="n">Uri</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;content://com.example.contentprovider.MyProvider&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">Cursor</span> <span class="n">c</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">uri</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// 打印获取数据</span>
-</span><span class='line'>        <span class="n">c</span><span class="o">.</span><span class="na">moveToFirst</span><span class="o">();</span>
-</span><span class='line'>        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">c</span><span class="o">.</span><span class="na">getCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++){</span>
-</span><span class='line'>        <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">getColumnIndexOrThrow</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">);</span>
-</span><span class='line'>                     <span class="n">String</span> <span class="n">src</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
-</span><span class='line'>                     <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">,</span> <span class="n">src</span><span class="o">);</span>
-</span><span class='line'>                     <span class="n">c</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">();</span>
-</span><span class='line'>                 <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>日志打印：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/081525138782729.png" alt="image" /></p>
-
-<p>　　上面MyProvider代码和应用程序MainActivity代码不放在同一个包下是想说明ContentProvider不同程序间的数据共享，</p>
-
-<p>但是注册获取权限那段代码要放在调用的程序包里。</p>
-
-<p>　　其实通过代码可以看出为了共享数据库．可以让数据库披上ContentProvider外衣，主要还是通过SQLiteDatabase去操作数据库。</p>
-
-<p>当然对于已封装的共享数据。我们只要设置获取权限，通过ContentResolver就可以直接调用。</p>
-
-<h4>4、获取系统的联系人、媒体库信息</h4>
-
-<p>　　对于系统程序的联系人、多媒体等信息可通过指定的Uri来获取。</p>
-
-<p>　　数据附录是获取本地联系人信息代码：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">String</span> <span class="nf">getContactInfo</span><span class="o">(){</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">result</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">ContentResolver</span> <span class="n">resolver</span><span class="o">=</span><span class="n">getContentResolver</span><span class="o">();</span>
-</span><span class='line'>        <span class="c1">//查询联系人</span>
-</span><span class='line'>        <span class="n">Cursor</span> <span class="n">cursor</span><span class="o">=</span><span class="n">resolver</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">Contacts</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>        <span class="kt">int</span> <span class="n">idIndex</span><span class="o">=</span><span class="n">cursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="n">Contacts</span><span class="o">.</span><span class="na">_ID</span><span class="o">);</span>
-</span><span class='line'>        <span class="c1">// 取得联系人名字 (显示出来的名字)，实际内容在 ContactsContract.Contacts中</span>
-</span><span class='line'>        <span class="kt">int</span> <span class="n">nameIndex</span><span class="o">=</span><span class="n">cursor</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="n">Contacts</span><span class="o">.</span><span class="na">DISPLAY_NAME</span><span class="o">);</span>
-</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">cursor</span><span class="o">.</span><span class="na">moveToFirst</span><span class="o">();(!</span><span class="n">cursor</span><span class="o">.</span><span class="na">isAfterLast</span><span class="o">());</span><span class="n">cursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">//获取联系人ID</span>
-</span><span class='line'>            <span class="n">String</span> <span class="n">contactId</span> <span class="o">=</span><span class="n">cursor</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">idIndex</span><span class="o">);</span>
-</span><span class='line'>            <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="o">+</span><span class="n">contactId</span><span class="o">+</span><span class="s">&quot;\t\t\t&quot;</span><span class="o">;</span>
-</span><span class='line'>            <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="o">+</span><span class="n">cursor</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">nameIndex</span><span class="o">)+</span><span class="s">&quot;\t\t\t&quot;</span><span class="o">;</span>
-</span><span class='line'>             <span class="c1">// 根据联系人ID查询对应的电话号码  </span>
-</span><span class='line'>            <span class="n">Cursor</span> <span class="n">phoneNumbers</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Phone</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Phone</span><span class="o">.</span><span class="na">CONTACT_ID</span> <span class="o">+</span> <span class="s">&quot; = &quot;</span> <span class="o">+</span> <span class="n">contactId</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>            <span class="c1">// 取得电话号码(可能存在多个号码)    </span>
-</span><span class='line'>            <span class="k">while</span> <span class="o">(</span><span class="n">phoneNumbers</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
-</span><span class='line'>            <span class="o">{</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">strPhoneNumber</span> <span class="o">=</span> <span class="n">phoneNumbers</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">phoneNumbers</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Phone</span><span class="o">.</span><span class="na">NUMBER</span><span class="o">));</span>
-</span><span class='line'>                <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="o">+</span><span class="n">strPhoneNumber</span><span class="o">+</span><span class="s">&quot;\t\t\t&quot;</span><span class="o">;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="n">phoneNumbers</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// 根据联系人ID查询对应的email  </span>
-</span><span class='line'>            <span class="n">Cursor</span> <span class="n">emails</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Email</span><span class="o">.</span><span class="na">CONTENT_URI</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Email</span><span class="o">.</span><span class="na">CONTACT_ID</span> <span class="o">+</span> <span class="s">&quot; = &quot;</span> <span class="o">+</span> <span class="n">contactId</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>            <span class="c1">// 取得email(可能存在多个email)    </span>
-</span><span class='line'>            <span class="k">while</span> <span class="o">(</span><span class="n">emails</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span>
-</span><span class='line'>            <span class="o">{</span>
-</span><span class='line'>                <span class="n">String</span> <span class="n">strEmail</span> <span class="o">=</span> <span class="n">emails</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">emails</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="n">CommonDataKinds</span><span class="o">.</span><span class="na">Email</span><span class="o">.</span><span class="na">DATA</span><span class="o">));</span>
-</span><span class='line'>                <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="o">+</span><span class="n">strEmail</span><span class="o">+</span><span class="s">&quot;\t\t\t&quot;</span><span class="o">;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="n">emails</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>            <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="o">+</span><span class="s">&quot;\n&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>        <span class="n">cursor</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>5、监听ContentProvider的数据改变</h4>
-
-<p>　　随着ContentProvider的共享数据可能发生改变，要提供给有使用该共享数据的相应，具体步骤如下：</p>
-
-<ul>
-<li><p>在ContentProvider类的insert\update\delete方法加入this.getContext().getContentResolver().notifyChange(URI,null);
-其中URI表示监听的URI
-null表示发送消息给任何人；</p></li>
-<li><p>在访问者的类中调用如下方法：
-context.getContentResolver().registerContentObserver(uri,true,new ContentObserver(new Handler()));</p></li>
-<li>创建内部类继承ContentObserver并重写下面两个方法：
-
-<ul>
-<li>带有Handler的构造函数；</li>
-<li>public void onChange(boolean selfChange); 此函数在内容提供者发出改变信号时就会被调用
-参数selfChange为如果是自己改变的原因，则为true；如果不是自己改变的，则为false；</li>
-</ul>
-</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android学习日记13--数据存储之SQLite]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/07/android_study_13_2/"/>
-    <updated>2013-03-07T19:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/07/android_study_13_2</id>
-    <content type="html"><![CDATA[<h4>2、SQLite</h4>
-
-<p>&#160; &#160; &#160; &#160;开源轻量级数据库，支持92-SQL标准，主要用于嵌入式系统，只占几百K系统资源此外，SQLite 不支持一些标准的 SQL 功能，特别是外键约束（FOREIGN KEY constrains），嵌套 transcaction 和 RIGHT OUTER JOIN 和 FULL OUTER JOIN, 还有一些 ALTER TABLE 功能</p>
-
-<p>&#160; &#160; &#160; &#160;许多开源项目（(Mozilla, PHP, Python）都使用了 SQLite.SQLite 由以下几个组件组成：SQL 编译器、内核、后端以及附件</p>
-
-<!--more-->
-
-
-<p>&#160; &#160; &#160; &#160;具有如下特性：</p>
-
-<ul>
-<li>轻量性：只需要一个动态库，就可以享受全部功能，而且动态库尺寸也很小</li>
-<li>独立性：核心引擎不需要依赖第三方软件</li>
-<li>隔离性：数据库所有信息（表、视图、触发器）都放在同一个文件里</li>
-<li>跨平台：支持大部分操作系统，也可以在PC端使用</li>
-<li>安全性：独占性和共享锁来实现事务处理，支持多进程读取数据，只能一个进程修改</li>
-</ul>
-
-
-<p>&#160; &#160; &#160; &#160;有五种常用数据类型：</p>
-
-<ul>
-<li>NULL：空值</li>
-<li>INTEGER：整形</li>
-<li>REAL：浮点型</li>
-<li>VARCHAR:字符型</li>
-<li>BLOB：大数据</li>
-</ul>
-
-
-<p>注意：SQLite不支持BOOLEAN和DATE，因此可以用0,1代替BOOLEAN(其它数据库也经常这么干)
-INTEGER或VARCHAR代替DATE，更多<a href="http://www.sqlite.org/">参考资料</a></p>
-
-<p>在Android系统中提供了android.database.sqlite包，用于进行SQLite数据库的增、删、改、查工作。其主要方法如下：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/072326293931382.png" alt="image" /></p>
-
-<p>1、创建数据库连接</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 创建数据库的两种方法，推荐第一种，第二种使用绝对路径，较繁杂</span>
-</span><span class='line'><span class="n">SQLiteDatabase</span> <span class="n">db</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">openOrCreateDatabase</span><span class="o">(</span><span class="s">&quot;test_db.db&quot;</span><span class="o">,</span> <span class="n">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'><span class="n">SQLiteDatabase</span> <span class="n">db2</span> <span class="o">=</span> <span class="n">SQLiteDatabase</span><span class="o">.</span><span class="na">openOrCreateDatabase</span><span class="o">(</span><span class="s">&quot;/data/data/com.example.sqlite/databases/test_db2.db&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>创建完/data/data/com.example.sqlite/databases/ 会有两个数据库文件。</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/072256268934722.png" alt="image" /></p>
-
-<p>2、创建tab表，有两个字段<em>id和name,其中</em>id为自增序列,name不为空。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 创建tab表</span>
-</span><span class='line'><span class="n">db</span><span class="o">.</span><span class="na">execSQL</span><span class="o">(</span><span class="s">&quot;create table tab(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)&quot;</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>3、插入数据</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//插入数据</span>
-</span><span class='line'><span class="c1">// 类似map,键值对存储数据</span>
-</span><span class='line'><span class="n">ContentValues</span> <span class="n">values</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ContentValues</span><span class="o">();</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">values</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;test&quot;</span><span class="o">+</span><span class="n">i</span><span class="o">);</span>
-</span><span class='line'>      <span class="c1">// 插入到数据库，参数：表名， 指定表中的某列列名，数据</span>
-</span><span class='line'>      <span class="n">db</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="s">&quot;_id&quot;</span><span class="o">,</span> <span class="n">values</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>4、修改数据</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 修改</span>
-</span><span class='line'><span class="n">ContentValues</span> <span class="n">values2</span> <span class="o">=</span><span class="k">new</span> <span class="nf">ContentValues</span><span class="o">();</span>
-</span><span class='line'><span class="n">values2</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;name&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="c1">// 更改数据,参数分别：表名、新数据、where条件、子句(可为null)</span>
-</span><span class='line'><span class="n">db</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="n">values2</span><span class="o">,</span> <span class="s">&quot;_id=1&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'><span class="c1">// where条件?为占位符，最后一个参数可替换占位符</span>
-</span><span class='line'><span class="n">db</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="n">values2</span><span class="o">,</span> <span class="s">&quot;_id=?&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&quot;10&quot;</span><span class="o">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>将数据库文件拷贝到本地电脑可以用 SQLite Expert Personal 3查看，修改后_id为0和10的name列 值都改掉了。</p>
-
-<p>由于我程序执行了4次，多插入3遍，因此有20条记录。</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/072259083931916.png" alt="image" /></p>
-
-<p>5、查询数据</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//查询数据两种方法query、rawQuery</span>
-</span><span class='line'><span class="c1">// Cursor指游标，学过数据库的都知道吧,后面跟一系列参数，目标表名、where子句、order by子句、having子句等可不记，用第二种方法</span>
-</span><span class='line'><span class="n">Cursor</span> <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'><span class="c1">// 在第一次读取Cursor对象中的数据时，一定要先移动游标，否则此游标的位置在第一条记录之前，会引发异常</span>
-</span><span class='line'><span class="n">c</span><span class="o">.</span><span class="na">moveToFirst</span><span class="o">();</span>
-</span><span class='line'><span class="k">while</span><span class="o">(!</span><span class="n">c</span><span class="o">.</span><span class="na">isAfterLast</span><span class="o">()){</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&quot;SQLite&quot;</span><span class="o">,</span> <span class="n">c</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
-</span><span class='line'>      <span class="n">c</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//推荐用这种，不需记那么多参数</span>
-</span><span class='line'><span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">rawQuery</span><span class="o">(</span><span class="s">&quot;select * from tab&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'><span class="n">c</span><span class="o">.</span><span class="na">moveToFirst</span><span class="o">();</span>
-</span><span class='line'><span class="k">while</span><span class="o">(!</span><span class="n">c</span><span class="o">.</span><span class="na">isAfterLast</span><span class="o">()){</span>
-</span><span class='line'>   <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="na">getColumnIndex</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">);</span>
-</span><span class='line'>       <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">&quot;SQLite&quot;</span><span class="o">,</span> <span class="n">c</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">index</span><span class="o">));</span>
-</span><span class='line'>       <span class="n">c</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">();</span>
-</span><span class='line'>   <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>日子打印结果：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/072308325965984.png" alt="image" /></p>
-
-<p>针对游标的常用方法说明：</p>
-
-<p>6、删除数据和关闭连接</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 删除数据</span>
-</span><span class='line'><span class="n">db</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">&quot;tab&quot;</span><span class="o">,</span> <span class="s">&quot;_id=? or name=?&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&quot;8&quot;</span><span class="o">,</span> <span class="s">&quot;test0&quot;</span><span class="o">});</span>
-</span><span class='line'><span class="c1">// 关闭数据库连接，释放资源</span>
-</span><span class='line'><span class="n">db</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>&#160; &#160; &#160; &#160;实际开发是继承数据库的辅助类SQLiteOpenHelper来方便操作的，主要做的工作就是重写以下两个方法：</p>
-
-<p>onCreate(SQLiteDatabase db) : 当数据库被首次创建时执行该方法，一般将创建表等初始化操作在该方法中执行。
-onUpgrade(SQLiteDatabse dv, int oldVersion,int new Version)：当打开数据库时传入的版本号与当前的版本号不同时会调用该方法。</p>
-
-<p>&#160; &#160; &#160; &#160;除了上述两个必须要实现的方法外，还可以选择性地实现onOpen 方法，该方法会在每次打开数据库时被调用。</p>
-
-<p>一般的代码结构:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseHelper</span> <span class="kd">extends</span> <span class="n">SQLiteOpenHelper</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">DB_NAME</span> <span class="o">=</span> <span class="s">&quot;mydata.db&quot;</span><span class="o">;</span> <span class="c1">//数据库名称</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">version</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="c1">//数据库版本</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">DatabaseHelper</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">DB_NAME</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">version</span><span class="o">);</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated constructor stub</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;create table user(username varchar(20) not null , password varchar(60) not null );&quot;</span><span class="o">;</span>
-</span><span class='line'>        <span class="n">db</span><span class="o">.</span><span class="na">execSQL</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onUpgrade</span><span class="o">(</span><span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">,</span> <span class="kt">int</span> <span class="n">oldVersion</span><span class="o">,</span> <span class="kt">int</span> <span class="n">newVersion</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// TODO Auto-generated method stub</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

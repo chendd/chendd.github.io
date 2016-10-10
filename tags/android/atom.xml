@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: android | Chendd's Blog]]></title>
   <link href="http://chendd.github.io/tags/android/atom.xml" rel="self"/>
   <link href="http://chendd.github.io/"/>
-  <updated>2016-09-28T15:06:01+08:00</updated>
+  <updated>2016-10-10T11:54:37+08:00</updated>
   <id>http://chendd.github.io/</id>
   <author>
     <name><![CDATA[chendd]]></name>
@@ -552,340 +552,205 @@ field.setAccessible(true);
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[编写高效的Android代码]]></title>
-    <link href="http://chendd.github.io/blog/2013/05/15/efficient_android_code/"/>
-    <updated>2013-05-15T21:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/05/15/efficient_android_code</id>
-    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;编写Android程序时要时刻考虑执行的效率，这系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。</p>
+    <title type="html"><![CDATA[android程序逆向工程]]></title>
+    <link href="http://chendd.github.io/blog/2015/11/24/android_reverse_engineering/"/>
+    <updated>2015-11-24T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2015/11/24/android_reverse_engineering</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;随着智能手机的普及，功能越来越强大。程序也越来多和复杂化。研究一下android系统的逆向工程也是挺有意思的。
+目前android逆向工程还处于初级阶段。表现在于：</p>
 
-<p>&#160; &#160; &#160; &#160;对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
+<ul>
+<li>1.没有完整的动态调试程序。目前由于android系统的bionic并不完全支持POSIX,导致现有编译的gdb不支持多线程无符号调试。（我实验了一下，的确多线程问题比较多，当然，gdb本身也有问题）。所以对于NDK逆向工程比较麻烦，以静态分析为主。</li>
+<li>2.手机本身种类较多，而且android版本繁多，更新较快，增加了逆向的难度。</li>
+</ul>
 
-<h4>1、不要做不必要做的事情。</h4>
-
-<h4>2、尽可能的节省内存的使用。</h4>
 
 <!--more-->
 
 
-<p>&#160; &#160; &#160; &#160;下面是常用的几点优化建议：</p>
+<p>但是android系统自身也有好处：</p>
 
-<h4>1、尽可能避免创建对象（Object）</h4>
+<ul>
+<li>1.手机系统的简化工作让分析也随着简化。</li>
+<li>2.公开源代码 大不了我修改系统API编译系统来进行API hook。谁也拦不住。（android不支持LD_Library API hook).</li>
+</ul>
 
-<p>&#160; &#160; &#160; &#160;因为对象的创建并不是没有代价的，如果你在一个用户界面的循环中分配一个对象，你不得不强制的进行内存回收，那么就会使用户体验出现稍微“打嗝”的现象。</p>
 
-<p>&#160; &#160; &#160; &#160;当从原始的输入数据中提取字符串时，试着从原始字符串返回一个子字符串，而不是创建一份拷贝。</p>
+<p>&#160; &#160; &#160; &#160;以上谈到的都是arm c，一般用于NDK中的逆向工程。那么对于才用Dalvik虚拟机中的dex程序，逆向就完全没有难度。目前最好的逆向工具是baksmali。综合工具是apktools,甚至于支持动态调试。</p>
 
-<h4>2、使用自身方法（Use Native Methods）</h4>
+<p>&#160; &#160; &#160; &#160;如果以前你接触过windows的逆向工程，那么对于android的逆向难度不大。首先谈谈最简单的dex程序逆向。</p>
 
-<p>&#160; &#160; &#160; &#160;当处理字符串的时候，不要犹豫，尽可能多的使用诸如String.indexOf()、String.lastIndexOf()这样对象自身带有的方法。因为这些方法使用C/C++来实现的，
-要比在一个java循环中做同样的事情快10-100倍。</p>
+<p>&#160; &#160; &#160; &#160;第一种 dex程序其实就是java。google为了避免版权问题采用的一种技巧。java的逆向工程不用说，已经很成熟了。在java中大规模采用的混淆手段目前在android dex程序中采用得很少，也就是说，dex程序基本就是裸体，任人观赏。smali代码看看你就懂得。很简单，比如我自己写了ultraedit的高亮函数宏，很方便查找smali的函数。用Jgraph写个小程序画出函数内部流程。你懂的。</p>
 
-<h4>3、缓冲属性调用Cache Field Lookups</h4>
+<p>&#160; &#160; &#160; &#160;第二种 就是NDK中的so文件的逆向，正如我前面说的。动态调试比较困难，理论上呢可以自己完全定制系统来实现动态调试，但是，的确没这么多精力。（如果你有时间和精力，可以完全定制一个系统实现兼容GDB的android内核）。那么就是以业界著名的IDA来静态分析。IDA最新版本支持率QEMU的代码段调试。希望将来我们能用上~~~ 那么IDA分析so 文件，根据我的经验，5.4以后的版本才对arm thumb指令处理较好。所以，请注意版本问题。一下就是对elf文件和arm code的理解和分析了。这个以后再说吧。</p>
 
-<p>&#160; &#160; &#160; &#160;访问对象属性要比访问本地变量慢得多。你不应该这样写你的代码：</p>
-
-<pre><code class="java">for (int i = 0; i &lt; this.mCount; i++)
-      dumpItem(this.mItems[i]);
-</code></pre>
-
-<p>&#160; &#160; &#160; &#160;而是应该这样写：</p>
-
-<pre><code class="java">  int count = this.mCount;
-  Item[] items = this.mItems;
-
-  for (int i = 0; i &lt; count; i++)
-      dumpItems(items[i]);
-</code></pre>
-
-<p>&#160; &#160; &#160; &#160;我们直接使用“this”表明这些是它的成员变量</p>
-
-<h4>4、声明Final常量</h4>
-
-<p>&#160; &#160; &#160; &#160;我们可以看看下面一个类顶部的声明：</p>
-
-<pre><code class="java">static int intVal = 42;
-static String strVal = "Hello, world!";
-</code></pre>
-
-<p>&#160; &#160; &#160; &#160;当一个类第一次使用时，编译器会调用一个类初始化方法，这个方法将42存入变量intVal，并且为strVal在类文件字符串常量表中提取一个引用，当这些值在后面引用时，就会直接属性调用。</p>
-
-<p>&#160; &#160; &#160; &#160;我们可以用关键字“final”来改进代码：</p>
-
-<pre><code class="java">static final int intVal = 42;
-static final String strVal = "Hello, world!";
-</code></pre>
-
-<p>&#160; &#160; &#160; &#160;这个类将不会调用类初始化方法，因为这些常量直接写入了类文件静态属性初始化中，这个初始化直接由虚拟机来处理。代码访问intVal将会使用Integer类型的42，访问strVal将使用相对节省的“字符串常量”来替代一个属性调用。
-将一个类或者方法声明为“final”并不会带来任何的执行上的好处，它能够进行一定的最优化处理。例如，如果编译器知道一个Get方法不能被子类重载，那么它就把该函数设置成Inline。</p>
-
-<h4>5、避免浮点类型的使用</h4>
-
-<p>&#160; &#160; &#160; &#160;嵌入式的处理器通常并不支持浮点数的处理，因此所有的“float”和“double”操作都是通过软件进行的，一些基本的浮点数的操作就需要花费毫秒级的时间。同时，即使是整数，一些芯片也只有乘法而没有除法。在这些情况下，整数的除法和取模操作都是通过软件实现。</p>
-
-<h4>6、避免列举类型Avoid Enums</h4>
-
-<p>&#160; &#160; &#160; &#160;列举类型非常好用，当考虑到尺寸和速度的时候，就会显得代价很高，例如：</p>
-
-<pre><code class="java">public class Foo {
-   public enum Shrubbery { GROUND, CRAWLING, HANGING }
-}
-</code></pre>
-
-<p>&#160; &#160; &#160; &#160;这会转变成为一个900字节的class文件（Foo$Shrubbery.class）。第一次使用时，类的初始化要在独享上面调用方法去描述列举的每一项，每一个对象都要有它自身的静态空间，整个被储存在一个数组里面（一个叫做“$VALUE”的静态数组）。那是一大堆的代码和数据，仅仅是为了三个整数值。Shrubbery shrub = Shrubbery.GROUND;这会引起一个静态属性的调用，如果GROUND是一个静态的Final变量，编译器会把它当做一个常数嵌套在代码里面。</p>
+<p>&#160; &#160; &#160; &#160;以上是我对android 逆向工程的一点小小体会和理解，不乏很多错误，请谅解。希望能抛砖引玉。喜欢的朋友可以看看。</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Android学习日记25--ANR和Hander消息机制]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/30/android_study_25/"/>
-    <updated>2013-03-30T21:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/30/android_study_25</id>
-    <content type="html"><![CDATA[<h4>1、ANR(Application Not Responding)定义</h4>
+    <title type="html"><![CDATA[Android 横竖屏切换处理]]></title>
+    <link href="http://chendd.github.io/blog/2014/07/25/android_land_port/"/>
+    <updated>2014-07-25T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/07/25/android_land_port</id>
+    <content type="html"><![CDATA[<p>Android横竖屏要解决的问题应该就两个：</p>
 
-<p>　　在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，
-这个对话框称作应用程序无响应（ANR：Application Not Responding）对话框。用户可以选择“等待”而让程序继续运行，
-也可以选择“强制关闭”。所以一个流畅的合理的应用程序中不能出现anr，而让用户每次都要处理这个对话框。
-因此，在程序里对响应性能的设计很重要，这样系统不会显示ANR给用户。默认情况下，在android中Activity的最长执行时间是5秒，
-BroadcastReceiver的最长执行时间则是10秒。</p>
+<ul>
+<li>布局问题</li>
+<li>重新载入问题</li>
+</ul>
+
 
 <!--more-->
 
 
-<p><img src="http://images.cnitblog.com/i/602984/201404/172223300108690.jpg" alt="image" /></p>
+<h2>一.布局问题：</h2>
 
-<h4>2、如何避免ANR</h4>
+<p>&#160; &#160; &#160; &#160;如果不想让软件在横竖屏之间切换，最简单的办法就是在项目的AndroidManifest.xml中找到你所指定的activity中加上android:screenOrientation属性，他有以下几个参数：</p>
 
-<p>&#160; &#160; &#160; &#160;Android应用程序通常是运行在一个单独的UI主线程里，因此，运行在主线程里的任何方法都尽可能少做事情。
-特别是，Activity应该在它的关键生命周期方法（如onCreate()和onResume()）里尽可能少的去做创建操作。
-潜在的耗时操作，例如网络或数据库操作，或者高耗时的计算如改变位图尺寸，应该在子线程里
-（或者以数据库操作为例，通过异步请求的方式）来完成。然而，不是说你的主线程阻塞在那里等待子线程的完成——也不是调用
-Thread.wait()或是Thread.sleep()。替代的方法是，主线程应该为子线程提供一个Handler，以便完成时能够提交给主线程。</p>
+<ul>
+<li>unspecified:默认值 由系统来判断显示方向.判定的策略是和设备相关的，所以不同的设备会有不同的显示方向.</li>
+<li>landscape:横屏显示（宽比高要长）</li>
+<li>portrait:竖屏显示(高比宽要长)</li>
+<li>user:用户当前首选的方向</li>
+<li>behind:和该Activity下面的那个Activity的方向一致(在Activity堆栈中的)</li>
+<li>sensor:有物理的感应器来决定。如果用户旋转设备这屏幕会横竖屏切换。</li>
+<li>nosensor:忽略物理感应器，这样就不会随着用户旋转设备而更改了（"unspecified"设置除外）。</li>
+</ul>
 
-<h4>3、Hander 定义</h4>
 
-<p>&#160; &#160; &#160; &#160;主要接受子线程发送的数据, 并用此数据配合主线程更新UI.
-直接在UI线程中开启子线程来更新TextView显示的内容，运行程序我们会发现，如下错误：</p>
+<p>也可以在Java代码中通过</p>
 
-<pre><code>android.view.ViewRoot$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
+<pre><code class="java">setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 </code></pre>
 
-<p>&#160; &#160; &#160; &#160;翻译过来就是：只有创建这个控件的线程才能去更新该控件的内容。
-所有的UI线程要去负责View的创建并且维护它，例如更新冒个TextView的显示，都必须在主线程中去做，我们不能直接在UI线程中去创建子线程，
-要利用消息机制：handler，如下就是handler的简单工作原理图:</p>
+<p>来设置。</p>
 
-<p><img src="http://images.cnitblog.com/i/602984/201404/181859021979455.gif" alt="image" /></p>
+<p>如果要让软件在横竖屏之间切换，由于横竖屏的高宽会发生转换，有可能会要求不同的布局。可以通过以下方法来切换布局：</p>
 
-<p>&#160; &#160; &#160; &#160;Android系统中的Looper负责管理线程的消息队列和消息循环。创建的工作线程默认是没有消息队列和消息循环的，如果想让工作线程具有消息队列和消息循环，</p>
+<ul>
+<li><p>在res目录下建立layout-land和layout-port目录,相应的layout文件不变，比如main.xml。layout-land是横屏的layout,layout-port是竖屏的layout，其他的不用管，模拟器会自动寻找。</p></li>
+<li><p>通过 this.getResources().getConfiguration().orientation来判断当前是横屏还是竖屏然后来加载相应的 xml布局文件。因为当屏幕变为横屏的时候,系统会重新呼叫当前Activity的onCreate方法,你可以把以下方法放在你的onCreate中来检查当前的方向,然后可以让你的setContentView来载入不同的layout xml.</p></li>
+</ul>
 
-<p>&#160; &#160; &#160; &#160;就需要在线程中先调用Looper.prepare()来创建消息队列，然后调用Looper.loop()进入消息循环。下面是我们创建的工作线程：</p>
 
-<pre><code class="java">class WorkThread extends Thread {
-          public Handler mHandler;
-
-          public void run() {
-              Looper.prepare();
-
-              mHandler = new Handler() {
-                  public void handleMessage(Message msg) {
-                      // 处理收到的消息
-                  }
-              };
-
-              Looper.loop();
-          }
-      }
+<pre><code class="java">if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){ 
+　　Log.i("info", "landscape"); // 横屏
+} 
+else if (this.getResources().getConfiguration().orientation ==Configuration.ORIENTATION_PORTRAIT) { 
+　　Log.i("info", "portrait"); // 竖屏
+}
 </code></pre>
 
-<p>&#160; &#160; &#160; &#160;这样一来，我们创建的工作线程就具有了消息处理机制了。运行在主线程中，Android系统会在Activity启动时为其创建一个消息队列和消息循环，就不需要</p>
+<p>在onConfigurationChanged()方法中也可以检测拥有硬键盘的键盘状态</p>
 
-<p>Looper.prepare()和Looper.loop();</p>
+<pre><code class="java">//检测实体键盘的状态：推出或者合上 &amp;nbsp;&amp;nbsp;
+if (newConfig.hardKeyboardHidden ==Configuration.HARDKEYBOARDHIDDEN_NO){
+　　//实体键盘处于推出状态，在此处添加额外的处理代码
+}
+else if (newConfig.hardKeyboardHidden ==Configuration.HARDKEYBOARDHIDDEN_YES){
+　　//实体键盘处于合上状态，在此处添加额外的处理代码
+}
+</code></pre>
 
-<h4>4、Hander 用法</h4>
+<h2>二.重新载入问题：</h2>
 
-<p>&#160; &#160; &#160; &#160;继承或实现Hendler类，并重写handleMessage(Message msg) 方法, 用于接受线程数据
-如下实例：</p>
+<p>&#160; &#160; &#160; &#160;如果不需要从新载入，可以在AndroidManifest.xml中加入配置 android:configChanges=&ldquo;orientation|keyboardHidden"，配置 android:configChanges的作用就是如文档所说的：</p>
 
-<p>&#160; &#160; &#160; &#160;启动后，更新后的值一直在增加</p>
+<blockquote><p>Specify one or more configuration changesthat the activity will handle itself. If not specified, the activity will berestarted if any of these configuration changes happen in the system。</p></blockquote>
 
-<p><img src="http://images.cnitblog.com/i/602984/201404/172206262912209.png" alt="image" /></p>
+<p>这样在程序中Activity就不会重复的调用onCreate()甚至不会调用onPause、onResume.只会调用一个 onConfigurationChanged(Configuration newConfig)。如果需要重新载入，则不需要做任何修改。不过如果需要在重新载入过程中保存之前的操作内容或数据，则需要保存之前的数据。然后在 activity的onCreate()中取出来。当然，如此就不能设置android:configChanges()了，否则就不会调用 onCreate()方法。</p>
 
-<p>主要代码：</p>
+<p>&#160; &#160; &#160; &#160;如果要彻底禁止翻转，可以设置android:screenOrientation的属性为nosensor，如此就可以忽略重力感应带来的麻烦了。不过在模拟器上不管用，在真机上是正确的。android:screenOrientation=&ldquo;portrait"则无论手机如何变动，拥有这个属性的activity都将是竖屏显示。android:screenOrientation="landscape"，为横屏显示。</p>
 
-<pre><code class="java">public class MainActivity extends Activity {
+<p>&#160; &#160; &#160; &#160;这里提一个小知识，Android模拟器中，快捷键"Ctrl+F11/F12"可以实现转屏</p>
 
-    private TextView tv;
-    private static final int UPDATE = 0;
-    private Handler handler = new Handler() {
+<h2>三.总结：</h2>
 
-        @Override
-        public void handleMessage(Message msg) {
-            // TODO 接收消息并且去更新UI线程上的控件内容
-            if (msg.what == UPDATE) {
-                // Bundle b = msg.getData();
-                // tv.setText(b.getString("num"));
-                tv.setText(String.valueOf(msg.obj));
-            }
-            super.handleMessage(msg);
-        }
-    };
+<p>总之，对于横竖屏切换的问题，统计了下，大家的解决办法是：</p>
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        tv = (TextView) findViewById(R.id.tv);
+<p>①不理会。</p>
 
-        new Thread() {
-            @Override
-            public void run() {
-                // TODO 子线程中通过handler发送消息给handler接收，由handler去更新TextView的值
-                try {
-                    for (int i = 0; i &lt; 100; i++) {
-                        Thread.sleep(500);
-                        Message msg = new Message();
-                        msg.what = UPDATE;
-                        // Bundle b = new Bundle();
-                        // b.putString("num", "更新后的值：" + i);
-                        // msg.setData(b);
-                        msg.obj = "更新后的值：" + i;
-                        handler.sendMessage(msg);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+<p>②只竖屏显示(android:screenOrientation=&ldquo;portrait&rdquo;);只横屏显示(android:screenOrientation=&ldquo;landscape&rdquo;)</p>
+
+<p>③简单的防止重载：
+   在 AndroidManifest.xml中加入：android:configChanges=&ldquo;orientation|keyboardHidden&rdquo;
+   在activity中重载onConfigurationChanged事件
+<code>java
+@Override
+public void onConfigurationChanged(Configuration config) {
+ 　　super.onConfigurationChanged(config);
+}
+</code></p>
+
+<p>④横竖屏分别布局
+   横竖屏分别布局的方法是：
+   在res下新建
+   layout-land 横屏
+   layout-port 竖屏
+   然后把layout中的xml文件分别考到以上目录，修改布局就可以了代码中不做任何更改。
+   在 AndroidManifest.xml文件中的主Activity中加入
+   android:configChanges=&ldquo;orientation|keyboardHidden&rdquo;
+   然后在主Activity中的onConfigurationChanged加入</p>
+
+<pre><code class="java">@Override
+public void onConfigurationChanged(Configuration config) {
+　　super.onConfigurationChanged(config);
+
+    if (config.orientation == Configuration.ORIENTATION_PORTRAIT){
+　　      setContentView(R.layout.main); //布局
+　　      tv = (TextView) findViewById(R.id.EditText01);//控件
     }
 
+    if (config.orientation == Configuration.ORIENTATION_LANDSCAPE){
+　　      setContentView(R.layout.main); //布局
+　　      tv = (TextView) findViewById(R.id.EditText01);//控件
+    }
 }
 </code></pre>
-
-<p>&#160; &#160; &#160; &#160;关于message，指对于Android中Handler可以传递一些内容，通过Bundle对象可以封装String、Integer以及Blob二进制对象，
-我们通过在线程中使用Handler对象的sendEmptyMessage或sendMessage方法来传递一个Bundle对象到Handler处理器。
-对于Handler类提供了重写方法handleMessage(Message msg) 来判断，通过msg.what来区分每条信息。
-将Bundle解包来实现Handler类更新UI线程中的内容实现控件的刷新操作。相关的Handler对象有关消息发送sendXXXX相关方法如下，
-同时还有postXXXX相关方法，这些和Win32中的道理基本一致，一个为发送后直接返回，一个为处理后才返回。</p>
-
-<p>&#160; &#160; &#160; &#160;比如我们可以在message里封装Bundle对象。</p>
-
-<p>&#160; &#160; &#160; &#160;两边传递的代码如下：</p>
-
-<pre><code class="java">// 其他Thread里发送
-Message msg = new Message();
-Bundle b = new Bundle();// 存放数据
-b.putString("color", "我的");
-msg.setData(b);
-
-// handleMessage里接收
-Bundle b = msg.getData();
-String color = b.getString("color");
-</code></pre>
-
-<h4>5、单线程的消息机制</h4>
-
-<p>&#160; &#160; &#160; &#160;Hander属于多线程的消息机制，Android 单线程事件处理机制 有两种</p>
-
-<ul>
-<li>1、基于监听器的机制</li>
-</ul>
-
-
-<p>　　绑定特定的事件监听器，如Button的OnClickListener监听器， 监听器模型:包含事件源(EventSource)、事件(Event)、事件监听器(EventListener)。 一般内部类作为事件监听器类，主要因为 内部类可以在当前类复用;内部类可以调用外部类的组件。当然如果多个 GUI公用一个监听器类，还是使用外部类好一点，只需传入当前的context。当然大部分时间处理没什么复用价值， 更多的时候使用内部匿名类来实现。</p>
-
-<ul>
-<li>2、基于回调函数的机制</li>
-</ul>
-
-
-<p>　　重写回调方法，如View的OnKeyDown方法，基于回调函数的机制的事件源和事件监听器是统一的， Android为所有GUI提供一套事件处理方法，当重写回调函数处理完后必需返回true，事件才不会继续向上层调用。</p>
-
-<p>&#160; &#160; &#160; &#160;优劣：基于回调函数 使得更具通用型、代码更加简洁， 基于回调函数 事件模型分工明确、具有更好的维护性 对于特定事件，无法使用回调函数只能使用监听器。</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Android学习日记24--菜单开发]]></title>
-    <link href="http://chendd.github.io/blog/2013/03/30/android_study_24/"/>
-    <updated>2013-03-30T21:32:12+08:00</updated>
-    <id>http://chendd.github.io/blog/2013/03/30/android_study_24</id>
-    <content type="html"><![CDATA[<p>　　菜单是任何应用程序必不可少的一项。按下Menu键或者长按某个View就会弹出相应菜单，当然前提是应用程序有实现菜单功能。
-Android平台下的菜单有：Options Menu(选项菜单)、Submenu(子菜单)、Context Menu(上下文菜单)。
-这次的案例用以前的索尼真机测试，就不贴代码和运行截图，主要贴些理论知识。菜单这块比较简单，代码实例看<a href="http://www.cnblogs.com/giuz/archive/2010/10/19/1855235.html">这里</a></p>
+    <title type="html"><![CDATA[Android 多语言版本开发]]></title>
+    <link href="http://chendd.github.io/blog/2014/07/23/android_multi_language/"/>
+    <updated>2014-07-23T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/07/23/android_multi_language</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;最近项目中用用到语言切换功能，第一想到的就是资源文件，没错。</p>
 
-<!--more--> 
+<p>&#160; &#160; &#160; &#160;在资源文件中新建一个文件夹values-en，en表示英语，有一些还细化到地区，如values-en-rUS 即美国地区的英语，r是必需的。在里面新建一个strings.xml，把默认values文件夹中的strings.xml中的内容Copy至values-en中的strings.xml，再把该文件夹中的中文内容转换为英文，例如<string name="set">设置</string>转换为<string name="set">set</string>。不止values文件可以这样，res文件夹下的都可以，但是assets就不行，这是外部文件。如果有做webapp引用网页形式 考虑多语言版本，可以java代码判断系统语言，再去调用相应的html文件。</p>
 
-
-<h2>一、选项菜单和子菜单</h2>
-
-<p>　　Options Menu和Submenu 是一组的，放在一起介绍，一般用于开发普通的选项菜单。</p>
-
-<p>相关回调方法及说明：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/292323410312532.png" alt="image" /></p>
-
-<p>涉及到相关类详解：</p>
-
-<h4>1、Menu类</h4>
-
-<p>　　一个Menu对象代表一个菜单，Menu对象中可以添加菜单项MenuItem，也可以添加子菜单SubMenu。常用方法如下:</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/292324064696628.png" alt="image" /></p>
-
-<p>注意：clear() 方法用于清除已添加的菜单，通过代码运行中的clear()再add()可以用于动态配置菜单。</p>
-
-<h4>2、MenuItem类</h4>
-
-<p>　　一个MenuIten对象代表一个菜单项，通常MenuItem实例通过Menu的add方法获得。常用方法如下：</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/292325371093303.png" alt="image" /></p>
-
-<p>注意：Android最多支持6个MenuItem，多了以后就摆在More里面。</p>
-
-<h4>3、SubMenu类</h4>
-
-<p>　　一个SubMenu对象代表一个子菜单，可以理解为菜单的菜单，即Menu对象点进去弹出来的就叫子菜单，每个SubMenu实例代表一个子菜单，常用的方法如下</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/292326297037235.png" alt="image" /></p>
-
-<p>一般用法：</p>
-
-<ul>
-<li>1、在主Activity中覆盖onCreateOptionsMenu(Menu menu)方法,子菜单也在这里添加</li>
-<li>2、如果要添加点击事件，则要覆盖onOptionsItemSelected(MenuItem item)方法</li>
-</ul>
+<!--more-->
 
 
-<h2>二、上下文菜单</h2>
+<p>然后再主Activity中写一个方法</p>
 
-<p>　　Context Menu类似于电脑上的右键，长按某个View之后弹出来的菜单。也是继承自Menu，不同于选项菜单，
-选项菜单服务于Activity，而上下文是注册到某个VIew对象上的。如果一个View对象注册了上下文菜单，用户可以通过长按两秒该View对象调出上下文菜单。</p>
-
-<p>用法同普通菜单，方法名称由Options替换Context</p>
-
-<p><img src="http://images.cnitblog.com/i/602984/201403/292327403289825.png" alt="image" /></p>
-
-<h2>三、用XML配置菜单</h2>
-
-<p>　　注意到新建项目的MainActivity 都会重写onCreateOptionsMenu方法
-里面代码：
-getMenuInflater().inflate(R.menu.main, menu);
-就是通过XML来设置菜单的。</p>
-
-<p>如下在res/menu/main.xml 就是本来的配置菜单</p>
-
-<pre><code class="xml">&lt;menu xmlns:android="http://schemas.android.com/apk/res/android" &gt;
-
-    &lt;item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_settings"/&gt;
-
-&lt;/menu&gt;
+<pre><code class="java">public void switchLanguage(Locale locale) {
+       //应用内配置语言
+　　　　Resources resources =getResources();//获得res资源对象  
+　　　　Configuration config = resources.getConfiguration();//获得设置对象  
+　　　　DisplayMetrics dm = resources.getDisplayMetrics();//获得屏幕参数：主要是分辨率，像素等。
+　　　　config.locale = Locale.SIMPLIFIED_CHINESE; //简体中文
+　　　　resources.updateConfiguration(config, dm);
+}
 </code></pre>
 
-<p>其他同再JAVA代码里的写法。</p>
+<p>有一些相对不那么常用的语言Locale没提供相应的常量，这时
+如阿拉伯语，直接
+<code>java
+config.locale =new Locale("ar");
+</code>　    <br/>
+必须在OnCreate函数中调用
+还得注意的是：在AndroidManifest.xml中要配置一下
+在activity节点中加上这个属性：
+<code>xml
+android:configChanges="locale"
+</code></p>
+
+<p>添加权限：
+<code>xml
+&lt;uses-permission android:name="android.permission.CHANGE_CONFIGURATION" /&gt;
+</code></p>
 ]]></content>
   </entry>
   

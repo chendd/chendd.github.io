@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: language | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/language/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-10-10T11:54:37+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android 多语言版本开发]]></title>
+    <link href="http://chendd.github.io/blog/2014/07/23/android_multi_language/"/>
+    <updated>2014-07-23T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/07/23/android_multi_language</id>
+    <content type="html"><![CDATA[<p>&#160; &#160; &#160; &#160;最近项目中用用到语言切换功能，第一想到的就是资源文件，没错。</p>
+
+<p>&#160; &#160; &#160; &#160;在资源文件中新建一个文件夹values-en，en表示英语，有一些还细化到地区，如values-en-rUS 即美国地区的英语，r是必需的。在里面新建一个strings.xml，把默认values文件夹中的strings.xml中的内容Copy至values-en中的strings.xml，再把该文件夹中的中文内容转换为英文，例如<string name="set">设置</string>转换为<string name="set">set</string>。不止values文件可以这样，res文件夹下的都可以，但是assets就不行，这是外部文件。如果有做webapp引用网页形式 考虑多语言版本，可以java代码判断系统语言，再去调用相应的html文件。</p>
+
+<!--more-->
+
+
+<p>然后再主Activity中写一个方法</p>
+
+<pre><code class="java">public void switchLanguage(Locale locale) {
+       //应用内配置语言
+　　　　Resources resources =getResources();//获得res资源对象  
+　　　　Configuration config = resources.getConfiguration();//获得设置对象  
+　　　　DisplayMetrics dm = resources.getDisplayMetrics();//获得屏幕参数：主要是分辨率，像素等。
+　　　　config.locale = Locale.SIMPLIFIED_CHINESE; //简体中文
+　　　　resources.updateConfiguration(config, dm);
+}
+</code></pre>
+
+<p>有一些相对不那么常用的语言Locale没提供相应的常量，这时
+如阿拉伯语，直接
+<code>java
+config.locale =new Locale("ar");
+</code>　    <br/>
+必须在OnCreate函数中调用
+还得注意的是：在AndroidManifest.xml中要配置一下
+在activity节点中加上这个属性：
+<code>xml
+android:configChanges="locale"
+</code></p>
+
+<p>添加权限：
+<code>xml
+&lt;uses-permission android:name="android.permission.CHANGE_CONFIGURATION" /&gt;
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>

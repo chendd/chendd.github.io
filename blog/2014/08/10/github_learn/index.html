@@ -1,0 +1,544 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Github 简单使用 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="一、从远程克隆项目，修改后提交 1、先切换要放项目的本地目录 1
+2
+3
+C:\Users\chendd&gt;cd E:\web C:\Users\chendd&gt;e: 2、根据服务器的git地址克隆到本地，并查看状态 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2014/08/10/github_learn/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Github 简单使用</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-10T21:32:12+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>一、从远程克隆项目，修改后提交</h2>
+
+<h4>1、先切换要放项目的本地目录</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\Users\chendd&gt;cd E:\web
+</span><span class='line'>
+</span><span class='line'>C:\Users\chendd&gt;e:</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h4>2、根据服务器的git地址克隆到本地，并查看状态</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web&gt;git clone https://github.com/findbugGroup/findbug-v0.1.git
+</span><span class='line'>Cloning into 'findbug-v0.1'...
+</span><span class='line'>remote: Counting objects: 1436, done.
+</span><span class='line'>remote: Compressing objects: 100% (1313/1313), done.
+</span><span class='line'>remote: Total 1436 (delta 476), reused 0 (delta 0)
+</span><span class='line'>Receiving objects: 100% (1436/1436), 3.29 MiB | 190.00 KiB/s, done.
+</span><span class='line'>Resolving deltas: 100% (490/490), done.
+</span><span class='line'>Checking connectivity... done.
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;git status
+</span><span class='line'>fatal: Not a git repository (or any of the parent directories): .git
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;cd findbug-v0.1
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git status
+</span><span class='line'>On branch master
+</span><span class='line'>Your branch is up-to-date with 'origin/master'.
+</span><span class='line'>
+</span><span class='line'>Changes not staged for commit:
+</span><span class='line'>  (use "git add &lt;file&gt;..." to update what will be committed)
+</span><span class='line'>  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
+</span><span class='line'>
+</span><span class='line'>        modified:   README.md
+</span><span class='line'>
+</span><span class='line'>no changes added to commit (use "git add" and/or "git commit -a")</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3、修改下项目，提交到本地暂存（可能要输入用户名，密码。也可以提前配置）</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;git commit -a -m "test"
+</span><span class='line'>
+</span><span class='line'>*** Please tell me who you are.
+</span><span class='line'>
+</span><span class='line'>Run
+</span><span class='line'>
+</span><span class='line'>  git config --global user.email "you@example.com"
+</span><span class='line'>  git config --global user.name "Your Name"
+</span><span class='line'>
+</span><span class='line'>to set your account's default identity.
+</span><span class='line'>Omit --global to set the identity only in this repository.
+</span><span class='line'>
+</span><span class='line'>fatal: unable to auto-detect email address (got 'chendd@chendd-PC.(none)')
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git config --global user.email "mail4chedd@qq.com"
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git config --global user.name "chendd"
+</span><span class='line'>
+</span><span class='line'>E:\web\findbug-v0.1&gt;git commit -a -m "test"
+</span><span class='line'>[master 32a7c94] test
+</span><span class='line'> 1 file changed, 1 insertion(+)</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4、提交到远程服务器上去</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;git push origin master
+</span><span class='line'>Username for 'https://github.com': chendd
+</span><span class='line'>Password for 'https://chendd@github.com':
+</span><span class='line'>Counting objects: 5, done.
+</span><span class='line'>Delta compression using up to 2 threads.
+</span><span class='line'>Compressing objects: 100% (2/2), done.
+</span><span class='line'>Writing objects: 100% (3/3), 284 bytes | 0 bytes/s, done.
+</span><span class='line'>Total 3 (delta 1), reused 0 (delta 0)
+</span><span class='line'>To https://github.com/findbugGroup/findbug-v0.1.git
+</span><span class='line'>   6fd4585..32a7c94  master -&gt; master</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>二、将本地项目提交到远程服务器</h2>
+
+<h4>1、先在远程网站上 new 个新的repository，复制git地址</h4>
+
+<p>然后按照 网站上说的 终端上运行命令（这里我是后来再新建的，故git名加个2，区分）</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/1.jpg" alt="image" /></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>E:\web\findbug-v0.1&gt;cd ..
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;mkdir beatplane
+</span><span class='line'>
+</span><span class='line'>E:\web&gt;cd beatplane
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git init
+</span><span class='line'>Initialized empty Git repository in E:/web/beatplane/.git/
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;touch README.md
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git add README.md
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git add .
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git commit -m "first commit"
+</span><span class='line'>[master (root-commit) 7c19145] first commit
+</span><span class='line'> 3 files changed, 0 insertions(+), 0 deletions(-)
+</span><span class='line'> create mode 100644 README.md
+</span><span class='line'> create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+</span><span class='line'>7\346\241\243 (2).txt"
+</span><span class='line'> create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+</span><span class='line'>7\346\241\243.txt"
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git remote add origin https://github.com/chendd/BeatPlane.git
+</span><span class='line'>
+</span><span class='line'>E:\web\beatplane&gt;git push -u origin master
+</span><span class='line'>Username for 'https://github.com': chendd
+</span><span class='line'>Password for 'https://chendd@github.com':
+</span><span class='line'>Counting objects: 3, done.
+</span><span class='line'>Delta compression using up to 2 threads.
+</span><span class='line'>Compressing objects: 100% (2/2), done.
+</span><span class='line'>Writing objects: 100% (3/3), 239 bytes | 0 bytes/s, done.
+</span><span class='line'>Total 3 (delta 0), reused 0 (delta 0)
+</span><span class='line'>To https://github.com/chendd/BeatPlane.git
+</span><span class='line'> * [new branch]      master -&gt; master
+</span><span class='line'>Branch master set up to track remote branch master from origin.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>提交刷新网页，大功告成</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/2.jpg" alt="image" /></p>
+
+<p>附：<a href="http://tieba.baidu.com/p/2856796771">git客户端安装和使用</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-08-10T21:32:12+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/git/'>git</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/25/android_land_port/" title="Previous Post: Android 横竖屏切换处理">&laquo; Android 横竖屏切换处理</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/30/optimization_electricity/" title="Next Post: 如何优化手机电量">如何优化手机电量 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2014/08/10/github_learn" data-title="Github 简单使用" data-url="http://chendd.github.io/blog/2014/08/10/github_learn/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/android_reverse_engineering/">Android程序逆向工程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/30/optimization_electricity/">如何优化手机电量</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 80%" href="/tags/button/">button</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 99%" href="/tags/hook/">hook</a>
+<a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
+<a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 99%" href="/tags/other/">other</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 99%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2016 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

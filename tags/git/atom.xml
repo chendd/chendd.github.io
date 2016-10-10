@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: git | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/git/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2016-10-10T11:54:37+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Github 简单使用]]></title>
+    <link href="http://chendd.github.io/blog/2014/08/10/github_learn/"/>
+    <updated>2014-08-10T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2014/08/10/github_learn</id>
+    <content type="html"><![CDATA[<h2>一、从远程克隆项目，修改后提交</h2>
+
+<h4>1、先切换要放项目的本地目录</h4>
+
+<pre><code>C:\Users\chendd&gt;cd E:\web
+
+C:\Users\chendd&gt;e:
+</code></pre>
+
+<!--more-->
+
+
+<h4>2、根据服务器的git地址克隆到本地，并查看状态</h4>
+
+<pre><code>E:\web&gt;git clone https://github.com/findbugGroup/findbug-v0.1.git
+Cloning into 'findbug-v0.1'...
+remote: Counting objects: 1436, done.
+remote: Compressing objects: 100% (1313/1313), done.
+remote: Total 1436 (delta 476), reused 0 (delta 0)
+Receiving objects: 100% (1436/1436), 3.29 MiB | 190.00 KiB/s, done.
+Resolving deltas: 100% (490/490), done.
+Checking connectivity... done.
+
+E:\web&gt;git status
+fatal: Not a git repository (or any of the parent directories): .git
+
+E:\web&gt;cd findbug-v0.1
+
+E:\web\findbug-v0.1&gt;git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
+
+        modified:   README.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+</code></pre>
+
+<h4>3、修改下项目，提交到本地暂存（可能要输入用户名，密码。也可以提前配置）</h4>
+
+<pre><code>E:\web\findbug-v0.1&gt;git commit -a -m "test"
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'chendd@chendd-PC.(none)')
+
+E:\web\findbug-v0.1&gt;git config --global user.email "mail4chedd@qq.com"
+
+E:\web\findbug-v0.1&gt;git config --global user.name "chendd"
+
+E:\web\findbug-v0.1&gt;git commit -a -m "test"
+[master 32a7c94] test
+ 1 file changed, 1 insertion(+)
+</code></pre>
+
+<h4>4、提交到远程服务器上去</h4>
+
+<pre><code>E:\web\findbug-v0.1&gt;git push origin master
+Username for 'https://github.com': chendd
+Password for 'https://chendd@github.com':
+Counting objects: 5, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 284 bytes | 0 bytes/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+To https://github.com/findbugGroup/findbug-v0.1.git
+   6fd4585..32a7c94  master -&gt; master
+</code></pre>
+
+<h2>二、将本地项目提交到远程服务器</h2>
+
+<h4>1、先在远程网站上 new 个新的repository，复制git地址</h4>
+
+<p>然后按照 网站上说的 终端上运行命令（这里我是后来再新建的，故git名加个2，区分）</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/1.jpg" alt="image" /></p>
+
+<pre><code>E:\web\findbug-v0.1&gt;cd ..
+
+E:\web&gt;mkdir beatplane
+
+E:\web&gt;cd beatplane
+
+E:\web\beatplane&gt;git init
+Initialized empty Git repository in E:/web/beatplane/.git/
+
+E:\web\beatplane&gt;touch README.md
+
+E:\web\beatplane&gt;git add README.md
+
+E:\web\beatplane&gt;git add .
+
+E:\web\beatplane&gt;git commit -m "first commit"
+[master (root-commit) 7c19145] first commit
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 README.md
+ create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+7\346\241\243 (2).txt"
+ create mode 100644 "\346\226\260\345\273\272\346\226\207\346\234\254\346\226\20
+7\346\241\243.txt"
+
+E:\web\beatplane&gt;git remote add origin https://github.com/chendd/BeatPlane.git
+
+E:\web\beatplane&gt;git push -u origin master
+Username for 'https://github.com': chendd
+Password for 'https://chendd@github.com':
+Counting objects: 3, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 239 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://github.com/chendd/BeatPlane.git
+ * [new branch]      master -&gt; master
+Branch master set up to track remote branch master from origin.
+</code></pre>
+
+<p>提交刷新网页，大功告成</p>
+
+<p><img src="http://7arnbf.com1.z0.glb.clouddn.com/2.jpg" alt="image" /></p>
+
+<p>附：<a href="http://tieba.baidu.com/p/2856796771">git客户端安装和使用</a></p>
+]]></content>
+  </entry>
+  
+</feed>
