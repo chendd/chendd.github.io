@@ -79,6 +79,291 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2015/11/24/android_reverse_engineering/">Android程序逆向工程</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-11-24T21:32:12+08:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;随着智能手机的普及，功能越来越强大。程序也越来多和复杂化。研究一下android系统的逆向工程也是挺有意思的。
+目前android逆向工程还处于初级阶段。表现在于：</p>
+
+<ul>
+<li>1.没有完整的动态调试程序。目前由于android系统的bionic并不完全支持POSIX,导致现有编译的gdb不支持多线程无符号调试。（我实验了一下，的确多线程问题比较多，当然，gdb本身也有问题）。所以对于NDK逆向工程比较麻烦，以静态分析为主。</li>
+<li>2.手机本身种类较多，而且android版本繁多，更新较快，增加了逆向的难度。</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/11/24/android_reverse_engineering/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/30/optimization_electricity/">如何优化手机电量</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-30T21:32:12+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;通过电量的计算公式我们可以看到影响电量的因子无非就是CPU的时间和网络数据以及Wakelock，GPS的使用。
+在09年Google IO大会Jeffrey Sharkey的演讲（Coding for Life — Battery Life, That Is）中就探讨了这个问题，指出android应用的耗电主要在以下三个方面：</p>
+
+<ul>
+<li>大数据量的传输。</li>
+<li>不停的在网络间切换。</li>
+<li>解析大量的文本数据。</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/04/30/optimization_electricity/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/10/github_learn/">Github 简单使用</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-10T21:32:12+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>一、从远程克隆项目，修改后提交</h2>
+
+<h4>1、先切换要放项目的本地目录</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\Users\chendd&gt;cd E:\web
+</span><span class='line'>
+</span><span class='line'>C:\Users\chendd&gt;e:</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/08/10/github_learn/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/25/android_land_port/">Android 横竖屏切换处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-25T21:32:12+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android横竖屏要解决的问题应该就两个：</p>
+
+<ul>
+<li>布局问题</li>
+<li>重新载入问题</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/25/android_land_port/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/23/android_multi_language/">Android 多语言版本开发</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-23T21:32:12+08:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;最近项目中用用到语言切换功能，第一想到的就是资源文件，没错。</p>
+
+<p>&#160; &#160; &#160; &#160;在资源文件中新建一个文件夹values-en，en表示英语，有一些还细化到地区，如values-en-rUS 即美国地区的英语，r是必需的。在里面新建一个strings.xml，把默认values文件夹中的strings.xml中的内容Copy至values-en中的strings.xml，再把该文件夹中的中文内容转换为英文，例如<string name="set">设置</string>转换为<string name="set">set</string>。不止values文件可以这样，res文件夹下的都可以，但是assets就不行，这是外部文件。如果有做webapp引用网页形式 考虑多语言版本，可以java代码判断系统语言，再去调用相应的html文件。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/23/android_multi_language/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/15/efficient_android_code/">编写高效的Android代码</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-05-15T21:32:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#160; &#160; &#160; &#160;编写Android程序时要时刻考虑执行的效率，这系统不是想象中的那么快，并且你还要考虑它电池的续航能力。写程序的时候，要尽可能的使你的代码优化而提高效率。</p>
+
+<p>&#160; &#160; &#160; &#160;对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
+
+<h4>1、不要做不必要做的事情。</h4>
+
+<h4>2、尽可能的节省内存的使用。</h4>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/05/15/efficient_android_code/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/30/android_study_25/">Android学习日记25--ANR和Hander消息机制</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-03-30T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>1、ANR(Application Not Responding)定义</h4>
+
+<p>　　在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，
+这个对话框称作应用程序无响应（ANR：Application Not Responding）对话框。用户可以选择“等待”而让程序继续运行，
+也可以选择“强制关闭”。所以一个流畅的合理的应用程序中不能出现anr，而让用户每次都要处理这个对话框。
+因此，在程序里对响应性能的设计很重要，这样系统不会显示ANR给用户。默认情况下，在android中Activity的最长执行时间是5秒，
+BroadcastReceiver的最长执行时间则是10秒。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/30/android_study_25/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/03/30/android_study_24/">Android学习日记24--菜单开发</a></h1>
     
     
@@ -203,277 +488,6 @@ XML解析比较简单。XML解析就是将获取到的数据分离出来，基�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/25/android_study_21/">Android学习日记21--消息提示之Toast和Notification</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-25T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>1、Toast</h4>
-
-<p>&#160; &#160; &#160; &#160;Toast译为土司，类似切片面包，用于弹出比较快速的及时提示信息。当Toast被显示时，
-虽然它悬浮应用程序最上方，但是并未获得焦点。它的设计就是为了提示有用的信息，而不打扰用户其他操作。
-最使用简单：</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/25/android_study_21/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/24/android_study_20/">Android学习日记20--连接组件之Intent和IntentFilter</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-24T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;上次刚了解完Android的四大组件，现在学习组件间通信的Intent和IntentFilter</p>
-
-<h2>一、Intent</h2>
-
-<h4>1、简述</h4>
-
-<p>&#160; &#160; &#160; &#160;Intent(意图)在应用程序运行时连接两个不同组件，是一种运行时的绑定机制。一般应用是通过Intent向Android系统
-发出某种请求，根据查询各个组件声明的IntentFilter，找到组件并运行它。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/24/android_study_20/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/22/android_study_19_2/">Android学习日记19--四大组件之BroadcastReciver(广播接收者)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-22T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>二、BroadcastReciver(广播接收者)</h2>
-
-<h4>1、简述</h4>
-
-<p>&#160; &#160; &#160; &#160;BroadcastReciver位于android.content包下，主要用于对广播消息(Intent)的过滤并响应的控件。可以理解为全局的监听器。
-BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某个广播消息后，BroadcastReceiver可以启动Activity作为响应，
-或者启动Service服务等等。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/22/android_study_19_2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/22/android_study_19_1/">Android学习日记19--四大组件之Services(服务)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-22T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>&#160; &#160; &#160; &#160;一个Android应用主要由四个基本组件组成，Android四大基本组件分别是Activity，Content Provider内容提供者，Service服务，BroadcastReceiver广播接收器。其中Activity和Content Provider在前面都有介绍过。这里主要讲讲Service服务和BroadcastReceiver广播接收器。</p>
-
-<h2>一、Services(服务)</h2>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/22/android_study_19_1/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/19/android_study_18/">Android学习日记18--Adapter简介</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-19T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>一、Adapter</h2>
-
-<h4>1、简述</h4>
-
-<p>&#160; &#160; &#160; &#160;最近学的GridView和Gallery 都有用到Adapter适配器，发现它貌似蛮重要的。专门上网搜了下有关Adapter的资料。android绝大多数应用是JAVA语言编写的，Adapter在JAVA里是专门的一种设计模式，目的是使两个原本没有关联的类结合一起使用。
-比如水管A是25mm的，水管B是40mm的，假设水管厚度不计，怎样连接两种水管一起使用？这时就需要适配器C，适配器C类似水管，一头25mm，另一头40mm，这样就可以连接A、B水管一起使用了。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/19/android_study_18/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/18/android_study_17/">Android学习日记17--Gallery(画廊视图)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-18T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>一、Gallery</h2>
-
-<h4>1、简述</h4>
-
-<p>&#160; &#160; &#160; &#160;Gallery有道翻译为画廊，就叫它画廊控件，主要用来可切换的图片展示，左右滑动可以选择上一张或下一张图片。个人感觉蛮实用的，不过google貌似不推荐使用啊！</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/18/android_study_17/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/17/android_study_16/">Android学习日记16--GridView(网格视图)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-03-17T19:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>7:32 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>一、GridView</h2>
-
-<h4>1、简述　　</h4>
-
-<p>&#160; &#160; &#160; &#160;GridView按照行列来显示图片或文本的一种视图，排列其实有点类似TableLayout布局，不过和TableLayout还是差别很大的,倒比较像二维的ListView。位于android.widget包下，常常用来实现类似九宫格的图像。
-实现手法和ListView有点相似，用Apapter把数据绑定到控件上，为容器提供子视图，利用视图的数据和元数据来构建每个子视图自定义Adapter显示。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/03/17/android_study_16/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -491,6 +505,14 @@ BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/03/23/android_oom/">Android中的内存管理和正确的使用方式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/11/android_mvp_rxandroid/">MVP模式和RxAndroid结合例子</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
       </li>
     
@@ -500,14 +522,6 @@ BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某�
     
       <li class="post">
         <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/24/android_reverse_engineering/">Android程序逆向工程</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/30/optimization_electricity/">如何优化手机电量</a>
       </li>
     
   </ul>
@@ -527,7 +541,7 @@ BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某�
 <a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
 <a style="font-size: 80%" href="/tags/gridview/">GridView</a>
 <a style="font-size: 80%" href="/tags/listview/">ListView</a>
-<a style="font-size: 99%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 98%" href="/tags/octopress/">Octopress</a>
 <a style="font-size: 80%" href="/tags/paint/">Paint</a>
 <a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
 <a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
@@ -535,29 +549,31 @@ BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某�
 <a style="font-size: 80%" href="/tags/view/">View</a>
 <a style="font-size: 80%" href="/tags/webview/">WebView</a>
 <a style="font-size: 180%" href="/tags/android/">android</a>
-<a style="font-size: 80%" href="/tags/button/">button</a>
+<a style="font-size: 123%" href="/tags/c/">c</a>
 <a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
-<a style="font-size: 99%" href="/tags/hook/">hook</a>
-<a style="font-size: 80%" href="/tags/imagebutton/">imagebutton</a>
+<a style="font-size: 98%" href="/tags/hook/">hook</a>
 <a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 123%" href="/tags/jni/">jni</a>
 <a style="font-size: 80%" href="/tags/layout/">layout</a>
 <a style="font-size: 80%" href="/tags/net/">net</a>
-<a style="font-size: 99%" href="/tags/other/">other</a>
+<a style="font-size: 98%" href="/tags/other/">other</a>
 <a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
 <a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
 <a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
 <a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
 <a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
-<a style="font-size: 99%" href="/tags/xposed/">xposed</a>
+<a style="font-size: 98%" href="/tags/xposed/">xposed</a>
 
   </ul>
 </section><section>
   <h1>Categories</h1>
   <ul id="categories">
-    <li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+    <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
 <li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
 <li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
 <li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/jni/'>jni (5)</a></li>
 <li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
 <li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
 
@@ -575,7 +591,7 @@ BroadcastReceiver 自身并不实现图形用户界面，但是当它收到某�
 <script src="/javascripts/top.js" type="text/javascript"></script>
 <!--返回顶部结束-->
 <p>
-  Copyright &copy; 2012~2016 - chendd -
+  Copyright &copy; 2012~2017 - chendd -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
   <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
   </script>

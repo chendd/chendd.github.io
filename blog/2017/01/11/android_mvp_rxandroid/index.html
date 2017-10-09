@@ -1,0 +1,684 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>MVP模式和RxAndroid结合例子 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="MVP是什么 &#160; &#160; &#160; &#160;在MVC框架中，View是可以直接读取Model模型中的数据的，Model模型数据发生改变是会通知View数据显示发生相应的改变。
+而在MVP中Model和View之间的没有任何联系，是两个完全独立的模块， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">MVP模式和RxAndroid结合例子</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2017-01-11T21:32:12+08:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2017</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>MVP是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;在MVC框架中，View是可以直接读取Model模型中的数据的，Model模型数据发生改变是会通知View数据显示发生相应的改变。
+而在MVP中Model和View之间的没有任何联系，是两个完全独立的模块，当Model模型发生数据改变时，通过Presenter通知View视图发生相应的UI改变。
+根据单一职责原则，Activity主要起到用户交互作用，也就是接收用户输入，显示请求结果。因此可以通过MVP框架模式来减轻Activity的职责。</p>
+
+<p>参考博客：<a href="http://blog.csdn.net/feiduclear_up/article/details/46374653">框架模式MVP在Android中的使用</a></br></p>
+
+<h2>RxAndroid是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;RxAndroid可以简单高度概括为“异步”。
+异步操作很关键的一点是程序的简洁性，因为在调度过程比较复杂的情况下，异步代码经常会既难写也难被读懂。 Android 创造的 AsyncTask 和Handler ，其实都是为了让异步代码更加简洁。RxJava 的优势也是简洁，但它的简洁的与众不同之处在于，随着程序逻辑变得越来越复杂，它依然能够保持简洁。</p>
+
+<p>Github:<a href="https://github.com/ReactiveX/RxAndroid">ReactiveX/RxAndroid</a> </br>
+参考博客：<a href="http://gank.io/post/560e15be2dca930e00da1083">给 Android 开发者的 RxJava详解</a> </br></p>
+
+<!--more-->
+
+
+<h4>具体例子代码</h4>
+
+<p>&#160; &#160; &#160; &#160;对MVP和RxAndroid不了解的可以去上面说的博客去看一下，都是很好的博客，感谢大牛分享！
+我这里以最简单粗暴的方式贴出代码，建议先上手再研究，先能够让程序跑起来，再去研究代码里面的实现原理。
+效果图</p>
+
+<p><img src="http://img.blog.csdn.net/20151024105733397" alt="image" /></p>
+
+<p>引入RxAndroid：在dependencies下面加入如下代码
+最新版本请自己查看Github首页文档：ReactiveX/RxAndroid</p>
+
+<blockquote><p>compile ‘io.reactivex:rxandroid:1.1.0’ </br>
+compile ‘io.reactivex:rxjava:1.1.0’</p></blockquote>
+
+<h4>bean</h4>
+
+<p>这里是一个简单的例子，User只有一个属性。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">regulus</span><span class="o">.</span><span class="na">rxandroidtest</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">User</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Model</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">regulus</span><span class="o">.</span><span class="na">rxandroidtest</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.os.SystemClock</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">rx.Observable</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">rx.Subscriber</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserModel</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Observable</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="nf">getUser</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Observable</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">new</span> <span class="n">Observable</span><span class="o">.</span><span class="na">OnSubscribe</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">call</span><span class="o">(</span><span class="n">Subscriber</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="n">User</span><span class="o">&gt;</span> <span class="n">subscriber</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// 设置个2000ms的延迟，模拟网络访问、数据库操作等等延时操作</span>
+</span><span class='line'>                <span class="n">SystemClock</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">2000</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//                final User user = null;</span>
+</span><span class='line'>                <span class="kd">final</span> <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">User</span><span class="o">(</span><span class="s">&quot;赵日天&quot;</span><span class="o">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">user</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">subscriber</span><span class="o">.</span><span class="na">onError</span><span class="o">(</span><span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">&quot;User = null&quot;</span><span class="o">));</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">subscriber</span><span class="o">.</span><span class="na">onNext</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span><span class='line'>                    <span class="n">subscriber</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>View</h4>
+
+<p>定义View的接口，把Activity看成View，实现View接口。
+Activity只负责监听点击等事件，然后反馈给Presenter，由Presenter调度。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">regulus</span><span class="o">.</span><span class="na">rxandroidtest</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UserView</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">updateView</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">showProgressDialog</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">hideProgressDialog</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">showError</span><span class="o">(</span><span class="n">String</span> <span class="n">msg</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">regulus</span><span class="o">.</span><span class="na">rxandroidtest</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.app.ProgressDialog</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.content.Context</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.support.v7.app.AppCompatActivity</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.View</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.widget.TextView</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.widget.Toast</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">AppCompatActivity</span> <span class="kd">implements</span> <span class="n">UserView</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">TextView</span> <span class="n">mTvShow</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ProgressDialog</span> <span class="n">mProgressDialog</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">UserPresenter</span> <span class="n">mUserPresenter</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">context</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">mUserPresenter</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">UserPresenter</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">mProgressDialog</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ProgressDialog</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mProgressDialog</span><span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">&quot;正在加载，请稍后..&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">mTvShow</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv_show</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">btn_update</span><span class="o">).</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">mUserPresenter</span><span class="o">.</span><span class="na">getUser</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mProgressDialog</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mProgressDialog</span><span class="o">.</span><span class="na">dismiss</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">updateView</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">user</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mTvShow</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">name</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">showProgressDialog</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mProgressDialog</span><span class="o">.</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">hideProgressDialog</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mProgressDialog</span><span class="o">.</span><span class="na">hide</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">showError</span><span class="o">(</span><span class="n">String</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Presenter</h4>
+
+<p>Presenter相当于MVC中的控制器，负责Model和View的沟通。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">regulus</span><span class="o">.</span><span class="na">rxandroidtest</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">rx.Subscriber</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">rx.android.schedulers.AndroidSchedulers</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">rx.schedulers.Schedulers</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Presenter作为Model和View通讯的桥梁，需要持有它们的引用。</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserPresenter</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">UserView</span> <span class="n">mUserView</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">UserModel</span> <span class="n">mUserModel</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">UserPresenter</span><span class="o">(</span><span class="n">UserView</span> <span class="n">mUserView</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mUserView</span> <span class="o">=</span> <span class="n">mUserView</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mUserModel</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">UserModel</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getUser</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mUserView</span><span class="o">.</span><span class="na">showProgressDialog</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 这里如果使用 Lambda 会更简洁</span>
+</span><span class='line'>        <span class="n">mUserModel</span><span class="o">.</span><span class="na">getUser</span><span class="o">()</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">io</span><span class="o">())</span><span class="c1">// 在非UI线程中执行getUser</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">observeOn</span><span class="o">(</span><span class="n">AndroidSchedulers</span><span class="o">.</span><span class="na">mainThread</span><span class="o">())</span><span class="c1">// 在UI线程中执行结果</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="k">new</span> <span class="n">Subscriber</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onNext</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mUserView</span><span class="o">.</span><span class="na">updateView</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompleted</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mUserView</span><span class="o">.</span><span class="na">hideProgressDialog</span><span class="o">();</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="nd">@Override</span>
+</span><span class='line'>                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mUserView</span><span class="o">.</span><span class="na">showError</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span><span class='line'>                        <span class="n">mUserView</span><span class="o">.</span><span class="na">hideProgressDialog</span><span class="o">();</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                <span class="o">});</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2017-01-11T21:32:12+08:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2017</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/09/27/about_wechat_littleapp/" title="Previous Post: 关于微信小程序的一些看法">&laquo; 关于微信小程序的一些看法</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2017/03/23/android_oom/" title="Next Post: Android中的内存管理和正确的使用方式">Android中的内存管理和正确的使用方式 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2017/01/11/android_mvp_rxandroid" data-title="MVP模式和RxAndroid结合例子" data-url="http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/23/android_oom/">Android中的内存管理和正确的使用方式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/11/android_mvp_rxandroid/">MVP模式和RxAndroid结合例子</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 98%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 123%" href="/tags/c/">c</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 98%" href="/tags/hook/">hook</a>
+<a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 123%" href="/tags/jni/">jni</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 98%" href="/tags/other/">other</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 98%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/jni/'>jni (5)</a></li>
+<li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2017 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

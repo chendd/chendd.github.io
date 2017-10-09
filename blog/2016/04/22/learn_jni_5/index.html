@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>深入了解android平台的jni(五) - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="注册native函数有两种方法：静态注册和动态注册。 1、静态注册方法 &#160; &#160; &#160; &#160;根据函数名找到对应的JNI函数:Java层调用函数时，会从对应的JNI中寻找该函数，如果没有就会报错，如果存在则会建立一个关联联系，以后在调用时会直接使用这个函数， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2016/04/22/learn_jni_5/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">深入了解android平台的jni(五)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-04-22T18:21:11+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>注册native函数有两种方法：静态注册和动态注册。</p>
+
+<h4>1、静态注册方法</h4>
+
+<p>&#160; &#160; &#160; &#160;根据函数名找到对应的JNI函数:Java层调用函数时，会从对应的JNI中寻找该函数，如果没有就会报错，如果存在则会建立一个关联联系，以后在调用时会直接使用这个函数，这部分的操作由虚拟机完成。
+静态方法就是根据函数名来遍历java和jni函数之间的关联，而且要求jni层函数的名字必须遵循
+特定的格式，其缺点在于：</p>
+
+<ul>
+<li>1）javah生成的jni层函数特别长；</li>
+<li>2）初次调用native函数时要根据名字搜索对应的jni层函数来建立关联联系，这样影响效率。</li>
+</ul>
+
+
+<!--more-->
+
+
+<h4>2、动态注册方法</h4>
+
+<p>&#160; &#160; &#160; &#160;JNI 允许你提供一个函数映射表，注册给Jave虚拟机，这样Jvm就可以用函数映射表来调用相应的函数，
+就可以不必通过函数名来查找需要调用的函数了。
+Java与JNI通过JNINativeMethod的结构来建立联系，它在jni.h中被定义，其结构内容如下：
+typedef struct {
+const char<em> name;
+const char</em> signature;
+void* fnPtr;
+} JNINativeMethod;
+第一个变量name是Java中函数的名字。
+第二个变量signature，用字符串是描述了函数的参数和返回值
+第三个变量fnPtr是函数指针，指向C函数。
+当java通过System.loadLibrary加载完JNI动态库后，紧接着会查找一个JNI_OnLoad的函数，如果有，就调用它，
+而动态注册的工作就是在这里完成的。</p>
+
+<ul>
+<li><p>1)JNI_OnLoad()函数
+JNI_OnLoad()函数在VM执行System.loadLibrary(xxx)函数时被调用，它有两个重要的作用：
+指定JNI版本：告诉VM该组件使用那一个JNI版本(若未提供JNI_OnLoad()函数，VM会默认该使用最老的JNI 1.1版)，如果要使用新版本的JNI，
+例如JNI 1.4版，则必须由JNI_OnLoad()函数返回常量JNI_VERSION_1_4(该常量定义在jni.h中) 来告知VM。
+初始化设定，当VM执行到System.loadLibrary()函数时，会立即先呼叫JNI_OnLoad()方法，因此在该方法中进行各种资源的初始化操作最为恰当，</p></li>
+<li><p>2)RegisterNatives
+RegisterNatives在AndroidRunTime里定义
+syntax:
+jint RegisterNatives(jclass clazz, const JNINativeMethod* methods,jint nMethods)</p></li>
+</ul>
+
+
+<h4>3、在android中加入自定义的native函数</h4>
+
+<p>JNI在Android层次结构中的作用如下图所示:</p>
+
+<p><img src="http://s5.sinaimg.cn/mw690/4ad7c254gx6DrPFbSBK14&amp;690?_=5355241" alt="image" /></p>
+
+<p>在Android中，主要的JNI代码在以下的路径中:
+Android源码根目录/frameworks/base/core/jni/
+这个路径中的内容将被编译成库libandroid_runtime.so,这就是一个普通的动态库，被放置在目标系统的/system/lib目录中.除此之外，Android还包含其他的JNI库，例如,媒体部分的JNI目录frameworks/base/media/jni/中，被编译成库libmedia_jni.so.
+JNI中的各个文件实际上就是C++的普通文件，其命名一般和支持的Java类有对应关系。
+这种关系是习惯上的写法，而不是强制的。</p>
+
+<ul>
+<li>1）注册JNI方法</li>
+</ul>
+
+
+<p>在Android源码根目录/frameworks/base/services/jni/目录下有一个onload.cpp文件，加入 jni函数申明和jni函数注册方法</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &quot;JNIHelp.h&quot;   </span>
+</span><span class='line'><span class="cp">#include &quot;jni.h&quot;   </span>
+</span><span class='line'><span class="cp">#include &quot;utils/Log.h&quot;   </span>
+</span><span class='line'><span class="cp">#include &quot;utils/misc.h&quot;   </span>
+</span><span class='line'>
+</span><span class='line'><span class="n">namespace</span> <span class="n">android</span> <span class="p">{</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">register_android_server_AlarmManagerService</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_BatteryService</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_InputApplicationHandle</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_InputWindowHandle</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_InputManager</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_LightsService</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_PowerManagerService</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_UsbDeviceManager</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_UsbHostManager</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_VibratorService</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_SystemServer</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_location_GpsLocationProvider</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_connectivity_Vpn</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_HelloService</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">);</span>  <span class="c1">//此处加入自定义jni函数申明</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">using</span> <span class="n">namespace</span> <span class="n">android</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="n">jint</span> <span class="n">JNI_OnLoad</span><span class="p">(</span><span class="n">JavaVM</span><span class="o">*</span> <span class="n">vm</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">reserved</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">jint</span> <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">vm</span><span class="o">-&gt;</span><span class="n">GetEnv</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">env</span><span class="p">,</span> <span class="n">JNI_VERSION_1_4</span><span class="p">)</span> <span class="o">!=</span> <span class="n">JNI_OK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">LOGE</span><span class="p">(</span><span class="s">&quot;GetEnv failed!&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">LOG_ASSERT</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">&quot;Could not retrieve the env!&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">register_android_server_PowerManagerService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_InputApplicationHandle</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_InputWindowHandle</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_InputManager</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_LightsService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_AlarmManagerService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_BatteryService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_UsbDeviceManager</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_UsbHostManager</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_VibratorService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_SystemServer</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_location_GpsLocationProvider</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_connectivity_Vpn</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">register_android_server_HelloService</span><span class="p">(</span><span class="n">env</span><span class="p">);</span> <span class="c1">//jni方法注册</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JNI_VERSION_1_4</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>onload.cpp文件上部分为注册函数的声明，下部分为调用各种注册函数，而这些注册函数就是JNI方法的注册函数! 正是通过这些注册函数，上层才能调用注册的JNI方法.
+以register_android_server_HelloService为例，来看一个注册函数的具体实现过程是如何的。
+打开com_android_service_HelloService.cpp文件</p>
+
+<ul>
+<li>2)加入注册函数的实现代码，如下:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">register_android_server_HelloService</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">jniRegisterNativeMethods</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">&quot;com/android/server/HelloService&quot;</span><span class="p">,</span> <span class="n">method_table</span><span class="p">,</span> <span class="n">NELEM</span><span class="p">(</span><span class="n">method_table</span><span class="p">));</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>其中jniRegisterNativeMethods为注册JNI方法函数，
+此函数的第二个参数为对应着java类即HelloService.java的文件名，第三个参数为注册的方法表</p>
+
+<ul>
+<li>3)加入jni方法表</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="k">const</span> <span class="n">JNINativeMethod</span> <span class="n">method_table</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;init_native&quot;</span><span class="p">,</span> <span class="s">&quot;()Z&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_init</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;setVal_native&quot;</span><span class="p">,</span> <span class="s">&quot;(I)V&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_setVal</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;getVal_native&quot;</span><span class="p">,</span> <span class="s">&quot;()I&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_getVal</span><span class="p">},</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>4）方法表内各个接口的实现代码</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">hello_setVal</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jint</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="n">val</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: set value %d to device.&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">static</span> <span class="n">jint</span> <span class="nf">hello_getVal</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: get value %d from device.&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">val</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="k">static</span> <span class="n">jboolean</span> <span class="nf">hello_init</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: initializing......&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>完整代码如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">namespace</span> <span class="n">android</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">static</span> <span class="kt">void</span> <span class="nf">hello_setVal</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jint</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="n">val</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: set value %d to device.&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">jint</span> <span class="nf">hello_getVal</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: get value %d from device.&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">val</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'> <span class="k">static</span> <span class="n">jboolean</span> <span class="nf">hello_init</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">clazz</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">LOGI</span><span class="p">(</span><span class="s">&quot;Hello JNI: initializing......&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">static</span> <span class="k">const</span> <span class="n">JNINativeMethod</span> <span class="n">method_table</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;init_native&quot;</span><span class="p">,</span> <span class="s">&quot;()Z&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_init</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;setVal_native&quot;</span><span class="p">,</span> <span class="s">&quot;(I)V&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_setVal</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="s">&quot;getVal_native&quot;</span><span class="p">,</span> <span class="s">&quot;()I&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">hello_getVal</span><span class="p">},</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>   <span class="kt">int</span> <span class="nf">register_android_server_HelloService</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">jniRegisterNativeMethods</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">&quot;com/android/server/HelloService&quot;</span><span class="p">,</span> <span class="n">method_table</span><span class="p">,</span> <span class="n">NELEM</span><span class="p">(</span><span class="n">method_table</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-04-22T18:21:11+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/jni/'>jni</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/04/17/learn_jni_4/" title="Previous Post: 深入了解android平台的jni(四)">&laquo; 深入了解android平台的jni(四)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2016/05/15/learn_xposed/" title="Next Post: Android Hook框架Xposed入门">Android Hook框架Xposed入门 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2016/04/22/learn_jni_5" data-title="深入了解android平台的jni(五)" data-url="http://chendd.github.io/blog/2016/04/22/learn_jni_5/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/23/android_oom/">Android中的内存管理和正确的使用方式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/11/android_mvp_rxandroid/">MVP模式和RxAndroid结合例子</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 98%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 123%" href="/tags/c/">c</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 98%" href="/tags/hook/">hook</a>
+<a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 123%" href="/tags/jni/">jni</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 98%" href="/tags/other/">other</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 98%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/jni/'>jni (5)</a></li>
+<li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2017 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

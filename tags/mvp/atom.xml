@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: mvp | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/tags/mvp/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2017-10-09T17:31:45+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[MVP模式和RxAndroid结合例子]]></title>
+    <link href="http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid/"/>
+    <updated>2017-01-11T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid</id>
+    <content type="html"><![CDATA[<h2>MVP是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;在MVC框架中，View是可以直接读取Model模型中的数据的，Model模型数据发生改变是会通知View数据显示发生相应的改变。
+而在MVP中Model和View之间的没有任何联系，是两个完全独立的模块，当Model模型发生数据改变时，通过Presenter通知View视图发生相应的UI改变。
+根据单一职责原则，Activity主要起到用户交互作用，也就是接收用户输入，显示请求结果。因此可以通过MVP框架模式来减轻Activity的职责。</p>
+
+<p>参考博客：<a href="http://blog.csdn.net/feiduclear_up/article/details/46374653">框架模式MVP在Android中的使用</a></br></p>
+
+<h2>RxAndroid是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;RxAndroid可以简单高度概括为“异步”。
+异步操作很关键的一点是程序的简洁性，因为在调度过程比较复杂的情况下，异步代码经常会既难写也难被读懂。 Android 创造的 AsyncTask 和Handler ，其实都是为了让异步代码更加简洁。RxJava 的优势也是简洁，但它的简洁的与众不同之处在于，随着程序逻辑变得越来越复杂，它依然能够保持简洁。</p>
+
+<p>Github:<a href="https://github.com/ReactiveX/RxAndroid">ReactiveX/RxAndroid</a> </br>
+参考博客：<a href="http://gank.io/post/560e15be2dca930e00da1083">给 Android 开发者的 RxJava详解</a> </br></p>
+
+<!--more-->
+
+
+<h4>具体例子代码</h4>
+
+<p>&#160; &#160; &#160; &#160;对MVP和RxAndroid不了解的可以去上面说的博客去看一下，都是很好的博客，感谢大牛分享！
+我这里以最简单粗暴的方式贴出代码，建议先上手再研究，先能够让程序跑起来，再去研究代码里面的实现原理。
+效果图</p>
+
+<p><img src="http://img.blog.csdn.net/20151024105733397" alt="image" /></p>
+
+<p>引入RxAndroid：在dependencies下面加入如下代码
+最新版本请自己查看Github首页文档：ReactiveX/RxAndroid</p>
+
+<blockquote><p>compile ‘io.reactivex:rxandroid:1.1.0’ </br>
+compile ‘io.reactivex:rxjava:1.1.0’</p></blockquote>
+
+<h4>bean</h4>
+
+<p>这里是一个简单的例子，User只有一个属性。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+public class User {
+    public String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+}
+</code></pre>
+
+<h4>Model</h4>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import android.os.SystemClock;
+
+import rx.Observable;
+import rx.Subscriber;
+
+public class UserModel {
+
+    public Observable&lt;User&gt; getUser() {
+        return Observable.create(new Observable.OnSubscribe&lt;User&gt;() {
+            @Override
+            public void call(Subscriber&lt;? super User&gt; subscriber) {
+                // 设置个2000ms的延迟，模拟网络访问、数据库操作等等延时操作
+                SystemClock.sleep(2000);
+
+//                final User user = null;
+                final User user = new User("赵日天");
+                if (user == null) {
+                    subscriber.onError(new Exception("User = null"));
+                } else {
+                    subscriber.onNext(user);
+                    subscriber.onCompleted();
+                }
+            }
+        });
+    }
+}
+</code></pre>
+
+<h4>View</h4>
+
+<p>定义View的接口，把Activity看成View，实现View接口。
+Activity只负责监听点击等事件，然后反馈给Presenter，由Presenter调度。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+public interface UserView {
+    void updateView(User user);
+
+    void showProgressDialog();
+
+    void hideProgressDialog();
+
+    void showError(String msg);
+}
+</code></pre>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity implements UserView {
+    private Context context;
+
+    private TextView mTvShow;
+
+    private ProgressDialog mProgressDialog;
+
+    private UserPresenter mUserPresenter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        context = this;
+
+        mUserPresenter = new UserPresenter(this);
+
+        mProgressDialog = new ProgressDialog(context);
+        mProgressDialog.setMessage("正在加载，请稍后..");
+
+        mTvShow = (TextView) findViewById(R.id.tv_show);
+        findViewById(R.id.btn_update).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUserPresenter.getUser();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void updateView(User user) {
+        if (user == null) return;
+        mTvShow.setText(user.name);
+    }
+
+    @Override
+    public void showProgressDialog() {
+        mProgressDialog.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        mProgressDialog.hide();
+    }
+
+    @Override
+    public void showError(String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+}
+</code></pre>
+
+<h4>Presenter</h4>
+
+<p>Presenter相当于MVC中的控制器，负责Model和View的沟通。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Presenter作为Model和View通讯的桥梁，需要持有它们的引用。
+ */
+public class UserPresenter {
+    private UserView mUserView;
+    private UserModel mUserModel;
+
+    public UserPresenter(UserView mUserView) {
+        this.mUserView = mUserView;
+        mUserModel = new UserModel();
+    }
+
+    public void getUser() {
+        mUserView.showProgressDialog();
+
+        // 这里如果使用 Lambda 会更简洁
+        mUserModel.getUser()
+                .subscribeOn(Schedulers.io())// 在非UI线程中执行getUser
+                .observeOn(AndroidSchedulers.mainThread())// 在UI线程中执行结果
+                .subscribe(new Subscriber&lt;User&gt;() {
+                    @Override
+                    public void onNext(User user) {
+                        mUserView.updateView(user);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mUserView.hideProgressDialog();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mUserView.showError(e.getMessage());
+                        mUserView.hideProgressDialog();
+                    }
+                });
+    }
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

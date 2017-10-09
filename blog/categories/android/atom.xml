@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Android | Chendd's Blog]]></title>
+  <link href="http://chendd.github.io/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://chendd.github.io/"/>
+  <updated>2017-10-09T17:31:45+08:00</updated>
+  <id>http://chendd.github.io/</id>
+  <author>
+    <name><![CDATA[chendd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android中的内存管理和正确的使用方式]]></title>
+    <link href="http://chendd.github.io/blog/2017/03/23/android_oom/"/>
+    <updated>2017-03-23T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2017/03/23/android_oom</id>
+    <content type="html"><![CDATA[<h2>概述</h2>
+
+<p>&#160; &#160; &#160; &#160;从操作系统的角度来说，内存就是一块数据存储区域，属于可被操作系统调度的资源。现代多任务（进程）的操作系统中，内存管理尤为重要，操作系统需要为每一个进程合理的分配内存资源，所以可以从两方面来理解操作系统的内存管理机制。</p>
+
+<p>第一：分配机制。为每一个进程分配一个合理的内存大小，保证每一个进程能够正常的运行，不至于内存不够使用或者每个进程占用太多的内存。</p>
+
+<p>第二：回收机制。在系统内存不足打的时候，需要有一个合理的回收再分配的机制，以保证新的进程可以正常运行。回收的时候就要杀死那些正在占有内存的进程，操作系统需要提供一个合理的杀死这些进程的机制，以保证更少的副作用。</p>
+
+<p>而作为一个多进程的操作系统，Android系统对内存的管理，也是有一套自己的方法的。跟PC不一样的是，Android作为一个移动操作系统，一般情况下，内存资源会比PC更少，所以就需要更加谨慎的管理内存。</p>
+
+<!--more-->
+
+
+<h2>Android中的内存管理机制</h2>
+
+<h4>分配机制</h4>
+
+<p>&#160; &#160; &#160; &#160;Android为每个进程分配内存的时候，采用了弹性的分配方式，也就是刚开始并不会一下分配很多内存给每个进程，而是给每一个进程分配一个“够用”的量。这个量是根据每一个设备实际的物理内存大小来决定的。随着应用的运行，可能会发现当前的内存可能不够使用了，这时候Android又会为每个进程分配一些额外的内存大小。但是这些额外的大小并不是随意的，也是有限度的，系统不可能为每一个App分配无限大小的内除。</p>
+
+<p>&#160; &#160; &#160; &#160;Android系统的宗旨是最大限度的让更多的进程存活在内存中，因为这样的话，下一次用户再启动应用，不需要重新创建进程，只需要恢复已有的进程就可以了，减少了应用的启动时间，提高了用户体验。</p>
+
+<h4>回收机制</h4>
+
+<p>&#160; &#160; &#160; &#160;Android对内存的使用方式是“尽最大限度的使用”，这一点继承了Linux的优点。Android会在内存中保存尽可能多的数据，即使有些进程不再使用了，但是它的数据还被存储在内存中，所以Android现在不推荐显式的“退出”应用。因为这样，当用户下次再启动应用的时候，只需要恢复当前进程就可以了，不需要重新创建进程，这样就可以减少应用的启动时间。只有当Android系统发现内存不够使用，需要回收内存的时候，Android系统就会需要杀死其他进程，来回收足够的内存。但是Android也不是随便杀死一个进程，比如说一个正在与用户交互的进程，这种后果是可怕的。所以Android会有限清理那些已经不再使用的进程，以保证最小的副作用。</p>
+
+<p>Android杀死进程有两个参考条件：</p>
+
+<p>进程优先级：</p>
+
+<p>Android为每一个进程分配了优先级的概念，优先级越低的进程，被杀死的概率就更大。Android中总共有5个进程优先级。具体含义这里不再给出。</p>
+
+<p>前台进程：正常不会被杀死</p>
+
+<p>可见进程：正常不会被杀死</p>
+
+<p>服务进程：正常不会被杀死</p>
+
+<p>后台进程：存放于一个LRU缓存列表中，先杀死处于列表尾部的进程</p>
+
+<p>空进程：正常情况下，为了平衡系统整体性能，Android不保存这些进程</p>
+
+<p>回收收益：</p>
+
+<p>&#160; &#160; &#160; &#160;当Android系统开始杀死LRU缓存中的进程时，系统会判断每个进程杀死后带来的回收收益。因为Android总是倾向于杀死一个能回收更多内存的进程，从而可以杀死更少的进程，来获取更多的内存。杀死的进程越少，对用户体验的影响就越小。</p>
+
+<h2>官方推荐的App内存使用方式是什么样的？</h2>
+
+<ul>
+<li>1、当Service完成任务后，尽量停止它。</li>
+</ul>
+
+
+<p>因为有Service组件的进程，优先级最低也是服务进程，这会影响到系统的内存回收。IntentService可以很好地完成这个任务。</p>
+
+<ul>
+<li>2、在UI不可见的时候，释放掉一些只有UI使用的资源。</li>
+</ul>
+
+
+<p>系统会根据onTrimMemory()回调方法的TRIM_MEMORY_UI_HIDDEN等级的事件，来通知App UI已经隐藏了。</p>
+
+<ul>
+<li>3、在系统内存紧张的时候，尽可能多的释放掉一些非重要资源。</li>
+</ul>
+
+
+<p>系统会根据onTrimMemory()回调方法来通知内存紧张的状态，App应该根据不同的内存紧张等级，来合理的释放资源，以保证系统能够回收更多内存。当系统回收到足够多的内存时，就不用杀死进程了。</p>
+
+<ul>
+<li>4、检查自己最大可用的内存大小。</li>
+</ul>
+
+
+<p>这对一些缓存框架很有用，因为正常情况下，缓存框架的缓存池大小应当指定为最大内存的百分比，这样才能更好地适配更多的设备。通过getMemoryClass()和getLargeMemoryClass()来获取可用内存大小的信息。</p>
+
+<ul>
+<li>5、避免滥用Bitmap导致的内存浪费。</li>
+</ul>
+
+
+<p>根据当前设备的分辨率来压缩Bitmap是一个不错的选择，在使用完Bitmap后，记得要使用recycle()来释放掉Bitmap。使用软引用或者弱引用来引用一个Bitmap，使用LRU缓存来对Bitmap进行缓存。</p>
+
+<ul>
+<li>6、使用针对内存优化过的数据容器。</li>
+</ul>
+
+
+<p>针对移动设备内存有限的问题，Android提供了一套针对内存优化过的数据容器，来替代JDK原生提供的数据容器。但是缺点就是，时间复杂度被提高了。比如SparseArray、SparseBooleanArray、LongSparseArray、</p>
+
+<ul>
+<li>7、意识到内存的过度消耗。</li>
+</ul>
+
+
+<p>Enum类型占用的内存是常量的两倍多，所以避免使用enum，直接使用常量。</p>
+
+<p>每一个Java的类（包括匿名内部类）都需要500Byte的代码。</p>
+
+<p>每一个类的实例都有12-16 Byte的额外内存消耗。</p>
+
+<p>注意类似于HashMap这种，内部还需要生成Class的数据容器，这会消耗更多内存。</p>
+
+<ul>
+<li>8、抽象代码也会带来更多的内存消耗。</li>
+</ul>
+
+
+<p>如果你的“抽象”设计实际上并没有带来多大好处，那么就不要使用它。</p>
+
+<ul>
+<li>9、使用nano protobufs 来序列化数据。</li>
+</ul>
+
+
+<p>Google设计的一个语言和平台中立打的序列化协议，比XML更快、更小、更简单。</p>
+
+<ul>
+<li>10、避免使用依赖注入的框架。</li>
+</ul>
+
+
+<p>依赖注入的框架需要开启额外的服务，来扫描App中代码的Annotation，所以需要额外的系统资源。</p>
+
+<ul>
+<li>11、使用ZIP对齐的APK。</li>
+</ul>
+
+
+<p>对APK做Zip对齐，会压缩其内部的资源，运行时会占用更少的内存。</p>
+
+<ul>
+<li>12、使用多进程。</li>
+</ul>
+
+
+<h2>一个符合Android内存管理机制的App应该是什么样的？</h2>
+
+<p>一个遵循Android内存管理机制的App。应该具有如下几个特点：</p>
+
+<ul>
+<li><p>1、更少的占用内存。</p></li>
+<li><p>2、在合适的时候，合理的释放系统资源。</p></li>
+<li><p>3、在系统内存紧张的情况下，能释放掉大部分不重要的资源，来为Android系统提供可用的内存。</p></li>
+<li><p>4、能够很合理的在特殊生命周期中，保存或者还原重要数据，以至于系统能够正确的重新恢复该应用。</p></li>
+</ul>
+
+
+<h2>App为什么要符合该内存管理机制？这样做有什么好处？</h2>
+
+<p>&#160; &#160; &#160; &#160;一个遵循Android的内存管理机制的App，在Android系统中，就是一个好的公民，那么系统自然是倾向于保护这些良民，而去杀死那些素质不高的人。所以符合Android内存管理机制，对Android系统和App来说，是一个双赢的过程。如果每一个App都遵循这种规则，那么Android系统就会更加流畅，也会带来更好的体验，而App可以更长时间的驻留于内存中。</p>
+
+<p>在这种管理方式下，如何编写符合Android内存管理机制的App？
+主要是参考官方推荐的内存使用方式，来设计和编写App。</p>
+
+<p>避免创建不必要的对象。</p>
+
+<p>在合适的生命周期中，合理的管理资源。</p>
+
+<p>在系统内存不足时，主动释放更多的资源。</p>
+
+<p>编写Android应用时，如何更少的使用内存资源？
+避免创建不需要的对象。</p>
+
+<p>比如使用StringBuffer来代替很多个String相加的操作。</p>
+
+<p>使用原始类型来代替包装类型，int比Integer占用更少的资源。</p>
+
+<p>两个并行的属性数组，优于一个包含这两个属性的对象的数组。这个在设计数据容器的时候会有意义，比如类A有两个属性A(int, String)，使用 int[] 和 String[] 优于 A[]。</p>
+
+<p>使用常量代替enum。</p>
+
+<p>少用包装类，能够使用原始类型的，就使用原始类型。</p>
+
+<h2>App如果真的需要很多内存怎么办？</h2>
+
+<h4>多进程</h4>
+
+<p>&#160; &#160; &#160; &#160;把消耗内存过大的模块，或者需要长期在后台运行的模块，移入到单独的进程中运行。Android会为每一个进程单独分配内存，所以理论上App就可以使用到更多的内存。但是多进程是一把双刃剑，错误的使用，会带来其他很多的问题，这里不再详细谈这个话题。</p>
+
+<h4>申请大内存</h4>
+
+<p>&#160; &#160; &#160; &#160;在<application>标签中，把largeHeap设置为true，Android系统会为该应用额外分配内存。但是不要滥用这个方法。如果一个App真的需要大内存，比如需要打开很多大图片的应用，可以使用这种方式。千万不要因为OOM而使用这种方法，这个时候更应该去检查App的代码是否不合理。</p>
+
+<h2>开发人员应该注意的App内存管理方式？</h2>
+
+<h4>内存溢出</h4>
+
+<p>&#160; &#160; &#160; &#160;内存溢出，就是OOM，也就是内存不够用了。有一个典型的例子就是加载了很多没有经过压缩的Bitmap到内存中，这些Bitmap很大，但是又真的在被使用，必须要在内存中，所以这个时候内存就不够用了。这个时候，App再申请更多内存的时候就不行了，系统会抛出OOM。</p>
+
+<p>&#160; &#160; &#160; &#160;解决这种问题：1、减少每个对象占用的内存，比如压缩图片。2、申请大内存。</p>
+
+<h4>内存泄露</h4>
+
+<p>&#160; &#160; &#160; &#160;内存泄露，就是Memory Leak，也就是本来该被GC回收后还给系统的内存，并没有被GC。多数是因为不合理的对象引用，当一个对象不再使用的时候，由于代码问题，没有正确的释放引用，就导致了内存泄露。</p>
+
+<p>&#160; &#160; &#160; &#160;解决这种问题：1、通过各种内存分析工具，比如MAT，分析运行时的内存映像文件，找出造成内存泄露的代码，然后修改掉。2、适当的使用WeakReference。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MVP模式和RxAndroid结合例子]]></title>
+    <link href="http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid/"/>
+    <updated>2017-01-11T21:32:12+08:00</updated>
+    <id>http://chendd.github.io/blog/2017/01/11/android_mvp_rxandroid</id>
+    <content type="html"><![CDATA[<h2>MVP是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;在MVC框架中，View是可以直接读取Model模型中的数据的，Model模型数据发生改变是会通知View数据显示发生相应的改变。
+而在MVP中Model和View之间的没有任何联系，是两个完全独立的模块，当Model模型发生数据改变时，通过Presenter通知View视图发生相应的UI改变。
+根据单一职责原则，Activity主要起到用户交互作用，也就是接收用户输入，显示请求结果。因此可以通过MVP框架模式来减轻Activity的职责。</p>
+
+<p>参考博客：<a href="http://blog.csdn.net/feiduclear_up/article/details/46374653">框架模式MVP在Android中的使用</a></br></p>
+
+<h2>RxAndroid是什么</h2>
+
+<p>&#160; &#160; &#160; &#160;RxAndroid可以简单高度概括为“异步”。
+异步操作很关键的一点是程序的简洁性，因为在调度过程比较复杂的情况下，异步代码经常会既难写也难被读懂。 Android 创造的 AsyncTask 和Handler ，其实都是为了让异步代码更加简洁。RxJava 的优势也是简洁，但它的简洁的与众不同之处在于，随着程序逻辑变得越来越复杂，它依然能够保持简洁。</p>
+
+<p>Github:<a href="https://github.com/ReactiveX/RxAndroid">ReactiveX/RxAndroid</a> </br>
+参考博客：<a href="http://gank.io/post/560e15be2dca930e00da1083">给 Android 开发者的 RxJava详解</a> </br></p>
+
+<!--more-->
+
+
+<h4>具体例子代码</h4>
+
+<p>&#160; &#160; &#160; &#160;对MVP和RxAndroid不了解的可以去上面说的博客去看一下，都是很好的博客，感谢大牛分享！
+我这里以最简单粗暴的方式贴出代码，建议先上手再研究，先能够让程序跑起来，再去研究代码里面的实现原理。
+效果图</p>
+
+<p><img src="http://img.blog.csdn.net/20151024105733397" alt="image" /></p>
+
+<p>引入RxAndroid：在dependencies下面加入如下代码
+最新版本请自己查看Github首页文档：ReactiveX/RxAndroid</p>
+
+<blockquote><p>compile ‘io.reactivex:rxandroid:1.1.0’ </br>
+compile ‘io.reactivex:rxjava:1.1.0’</p></blockquote>
+
+<h4>bean</h4>
+
+<p>这里是一个简单的例子，User只有一个属性。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+public class User {
+    public String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+}
+</code></pre>
+
+<h4>Model</h4>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import android.os.SystemClock;
+
+import rx.Observable;
+import rx.Subscriber;
+
+public class UserModel {
+
+    public Observable&lt;User&gt; getUser() {
+        return Observable.create(new Observable.OnSubscribe&lt;User&gt;() {
+            @Override
+            public void call(Subscriber&lt;? super User&gt; subscriber) {
+                // 设置个2000ms的延迟，模拟网络访问、数据库操作等等延时操作
+                SystemClock.sleep(2000);
+
+//                final User user = null;
+                final User user = new User("赵日天");
+                if (user == null) {
+                    subscriber.onError(new Exception("User = null"));
+                } else {
+                    subscriber.onNext(user);
+                    subscriber.onCompleted();
+                }
+            }
+        });
+    }
+}
+</code></pre>
+
+<h4>View</h4>
+
+<p>定义View的接口，把Activity看成View，实现View接口。
+Activity只负责监听点击等事件，然后反馈给Presenter，由Presenter调度。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+public interface UserView {
+    void updateView(User user);
+
+    void showProgressDialog();
+
+    void hideProgressDialog();
+
+    void showError(String msg);
+}
+</code></pre>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity implements UserView {
+    private Context context;
+
+    private TextView mTvShow;
+
+    private ProgressDialog mProgressDialog;
+
+    private UserPresenter mUserPresenter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        context = this;
+
+        mUserPresenter = new UserPresenter(this);
+
+        mProgressDialog = new ProgressDialog(context);
+        mProgressDialog.setMessage("正在加载，请稍后..");
+
+        mTvShow = (TextView) findViewById(R.id.tv_show);
+        findViewById(R.id.btn_update).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUserPresenter.getUser();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void updateView(User user) {
+        if (user == null) return;
+        mTvShow.setText(user.name);
+    }
+
+    @Override
+    public void showProgressDialog() {
+        mProgressDialog.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        mProgressDialog.hide();
+    }
+
+    @Override
+    public void showError(String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+}
+</code></pre>
+
+<h4>Presenter</h4>
+
+<p>Presenter相当于MVC中的控制器，负责Model和View的沟通。</p>
+
+<pre><code class="java">package com.regulus.rxandroidtest;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Presenter作为Model和View通讯的桥梁，需要持有它们的引用。
+ */
+public class UserPresenter {
+    private UserView mUserView;
+    private UserModel mUserModel;
+
+    public UserPresenter(UserView mUserView) {
+        this.mUserView = mUserView;
+        mUserModel = new UserModel();
+    }
+
+    public void getUser() {
+        mUserView.showProgressDialog();
+
+        // 这里如果使用 Lambda 会更简洁
+        mUserModel.getUser()
+                .subscribeOn(Schedulers.io())// 在非UI线程中执行getUser
+                .observeOn(AndroidSchedulers.mainThread())// 在UI线程中执行结果
+                .subscribe(new Subscriber&lt;User&gt;() {
+                    @Override
+                    public void onNext(User user) {
+                        mUserView.updateView(user);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mUserView.hideProgressDialog();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mUserView.showError(e.getMessage());
+                        mUserView.hideProgressDialog();
+                    }
+                });
+    }
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

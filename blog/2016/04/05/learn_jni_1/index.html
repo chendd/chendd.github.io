@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>深入了解android平台的jni(一) - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="&#160; &#160; &#160; &#160;android中很多Java类都具有native接口，这些接口由本地实现，然后注册到系统中。 主要的JNI代码放在以下的路径中：frameworks/base/core/jni/，这个路径中的内容被编译成库 libandroid_runtime &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2016/04/05/learn_jni_1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">深入了解android平台的jni(一)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-04-05T18:21:11+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>&#160; &#160; &#160; &#160;android中很多Java类都具有native接口，这些接口由本地实现，然后注册到系统中。   <br/>
+主要的JNI代码放在以下的路径中：frameworks/base/core/jni/，这个路径中的内容被编译成库 libandroid_runtime.so，被放置在目标系统的/system/lib目录下。此外，android还有其他的 JNI库。JNI中的各个文件，实际上就是普通的C++源文件.
+如果要深入了解android framework层，则必须Android Native层运行及开发机制.
+这里先介绍一些native的基础知识</p>
+
+<!--more-->
+
+
+<h4>1、接口定义</h4>
+
+<p>&#160; &#160; &#160; &#160;_JNIEnv定义了一个虚拟机的接口，通过这个接口可以访问虚拟机的所有功能：
+1)分配对象（AllocObject/NewObject），并且控制对象的引用计数（NewGlobalRef/DeleteGlobalRef/DeleteLocalRef/IsSameObject/NewLocalRef）。
+2)获取类的定义（FindClass），并通过类的定义来获取获取类得方法和成员的ID（GetMethodID/GetFieldID）
+3)通过方法ID调用类的普通方法（CallObjectMethod）和静态方法（CallStaticObjectMethod）
+4)通过成员ID获取和设置类的普通成员（GetObjectField/SetObjectField）和静态成员（GetStaticObjectField/SetStaticObjectField）</p>
+
+<p>下面是比较常用的方法：</p>
+
+<h6>1.1查找该类：</h6>
+
+<p>   jclass xxx = (*env)->FindClass(env, &ldquo;Lclass_name;&rdquo;);</p>
+
+<h6>1.2取得方法的id：</h6>
+
+<p>   jmethodID xxx = (*env)->GetMethodID(env, jclass, methodName, &ldquo;(M)N&rdquo;);</p>
+
+<h6>1.3查找需要调用的该类的方法：</h6>
+
+<p>   jmethodID xxx = (*env)->GetMethodID(env, jclass, &ldquo;(M)N&rdquo; );</p>
+
+<h6>1.4取得静态方法的id</h6>
+
+<p>   jmethodID  xxx = (*env)->GetStaticMethodID(env,jclass, methodName,&ldquo;(M)N&rdquo;)</p>
+
+<h6>1.5初始化该类的实例：</h6>
+
+<p>   jobject xxx = (*env)->NewObject(env, jclass, jmethodID );</p>
+
+<h6>1.6调用实例的某方法：</h6>
+
+<p>   (*env)->CallObjectMethod(env, jobject, jmethodID, [parameter1, parameter2,&hellip;] );</p>
+
+<h6>1.7释放实例：</h6>
+
+<p>   (*env)->DeleteLocalRef(env, xxx);</p>
+
+<h6>1.8取得成员变量的id</h6>
+
+<p>   jfieldID xxx = (*env)->GetFieldID(env,jclass ,jfieldID,jfieldType)</p>
+
+<h6>1.9取得静态成员变量的id</h6>
+
+<p>   jfieldID xxx = GetStaticFieldID(env,jclass ,jfieldID,jfieldType)
+JNIENV - java的运行环境
+jobject - 代表java的instance
+jclass - 代表java的类</p>
+
+<h4>2、函数与属性签名</h4>
+
+<p>&#160; &#160; &#160; &#160;在GetMethodID和GetFieldID这两个函数中，最后一个参数都是签名字符串，用来标示java函数和成员的唯一性。
+因为java中存在重载函数，所以一个函数名不足以唯一指定一个函数，这时候就需要签名字符串来指定函数的参数列表和返回值类型了。
+函数签名是一个字符串："(M)N"
+括号中的内容是函数的参数类型，括号后面表示函数的返回值。</p>
+
+<h4>3、JNI 类型签名</h4>
+
+<p>&#160; &#160; &#160; &#160;&ldquo;(M)N&rdquo;,这里的M和N指的是该函数的输入和输出参数的类型签名(Type Signature)。
+具体的每一个字符的对应关系如下:</p>
+
+<h6>字符&ndash;Java类型&ndash;C类型</h6>
+
+<h6>V&ndash;void&ndash;void</h6>
+
+<h6>Z&ndash;jboolean&ndash;boolean</h6>
+
+<h6>I&ndash;jint&ndash;int</h6>
+
+<h6>J&ndash;jlong&ndash;long</h6>
+
+<h6>D&ndash;jdouble&ndash;double</h6>
+
+<h6>F&ndash;jfloat&ndash;float</h6>
+
+<h6>B&ndash;jbyte&ndash;byte</h6>
+
+<h6>C&ndash;jchar&ndash;char</h6>
+
+<h6>S&ndash;jshort&ndash;short</h6>
+
+<p>数组则以”[&ldquo;开始，用两个字符表示</p>
+
+<h6>[I&ndash;jintArray&ndash;int[]</h6>
+
+<h6>[F&ndash;jfloatArray&ndash;float[]</h6>
+
+<h6>[B&ndash;jbyteArray&ndash;byte[]</h6>
+
+<h6>[C&ndash;jcharArray&ndash;char[]</h6>
+
+<h6>[S&ndash;jshortArray&ndash;short[]</h6>
+
+<h6>[D&ndash;jdoubleArray&ndash;double[]</h6>
+
+<h6>[J&ndash;jlongArray&ndash;long[]</h6>
+
+<h6>[Z&ndash;jbooleanArray&ndash;boolean[]</h6>
+
+<p>&#160; &#160; &#160; &#160;如果Java函数的参数是class，则以”L”开头，以”;”结尾，中间是用”/” 隔开的包及类名。而其对应的C函数名的参数则为jobject</p>
+
+<p>一个例外是String类，其对应的类为jstring</p>
+
+<p>Ljava/lang/String; String jstring</p>
+
+<p>Ljava/net/Socket; Socket jobject</p>
+
+<p>如果JAVA函数位于一个嵌入类，则用$作为类名间的分隔符。
+例如 “(Ljava/lang/String;Landroid/os/FileUtils$FileStatus;)Z”
+举例说明"(M)N"的含义，例如：</p>
+
+<p>(I)V   带一个int 类型的参数，返回值类型为void</p>
+
+<p>()D     没有参数，返回double</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-04-05T18:21:11+08:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>6:21 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/jni/'>jni</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/24/android_reverse_engineering/" title="Previous Post: android程序逆向工程">&laquo; android程序逆向工程</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2016/04/09/learn_jni_2/" title="Next Post: 深入了解android平台的jni(二)">深入了解android平台的jni(二) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2016/04/05/learn_jni_1" data-title="深入了解android平台的jni(一)" data-url="http://chendd.github.io/blog/2016/04/05/learn_jni_1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/23/android_oom/">Android中的内存管理和正确的使用方式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/11/android_mvp_rxandroid/">MVP模式和RxAndroid结合例子</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 98%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 123%" href="/tags/c/">c</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 98%" href="/tags/hook/">hook</a>
+<a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 123%" href="/tags/jni/">jni</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 98%" href="/tags/other/">other</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 98%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/jni/'>jni (5)</a></li>
+<li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2017 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

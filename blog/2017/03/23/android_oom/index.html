@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android中的内存管理和正确的使用方式 - Chendd's Blog</title>
+  <meta name="author" content="chendd">
+
+  
+  <meta name="description" content="概述 &#160; &#160; &#160; &#160;从操作系统的角度来说，内存就是一块数据存储区域，属于可被操作系统调度的资源。现代多任务（进程）的操作系统中，内存管理尤为重要，操作系统需要为每一个进程合理的分配内存资源，所以可以从两方面来理解操作系统的内存管理机制。 第一：分配机制。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chendd.github.io/blog/2017/03/23/android_oom/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chendd's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script>
+  function addBlankTargetForLinks () {
+    $('a[href^="http"]').each(function(){
+      $(this).attr('target', '_blank');
+    });
+  }
+  $(document).bind('DOMNodeInserted', function(event) {
+    addBlankTargetForLinks();
+  });
+</script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chendd's Blog</a></h1>
+  
+    <h2>世界上没有什么事情是一行代码不能解决的。如果有，那就两行。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://cn.bing.com/" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chendd.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/aboutme">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android中的内存管理和正确的使用方式</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2017-03-23T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2017</span></span> <span class='time'>9:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>概述</h2>
+
+<p>&#160; &#160; &#160; &#160;从操作系统的角度来说，内存就是一块数据存储区域，属于可被操作系统调度的资源。现代多任务（进程）的操作系统中，内存管理尤为重要，操作系统需要为每一个进程合理的分配内存资源，所以可以从两方面来理解操作系统的内存管理机制。</p>
+
+<p>第一：分配机制。为每一个进程分配一个合理的内存大小，保证每一个进程能够正常的运行，不至于内存不够使用或者每个进程占用太多的内存。</p>
+
+<p>第二：回收机制。在系统内存不足打的时候，需要有一个合理的回收再分配的机制，以保证新的进程可以正常运行。回收的时候就要杀死那些正在占有内存的进程，操作系统需要提供一个合理的杀死这些进程的机制，以保证更少的副作用。</p>
+
+<p>而作为一个多进程的操作系统，Android系统对内存的管理，也是有一套自己的方法的。跟PC不一样的是，Android作为一个移动操作系统，一般情况下，内存资源会比PC更少，所以就需要更加谨慎的管理内存。</p>
+
+<!--more-->
+
+
+<h2>Android中的内存管理机制</h2>
+
+<h4>分配机制</h4>
+
+<p>&#160; &#160; &#160; &#160;Android为每个进程分配内存的时候，采用了弹性的分配方式，也就是刚开始并不会一下分配很多内存给每个进程，而是给每一个进程分配一个“够用”的量。这个量是根据每一个设备实际的物理内存大小来决定的。随着应用的运行，可能会发现当前的内存可能不够使用了，这时候Android又会为每个进程分配一些额外的内存大小。但是这些额外的大小并不是随意的，也是有限度的，系统不可能为每一个App分配无限大小的内除。</p>
+
+<p>&#160; &#160; &#160; &#160;Android系统的宗旨是最大限度的让更多的进程存活在内存中，因为这样的话，下一次用户再启动应用，不需要重新创建进程，只需要恢复已有的进程就可以了，减少了应用的启动时间，提高了用户体验。</p>
+
+<h4>回收机制</h4>
+
+<p>&#160; &#160; &#160; &#160;Android对内存的使用方式是“尽最大限度的使用”，这一点继承了Linux的优点。Android会在内存中保存尽可能多的数据，即使有些进程不再使用了，但是它的数据还被存储在内存中，所以Android现在不推荐显式的“退出”应用。因为这样，当用户下次再启动应用的时候，只需要恢复当前进程就可以了，不需要重新创建进程，这样就可以减少应用的启动时间。只有当Android系统发现内存不够使用，需要回收内存的时候，Android系统就会需要杀死其他进程，来回收足够的内存。但是Android也不是随便杀死一个进程，比如说一个正在与用户交互的进程，这种后果是可怕的。所以Android会有限清理那些已经不再使用的进程，以保证最小的副作用。</p>
+
+<p>Android杀死进程有两个参考条件：</p>
+
+<p>进程优先级：</p>
+
+<p>Android为每一个进程分配了优先级的概念，优先级越低的进程，被杀死的概率就更大。Android中总共有5个进程优先级。具体含义这里不再给出。</p>
+
+<p>前台进程：正常不会被杀死</p>
+
+<p>可见进程：正常不会被杀死</p>
+
+<p>服务进程：正常不会被杀死</p>
+
+<p>后台进程：存放于一个LRU缓存列表中，先杀死处于列表尾部的进程</p>
+
+<p>空进程：正常情况下，为了平衡系统整体性能，Android不保存这些进程</p>
+
+<p>回收收益：</p>
+
+<p>&#160; &#160; &#160; &#160;当Android系统开始杀死LRU缓存中的进程时，系统会判断每个进程杀死后带来的回收收益。因为Android总是倾向于杀死一个能回收更多内存的进程，从而可以杀死更少的进程，来获取更多的内存。杀死的进程越少，对用户体验的影响就越小。</p>
+
+<h2>官方推荐的App内存使用方式是什么样的？</h2>
+
+<ul>
+<li>1、当Service完成任务后，尽量停止它。</li>
+</ul>
+
+
+<p>因为有Service组件的进程，优先级最低也是服务进程，这会影响到系统的内存回收。IntentService可以很好地完成这个任务。</p>
+
+<ul>
+<li>2、在UI不可见的时候，释放掉一些只有UI使用的资源。</li>
+</ul>
+
+
+<p>系统会根据onTrimMemory()回调方法的TRIM_MEMORY_UI_HIDDEN等级的事件，来通知App UI已经隐藏了。</p>
+
+<ul>
+<li>3、在系统内存紧张的时候，尽可能多的释放掉一些非重要资源。</li>
+</ul>
+
+
+<p>系统会根据onTrimMemory()回调方法来通知内存紧张的状态，App应该根据不同的内存紧张等级，来合理的释放资源，以保证系统能够回收更多内存。当系统回收到足够多的内存时，就不用杀死进程了。</p>
+
+<ul>
+<li>4、检查自己最大可用的内存大小。</li>
+</ul>
+
+
+<p>这对一些缓存框架很有用，因为正常情况下，缓存框架的缓存池大小应当指定为最大内存的百分比，这样才能更好地适配更多的设备。通过getMemoryClass()和getLargeMemoryClass()来获取可用内存大小的信息。</p>
+
+<ul>
+<li>5、避免滥用Bitmap导致的内存浪费。</li>
+</ul>
+
+
+<p>根据当前设备的分辨率来压缩Bitmap是一个不错的选择，在使用完Bitmap后，记得要使用recycle()来释放掉Bitmap。使用软引用或者弱引用来引用一个Bitmap，使用LRU缓存来对Bitmap进行缓存。</p>
+
+<ul>
+<li>6、使用针对内存优化过的数据容器。</li>
+</ul>
+
+
+<p>针对移动设备内存有限的问题，Android提供了一套针对内存优化过的数据容器，来替代JDK原生提供的数据容器。但是缺点就是，时间复杂度被提高了。比如SparseArray、SparseBooleanArray、LongSparseArray、</p>
+
+<ul>
+<li>7、意识到内存的过度消耗。</li>
+</ul>
+
+
+<p>Enum类型占用的内存是常量的两倍多，所以避免使用enum，直接使用常量。</p>
+
+<p>每一个Java的类（包括匿名内部类）都需要500Byte的代码。</p>
+
+<p>每一个类的实例都有12-16 Byte的额外内存消耗。</p>
+
+<p>注意类似于HashMap这种，内部还需要生成Class的数据容器，这会消耗更多内存。</p>
+
+<ul>
+<li>8、抽象代码也会带来更多的内存消耗。</li>
+</ul>
+
+
+<p>如果你的“抽象”设计实际上并没有带来多大好处，那么就不要使用它。</p>
+
+<ul>
+<li>9、使用nano protobufs 来序列化数据。</li>
+</ul>
+
+
+<p>Google设计的一个语言和平台中立打的序列化协议，比XML更快、更小、更简单。</p>
+
+<ul>
+<li>10、避免使用依赖注入的框架。</li>
+</ul>
+
+
+<p>依赖注入的框架需要开启额外的服务，来扫描App中代码的Annotation，所以需要额外的系统资源。</p>
+
+<ul>
+<li>11、使用ZIP对齐的APK。</li>
+</ul>
+
+
+<p>对APK做Zip对齐，会压缩其内部的资源，运行时会占用更少的内存。</p>
+
+<ul>
+<li>12、使用多进程。</li>
+</ul>
+
+
+<h2>一个符合Android内存管理机制的App应该是什么样的？</h2>
+
+<p>一个遵循Android内存管理机制的App。应该具有如下几个特点：</p>
+
+<ul>
+<li><p>1、更少的占用内存。</p></li>
+<li><p>2、在合适的时候，合理的释放系统资源。</p></li>
+<li><p>3、在系统内存紧张的情况下，能释放掉大部分不重要的资源，来为Android系统提供可用的内存。</p></li>
+<li><p>4、能够很合理的在特殊生命周期中，保存或者还原重要数据，以至于系统能够正确的重新恢复该应用。</p></li>
+</ul>
+
+
+<h2>App为什么要符合该内存管理机制？这样做有什么好处？</h2>
+
+<p>&#160; &#160; &#160; &#160;一个遵循Android的内存管理机制的App，在Android系统中，就是一个好的公民，那么系统自然是倾向于保护这些良民，而去杀死那些素质不高的人。所以符合Android内存管理机制，对Android系统和App来说，是一个双赢的过程。如果每一个App都遵循这种规则，那么Android系统就会更加流畅，也会带来更好的体验，而App可以更长时间的驻留于内存中。</p>
+
+<p>在这种管理方式下，如何编写符合Android内存管理机制的App？
+主要是参考官方推荐的内存使用方式，来设计和编写App。</p>
+
+<p>避免创建不必要的对象。</p>
+
+<p>在合适的生命周期中，合理的管理资源。</p>
+
+<p>在系统内存不足时，主动释放更多的资源。</p>
+
+<p>编写Android应用时，如何更少的使用内存资源？
+避免创建不需要的对象。</p>
+
+<p>比如使用StringBuffer来代替很多个String相加的操作。</p>
+
+<p>使用原始类型来代替包装类型，int比Integer占用更少的资源。</p>
+
+<p>两个并行的属性数组，优于一个包含这两个属性的对象的数组。这个在设计数据容器的时候会有意义，比如类A有两个属性A(int, String)，使用 int[] 和 String[] 优于 A[]。</p>
+
+<p>使用常量代替enum。</p>
+
+<p>少用包装类，能够使用原始类型的，就使用原始类型。</p>
+
+<h2>App如果真的需要很多内存怎么办？</h2>
+
+<h4>多进程</h4>
+
+<p>&#160; &#160; &#160; &#160;把消耗内存过大的模块，或者需要长期在后台运行的模块，移入到单独的进程中运行。Android会为每一个进程单独分配内存，所以理论上App就可以使用到更多的内存。但是多进程是一把双刃剑，错误的使用，会带来其他很多的问题，这里不再详细谈这个话题。</p>
+
+<h4>申请大内存</h4>
+
+<p>&#160; &#160; &#160; &#160;在<application>标签中，把largeHeap设置为true，Android系统会为该应用额外分配内存。但是不要滥用这个方法。如果一个App真的需要大内存，比如需要打开很多大图片的应用，可以使用这种方式。千万不要因为OOM而使用这种方法，这个时候更应该去检查App的代码是否不合理。</p>
+
+<h2>开发人员应该注意的App内存管理方式？</h2>
+
+<h4>内存溢出</h4>
+
+<p>&#160; &#160; &#160; &#160;内存溢出，就是OOM，也就是内存不够用了。有一个典型的例子就是加载了很多没有经过压缩的Bitmap到内存中，这些Bitmap很大，但是又真的在被使用，必须要在内存中，所以这个时候内存就不够用了。这个时候，App再申请更多内存的时候就不行了，系统会抛出OOM。</p>
+
+<p>&#160; &#160; &#160; &#160;解决这种问题：1、减少每个对象占用的内存，比如压缩图片。2、申请大内存。</p>
+
+<h4>内存泄露</h4>
+
+<p>&#160; &#160; &#160; &#160;内存泄露，就是Memory Leak，也就是本来该被GC回收后还给系统的内存，并没有被GC。多数是因为不合理的对象引用，当一个对象不再使用的时候，由于代码问题，没有正确的释放引用，就导致了内存泄露。</p>
+
+<p>&#160; &#160; &#160; &#160;解决这种问题：1、通过各种内存分析工具，比如MAT，分析运行时的内存映像文件，找出造成内存泄露的代码，然后修改掉。2、适当的使用WeakReference。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">chendd</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2017-03-23T21:32:12+08:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2017</span></span> <span class='time'>9:32 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>
+  
+</span>
+
+
+      
+<DIV style="font-size:13px;BORDER-BOTTOM: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 100px; BORDER-TOP: #d8d8d8 1px solid; BORDER-RIGHT: #d8d8d8 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://tva4.sinaimg.cn/crop.0.0.180.180.180/649f2eb4jw1e8qgp5bmzyj2050050aa8.jpg" width=80 height=80></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="https://github.com/chendd/">chendd</A> <BR> 
+出处： <A href="http://chendd.github.io/">http://chendd.com/</A> 
+<BR>转载请注明作者和文章出处，欢迎大家多多评论交流，谢谢！</DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2017/01/11/android_mvp_rxandroid/" title="Previous Post: MVP模式和RxAndroid结合例子">&laquo; MVP模式和RxAndroid结合例子</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/blog/2017/03/23/android_oom" data-title="Android中的内存管理和正确的使用方式" data-url="http://chendd.github.io/blog/2017/03/23/android_oom/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"chendd"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/03/23/android_oom/">Android中的内存管理和正确的使用方式</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/11/android_mvp_rxandroid/">MVP模式和RxAndroid结合例子</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/about_wechat_littleapp/">关于微信小程序的一些看法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/17/advanced_xposed/">Android Hook框架Xposed进阶</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/05/15/learn_xposed/">Android Hook框架Xposed入门</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+  <h1>Tags</h1>
+  <ul class="tag-cloud">
+<a style="font-size: 80%" href="/tags/bitmap/">BitMap</a>
+<a style="font-size: 80%" href="/tags/canvas/">Canvas</a>
+<a style="font-size: 80%" href="/tags/contentprovide/">ContentProvide</a>
+<a style="font-size: 80%" href="/tags/dialog/">Dialog</a>
+<a style="font-size: 80%" href="/tags/file/">File</a>
+<a style="font-size: 80%" href="/tags/gallery/">Gallery</a>
+<a style="font-size: 80%" href="/tags/gridview/">GridView</a>
+<a style="font-size: 80%" href="/tags/listview/">ListView</a>
+<a style="font-size: 98%" href="/tags/octopress/">Octopress</a>
+<a style="font-size: 80%" href="/tags/paint/">Paint</a>
+<a style="font-size: 80%" href="/tags/sqlite/">SQLite</a>
+<a style="font-size: 80%" href="/tags/sharedpreference/">SharedPreference</a>
+<a style="font-size: 80%" href="/tags/surfaceview/">SurfaceView</a>
+<a style="font-size: 80%" href="/tags/view/">View</a>
+<a style="font-size: 80%" href="/tags/webview/">WebView</a>
+<a style="font-size: 180%" href="/tags/android/">android</a>
+<a style="font-size: 123%" href="/tags/c/">c</a>
+<a style="font-size: 80%" href="/tags/checkbox/">checkbox</a>
+<a style="font-size: 98%" href="/tags/hook/">hook</a>
+<a style="font-size: 109%" href="/tags/java/">java</a>
+<a style="font-size: 123%" href="/tags/jni/">jni</a>
+<a style="font-size: 80%" href="/tags/layout/">layout</a>
+<a style="font-size: 80%" href="/tags/net/">net</a>
+<a style="font-size: 98%" href="/tags/other/">other</a>
+<a style="font-size: 80%" href="/tags/progressbar/">progressbar</a>
+<a style="font-size: 80%" href="/tags/radiobutton/">radiobutton</a>
+<a style="font-size: 80%" href="/tags/seekbar/">seekbar</a>
+<a style="font-size: 80%" href="/tags/tabhost/">tabHost</a>
+<a style="font-size: 80%" href="/tags/tabspec/">tabSpec</a>
+<a style="font-size: 98%" href="/tags/xposed/">xposed</a>
+
+  </ul>
+</section><section>
+  <h1>Categories</h1>
+  <ul id="categories">
+    <li class='category'><a href='/blog/categories/android/'>android (2)</a></li>
+<li class='category'><a href='/blog/categories/android-study/'>android_study (39)</a></li>
+<li class='category'><a href='/blog/categories/blog/'>blog (2)</a></li>
+<li class='category'><a href='/blog/categories/git/'>git (1)</a></li>
+<li class='category'><a href='/blog/categories/java/'>java (3)</a></li>
+<li class='category'><a href='/blog/categories/jni/'>jni (5)</a></li>
+<li class='category'><a href='/blog/categories/other/'>other (3)</a></li>
+<li class='category'><a href='/blog/categories/xposed/'>xposed (2)</a></li>
+
+  </ul>
+</section>
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><!--返回顶部开始-->
+<div id="full" style="width:0px; height:0px; position:fixed; right:100px; bottom:100px; z-index:100; text-align:center; background-color:transparent; cursor:pointer;">
+	<a href="#" onclick="goTop();return false;"><img src="/images/top.png" border=0 alt="返回顶部"></a>
+</div>
+<script src="/javascripts/top.js" type="text/javascript"></script>
+<!--返回顶部结束-->
+<p>
+  Copyright &copy; 2012~2017 - chendd -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1260012721'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1260012721%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
